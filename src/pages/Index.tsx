@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import Hero from '../components/Hero';
 import CardSection from '../components/CardSection';
@@ -6,6 +5,9 @@ import Featured from '../components/Featured';
 import Newsletter from '../components/Newsletter';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import EventCalendar from '../components/EventCalendar';
+import BusinessDirectory from '../components/BusinessDirectory';
+import LocalServices from '../components/LocalServices';
 
 // Sample data for our sections
 const cardItems = [
@@ -71,8 +73,8 @@ const Index = () => {
       
       {/* Hero Section */}
       <Hero 
-        title="Discover Playa Venao"
-        subtitle="Your comprehensive guide to Panama's surf paradise"
+        title="Discover Playa Cambutal"
+        subtitle="Your comprehensive guide to Panama's hidden paradise"
         imageSrc="https://images.unsplash.com/photo-1506929562872-bb421503ef21?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
       
@@ -100,7 +102,28 @@ const Index = () => {
         bgColor="bg-gray-50"
       />
       
-      {/* Featured Section */}
+      {/* Calendar Section */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <EventCalendar />
+        </div>
+      </section>
+
+      {/* Business Directory Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <BusinessDirectory />
+        </div>
+      </section>
+
+      {/* Local Services Section */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <LocalServices />
+        </div>
+      </section>
+      
+      {/* Featured Sections */}
       <Featured 
         title="Perfect Waves Year Round"
         description="Playa Venao offers consistent surf conditions throughout the year, making it an ideal destination for surfers of all levels. With a variety of breaks and waves ranging from gentle rollers to powerful point breaks, there's something for everyone. Local surf schools provide lessons and equipment rentals for beginners, while experienced surfers can find challenging waves, especially during the swell season from March to November."
