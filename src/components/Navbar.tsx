@@ -20,7 +20,7 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = ['Eat', 'Stay', 'Surf', 'Do', 'Transportation', 'Real Estate', 'Legal'];
+  const navItems = ['Eat', 'Stay', 'Adventure', 'Transportation', 'Real Estate', 'Legal'];
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
