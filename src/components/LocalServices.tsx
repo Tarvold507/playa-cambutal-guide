@@ -1,11 +1,11 @@
 
-import { Wrench, FirstAid, Waves, Car, ShieldCheck, School } from "lucide-react"
+import { Wrench, Stethoscope, Waves, Car, ShieldCheck, School } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const services = [
   {
     name: "Emergency Services",
-    icon: FirstAid,
+    icon: Stethoscope,
     details: "Local clinic and emergency contacts"
   },
   {
