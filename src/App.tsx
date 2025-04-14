@@ -10,6 +10,8 @@ import Stay from "./pages/Stay";
 import Surf from "./pages/Surf";
 import Do from "./pages/Do";
 import Transportation from "./pages/Transportation";
+import RealEstate from "./pages/RealEstate";
+import Legal from "./pages/Legal";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
@@ -29,9 +31,10 @@ const App = () => (
           <Route path="/surf" element={<Surf />} />
           <Route path="/do" element={<Do />} />
           <Route path="/transportation" element={<Transportation />} />
+          <Route path="/real-estate" element={<RealEstate />} />
+          <Route path="/legal" element={<Legal />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
