@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -20,7 +19,7 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = ['Eat', 'Stay', 'Adventure', 'Transportation', 'Real Estate', 'Legal'];
+  const navItems = ['Eat', 'Stay', 'Events', 'Adventure', 'Info'];
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${

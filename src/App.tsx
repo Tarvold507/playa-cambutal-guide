@@ -7,12 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Eat from "./pages/Eat";
 import Stay from "./pages/Stay";
+import Events from "./pages/Events";
 import Adventure from "./pages/Adventure";
-import Transportation from "./pages/Transportation";
-import RealEstate from "./pages/RealEstate";
-import Legal from "./pages/Legal";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
+import Info from "./pages/Info";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,12 +24,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/eat" element={<Eat />} />
           <Route path="/stay" element={<Stay />} />
+          <Route path="/events" element={<Events />} />
           <Route path="/adventure" element={<Adventure />} />
-          <Route path="/transportation" element={<Transportation />} />
-          <Route path="/real-estate" element={<RealEstate />} />
-          <Route path="/legal" element={<Legal />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
+          <Route path="/info" element={<Info />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
