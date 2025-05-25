@@ -83,13 +83,17 @@ const EventCalendar = () => {
     }
   ]
 
-  // Combine real events with demo events for now
-  const allEvents = [...demoEvents, ...events.map(event => ({
-    ...event,
-    date: parseISO(event.event_date),
-    fullDescription: event.full_description,
-    type: "social" // Default type for database events
-  }))]
+  // Combine real events with demo events and normalize the image property
+  const allEvents = [
+    ...demoEvents, 
+    ...events.map(event => ({
+      ...event,
+      date: parseISO(event.event_date),
+      fullDescription: event.full_description,
+      image: event.image_url || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80", // Default image
+      type: "social" // Default type for database events
+    }))
+  ]
 
   // Filter events based on selected criteria
   const filteredEvents = React.useMemo(() => {
