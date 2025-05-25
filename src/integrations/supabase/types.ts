@@ -124,12 +124,14 @@ export type Database = {
           approved_by: string | null
           created_at: string | null
           description: string | null
+          end_time: string | null
           event_date: string
           full_description: string | null
           host: string
           id: string
           image_url: string | null
           location: string
+          start_time: string | null
           title: string
           updated_at: string | null
           user_id: string
@@ -140,12 +142,14 @@ export type Database = {
           approved_by?: string | null
           created_at?: string | null
           description?: string | null
+          end_time?: string | null
           event_date: string
           full_description?: string | null
           host: string
           id?: string
           image_url?: string | null
           location: string
+          start_time?: string | null
           title: string
           updated_at?: string | null
           user_id: string
@@ -156,12 +160,14 @@ export type Database = {
           approved_by?: string | null
           created_at?: string | null
           description?: string | null
+          end_time?: string | null
           event_date?: string
           full_description?: string | null
           host?: string
           id?: string
           image_url?: string | null
           location?: string
+          start_time?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string
@@ -215,6 +221,35 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Relationships: []
+      }
+      user_event_reminders: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_event_reminders_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

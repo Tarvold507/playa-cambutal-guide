@@ -1,0 +1,404 @@
+
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+const AdminDashboard = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [pendingEvents, setPendingEvents] = useState([]);
+  const [pendingBusinesses, setPendingBusinesses] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({});
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    // Check if user is admin (you might want to implement this check)
+    checkAdminStatus();
+    fetchPendingItems();
+  }, [user, navigate]);
+
+  const checkAdminStatus = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!userRole || userRole.role !== 'admin') {
+        navigate('/');
+        toast({
+          title: "Access Denied",
+          description: "You don't have permission to access this page.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      navigate('/');
+    }
+  };
+
+  const fetchPendingItems = async () => {
+    try {
+      // Fetch pending events
+      const { data: events } = await supabase
+        .from('events')
+        .select(`
+          *,
+          profiles (name, email)
+        `)
+        .eq('approved', false)
+        .order('created_at', { ascending: false });
+
+      // Fetch pending business listings
+      const { data: businesses } = await supabase
+        .from('business_listings')
+        .select(`
+          *,
+          profiles (name, email)
+        `)
+        .eq('approved', false)
+        .order('created_at', { ascending: false });
+
+      setPendingEvents(events || []);
+      setPendingBusinesses(businesses || []);
+    } catch (error) {
+      console.error('Error fetching pending items:', error);
+    }
+  };
+
+  const handleApprove = async (type: 'events' | 'business_listings', id: string) => {
+    try {
+      const { error } = await supabase
+        .from(type)
+        .update({ 
+          approved: true, 
+          approved_by: user?.id,
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Item approved",
+        description: `The ${type.slice(0, -1)} has been approved successfully.`,
+      });
+
+      fetchPendingItems();
+    } catch (error) {
+      console.error('Error approving item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve item. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReject = async (type: 'events' | 'business_listings', id: string) => {
+    try {
+      const { error } = await supabase
+        .from(type)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Item rejected",
+        description: `The ${type.slice(0, -1)} has been rejected and removed.`,
+      });
+
+      fetchPendingItems();
+    } catch (error) {
+      console.error('Error rejecting item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reject item. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (item: any, type: string) => {
+    setSelectedItem(item);
+    setEditForm({ ...item, type });
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedItem || !editForm) return;
+
+    try {
+      const { type, ...updateData } = editForm;
+      const { error } = await supabase
+        .from(type === 'event' ? 'events' : 'business_listings')
+        .update(updateData)
+        .eq('id', selectedItem.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Item updated",
+        description: "The item has been updated successfully.",
+      });
+
+      setIsEditing(false);
+      setSelectedItem(null);
+      fetchPendingItems();
+    } catch (error) {
+      console.error('Error updating item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update item. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (!user) return null;
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Navbar />
+      
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+        
+        <Tabs defaultValue="events" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="events">Pending Events ({pendingEvents.length})</TabsTrigger>
+            <TabsTrigger value="businesses">Pending Businesses ({pendingBusinesses.length})</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="events">
+            <div className="space-y-4">
+              {pendingEvents.length === 0 ? (
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground">No pending events to review.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                pendingEvents.map((event: any) => (
+                  <Card key={event.id}>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle>{event.title}</CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            Submitted by: {event.profiles?.name} ({event.profiles?.email})
+                          </p>
+                        </div>
+                        <Badge variant="secondary">Pending</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2 mb-4">
+                        <p><strong>Date:</strong> {new Date(event.event_date).toLocaleDateString()}</p>
+                        <p><strong>Location:</strong> {event.location}</p>
+                        <p><strong>Host:</strong> {event.host}</p>
+                        <p><strong>Description:</strong> {event.description}</p>
+                        {event.full_description && (
+                          <p><strong>Full Description:</strong> {event.full_description}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => handleApprove('events', event.id)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          Approve
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={() => handleEdit(event, 'event')}
+                        >
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="destructive"
+                          onClick={() => handleReject('events', event.id)}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="businesses">
+            <div className="space-y-4">
+              {pendingBusinesses.length === 0 ? (
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-muted-foreground">No pending business listings to review.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                pendingBusinesses.map((business: any) => (
+                  <Card key={business.id}>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle>{business.name}</CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            Submitted by: {business.profiles?.name} ({business.profiles?.email})
+                          </p>
+                        </div>
+                        <Badge variant="secondary">Pending</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2 mb-4">
+                        <p><strong>Category:</strong> {business.category}</p>
+                        <p><strong>Address:</strong> {business.address}</p>
+                        <p><strong>Phone:</strong> {business.phone || 'N/A'}</p>
+                        <p><strong>Email:</strong> {business.email || 'N/A'}</p>
+                        <p><strong>Website:</strong> {business.website || 'N/A'}</p>
+                        <p><strong>Description:</strong> {business.description}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => handleApprove('business_listings', business.id)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          Approve
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={() => handleEdit(business, 'business')}
+                        >
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="destructive"
+                          onClick={() => handleReject('business_listings', business.id)}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Edit Dialog */}
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit {editForm.type === 'event' ? 'Event' : 'Business Listing'}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {editForm.type === 'event' ? (
+                <>
+                  <div>
+                    <Label htmlFor="edit-title">Title</Label>
+                    <Input
+                      id="edit-title"
+                      value={editForm.title || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-location">Location</Label>
+                    <Input
+                      id="edit-location"
+                      value={editForm.location || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-host">Host</Label>
+                    <Input
+                      id="edit-host"
+                      value={editForm.host || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, host: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-description">Description</Label>
+                    <Textarea
+                      id="edit-description"
+                      value={editForm.description || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <Label htmlFor="edit-name">Business Name</Label>
+                    <Input
+                      id="edit-name"
+                      value={editForm.name || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-category">Category</Label>
+                    <Input
+                      id="edit-category"
+                      value={editForm.category || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-address">Address</Label>
+                    <Input
+                      id="edit-address"
+                      value={editForm.address || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
+                    />
+                  </div>
+                </>
+              )}
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveEdit}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default AdminDashboard;

@@ -1,160 +1,182 @@
-
-import { useState, useEffect } from 'react';
-import { Menu, X, User, LogOut } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
+import { User, Settings, LogOut, Shield } from 'lucide-react';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { user, profile, signOut } = useAuth();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const navItems = ['Eat', 'Stay', 'Events', 'Adventure', 'Info'];
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
+    navigate('/');
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
-    }`}>
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <span className={`text-2xl font-bold ${isScrolled ? 'text-venao-dark' : 'text-white'}`}>
-              Cambutal Guide
-            </span>
+    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center py-4">
+          <Link to="/" className="text-2xl font-bold text-primary">
+            Playa Cambutal
           </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link 
-                to={`/${item.toLowerCase().replace(' ', '-')}`} 
-                key={item}
-                className={`${
-                  isScrolled ? 'text-gray-800 hover:text-venao' : 'text-white hover:text-venao-light'
-                } font-medium transition-colors`}
-              >
-                {item}
-              </Link>
-            ))}
-            
-            {/* Auth Section */}
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex space-x-8">
+            <Link to="/eat" className="text-gray-700 hover:text-primary transition-colors">
+              Eat
+            </Link>
+            <Link to="/stay" className="text-gray-700 hover:text-primary transition-colors">
+              Stay
+            </Link>
+            <Link to="/events" className="text-gray-700 hover:text-primary transition-colors">
+              Events
+            </Link>
+            <Link to="/adventure" className="text-gray-700 hover:text-primary transition-colors">
+              Adventure
+            </Link>
+            <Link to="/info" className="text-gray-700 hover:text-primary transition-colors">
+              Info
+            </Link>
+          </div>
+
+          {/* Auth Section */}
+          <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant={isScrolled ? "outline" : "secondary"} 
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
+                  <Button variant="ghost" className="flex items-center space-x-2">
                     <User className="h-4 w-4" />
-                    {profile?.name || 'Account'}
+                    <span>{profile?.name || user.email}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <span className="font-medium">{profile?.name}</span>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Admin Dashboard</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Link to="/auth">
-                <Button variant={isScrolled ? "default" : "secondary"} size="sm">
-                  Sign In
-                </Button>
+                <Button>Sign In</Button>
               </Link>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? (
-              <X className={`h-6 w-6 ${isScrolled ? 'text-gray-800' : 'text-white'}`} />
-            ) : (
-              <Menu className={`h-6 w-6 ${isScrolled ? 'text-gray-800' : 'text-white'}`} />
-            )}
-          </button>
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-gray-700 hover:text-primary focus:outline-none"
+            >
+              <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                {isOpen ? (
+                  <path d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white">
-          <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
-            {navItems.map((item) => (
+        {/* Mobile Navigation */}
+        {isOpen && (
+          <div className="md:hidden border-t border-gray-200 py-4">
+            <div className="flex flex-col space-y-4">
               <Link 
-                to={`/${item.toLowerCase().replace(' ', '-')}`} 
-                key={item}
-                className="text-gray-800 hover:text-venao font-medium transition-colors"
-                onClick={() => setIsMenuOpen(false)}
+                to="/eat" 
+                className="text-gray-700 hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
               >
-                {item}
+                Eat
               </Link>
-            ))}
-            
-            {/* Mobile Auth Section */}
-            {user ? (
-              <>
-                <div className="pt-4 border-t">
-                  <p className="text-gray-600 mb-2">Signed in as {profile?.name}</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleSignOut}
-                    className="w-full"
+              <Link 
+                to="/stay" 
+                className="text-gray-700 hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Stay
+              </Link>
+              <Link 
+                to="/events" 
+                className="text-gray-700 hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Events
+              </Link>
+              <Link 
+                to="/adventure" 
+                className="text-gray-700 hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Adventure
+              </Link>
+              <Link 
+                to="/info" 
+                className="text-gray-700 hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Info
+              </Link>
+              
+              {user ? (
+                <>
+                  <Link 
+                    to="/profile" 
+                    className="text-gray-700 hover:text-primary transition-colors"
+                    onClick={() => setIsOpen(false)}
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
+                    Profile
+                  </Link>
+                  <Link 
+                    to="/admin" 
+                    className="text-gray-700 hover:text-primary transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Admin Dashboard
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      handleSignOut();
+                      setIsOpen(false);
+                    }}
+                    className="text-left text-gray-700 hover:text-primary transition-colors"
+                  >
                     Sign Out
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <Link 
-                to="/auth" 
-                className="pt-4 border-t"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Button variant="default" size="sm" className="w-full">
+                  </button>
+                </>
+              ) : (
+                <Link 
+                  to="/auth" 
+                  className="text-gray-700 hover:text-primary transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
                   Sign In
-                </Button>
-              </Link>
-            )}
+                </Link>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </nav>
   );
 };

@@ -11,6 +11,8 @@ export interface Event {
   location: string;
   host: string;
   event_date: string;
+  start_time?: string;
+  end_time?: string;
   image_url?: string;
   approved: boolean;
   user_id: string;
@@ -71,9 +73,71 @@ export const useCreateEvent = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-events'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
       toast({
         title: "Event submitted!",
         description: "Your event is pending approval and will be visible once approved.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useEventReminders = () => {
+  return useQuery({
+    queryKey: ['event-reminders'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_event_reminders')
+        .select(`
+          id,
+          event_id,
+          events (
+            id,
+            title,
+            event_date,
+            location
+          )
+        `);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useCreateEventReminder = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (eventId: string) => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('user_event_reminders')
+        .insert({
+          user_id: user.user.id,
+          event_id: eventId,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['event-reminders'] });
+      toast({
+        title: "Reminder set!",
+        description: "You'll be notified before this event starts.",
       });
     },
     onError: (error: any) => {
