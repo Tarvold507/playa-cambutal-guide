@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -187,10 +188,22 @@ const AdminDashboard = () => {
     if (!selectedItem || !editForm.type) return;
 
     try {
-      const { type, ...updateData } = editForm;
+      const { type, profiles, ...updateData } = editForm;
+      
+      // Remove non-updatable fields that come from joined tables or are metadata
+      const fieldsToExclude = ['profiles', 'id', 'created_at', 'updated_at', 'approved_by', 'approved_at'];
+      const cleanUpdateData = Object.keys(updateData).reduce((acc, key) => {
+        if (!fieldsToExclude.includes(key)) {
+          acc[key] = updateData[key];
+        }
+        return acc;
+      }, {} as any);
+
+      console.log('Updating with clean data:', cleanUpdateData);
+
       const { error } = await supabase
         .from(type === 'event' ? 'events' : 'business_listings')
-        .update(updateData)
+        .update(cleanUpdateData)
         .eq('id', selectedItem.id);
 
       if (error) throw error;
