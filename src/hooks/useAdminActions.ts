@@ -60,7 +60,7 @@ export const useAdminActions = () => {
     try {
       console.log('Fetching pending items...');
       
-      // Remove the user_id filter to fetch ALL pending events, not just current user's
+      // Fetch ALL pending events, not just current user's
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select(`
@@ -71,15 +71,17 @@ export const useAdminActions = () => {
         .order('created_at', { ascending: false });
       
       console.log('Events query result:', { events, eventsError });
+      console.log('Number of pending events found:', events?.length || 0);
 
       if (eventsError) {
         console.error('Events error:', eventsError);
         setPendingEvents([]);
       } else {
+        console.log('Setting pending events:', events);
         setPendingEvents(events || []);
       }
 
-      // Remove the user_id filter to fetch ALL pending businesses, not just current user's
+      // Fetch ALL pending businesses, not just current user's
       const { data: businesses, error: businessError } = await supabase
         .from('business_listings')
         .select(`
@@ -90,11 +92,13 @@ export const useAdminActions = () => {
         .order('created_at', { ascending: false });
 
       console.log('Businesses query result:', { businesses, businessError });
+      console.log('Number of pending businesses found:', businesses?.length || 0);
 
       if (businessError) {
         console.error('Business error:', businessError);
         setPendingBusinesses([]);
       } else {
+        console.log('Setting pending businesses:', businesses);
         setPendingBusinesses(businesses || []);
       }
     } catch (error) {
