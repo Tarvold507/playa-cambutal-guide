@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -45,10 +44,12 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Check if user is admin (you might want to implement this check)
     checkAdminStatus();
-    fetchPendingItems();
   }, [user, navigate]);
+
+  useEffect(() => {
+    fetchPendingItems();
+  }, []);
 
   const checkAdminStatus = async () => {
     if (!user) return;
@@ -59,6 +60,8 @@ const AdminDashboard = () => {
         .select('role')
         .eq('user_id', user.id)
         .single();
+
+      console.log('User role check:', userRole);
 
       if (!userRole || userRole.role !== 'admin') {
         navigate('/');
@@ -76,8 +79,10 @@ const AdminDashboard = () => {
 
   const fetchPendingItems = async () => {
     try {
-      // Fetch pending events
-      const { data: events } = await supabase
+      console.log('Fetching pending items...');
+      
+      // Fetch ALL pending events (remove RLS temporarily for admin view)
+      const { data: events, error: eventsError } = await supabase
         .from('events')
         .select(`
           *,
@@ -86,8 +91,10 @@ const AdminDashboard = () => {
         .eq('approved', false)
         .order('created_at', { ascending: false });
 
-      // Fetch pending business listings
-      const { data: businesses } = await supabase
+      console.log('Events query result:', { events, eventsError });
+
+      // Fetch ALL pending business listings
+      const { data: businesses, error: businessError } = await supabase
         .from('business_listings')
         .select(`
           *,
@@ -95,6 +102,15 @@ const AdminDashboard = () => {
         `)
         .eq('approved', false)
         .order('created_at', { ascending: false });
+
+      console.log('Businesses query result:', { businesses, businessError });
+
+      if (eventsError) {
+        console.error('Events error:', eventsError);
+      }
+      if (businessError) {
+        console.error('Business error:', businessError);
+      }
 
       setPendingEvents(events || []);
       setPendingBusinesses(businesses || []);
@@ -225,7 +241,7 @@ const AdminDashboard = () => {
                         <div>
                           <CardTitle>{event.title}</CardTitle>
                           <p className="text-sm text-muted-foreground">
-                            Submitted by: {event.profiles?.name} ({event.profiles?.email})
+                            Submitted by: {event.profiles?.name || 'Unknown'} ({event.profiles?.email || 'No email'})
                           </p>
                         </div>
                         <Badge variant="secondary">Pending</Badge>
@@ -284,7 +300,7 @@ const AdminDashboard = () => {
                         <div>
                           <CardTitle>{business.name}</CardTitle>
                           <p className="text-sm text-muted-foreground">
-                            Submitted by: {business.profiles?.name} ({business.profiles?.email})
+                            Submitted by: {business.profiles?.name || 'Unknown'} ({business.profiles?.email || 'No email'})
                           </p>
                         </div>
                         <Badge variant="secondary">Pending</Badge>

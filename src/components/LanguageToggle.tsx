@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -8,15 +7,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Globe } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const LanguageToggle = () => {
-  const [language, setLanguage] = useState<'en' | 'es'>('en');
-
-  const toggleLanguage = (lang: 'en' | 'es') => {
-    setLanguage(lang);
-    // Store language preference in localStorage
-    localStorage.setItem('language', lang);
-  };
+  const { language, setLanguage } = useLanguage();
 
   return (
     <DropdownMenu>
@@ -27,10 +21,10 @@ const LanguageToggle = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => toggleLanguage('en')}>
+        <DropdownMenuItem onClick={() => setLanguage('en')}>
           English
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => toggleLanguage('es')}>
+        <DropdownMenuItem onClick={() => setLanguage('es')}>
           Español
         </DropdownMenuItem>
       </DropdownMenuContent>

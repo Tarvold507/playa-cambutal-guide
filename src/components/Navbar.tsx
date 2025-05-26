@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageToggle from './LanguageToggle';
 import {
   DropdownMenu,
@@ -16,6 +17,7 @@ import { User, Settings, LogOut, Shield } from 'lucide-react';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, profile, signOut } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -34,19 +36,19 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
             <Link to="/eat" className="text-gray-700 hover:text-primary transition-colors">
-              Eat
+              {t('nav.eat')}
             </Link>
             <Link to="/stay" className="text-gray-700 hover:text-primary transition-colors">
-              Stay
+              {t('nav.stay')}
             </Link>
             <Link to="/events" className="text-gray-700 hover:text-primary transition-colors">
-              Events
+              {t('nav.events')}
             </Link>
             <Link to="/adventure" className="text-gray-700 hover:text-primary transition-colors">
-              Adventure
+              {t('nav.adventure')}
             </Link>
             <Link to="/info" className="text-gray-700 hover:text-primary transition-colors">
-              Info
+              {t('nav.info')}
             </Link>
           </div>
 
@@ -64,22 +66,22 @@ const Navbar = () => {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem onClick={() => navigate('/profile')}>
                     <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <span>{t('nav.profile')}</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/admin')}>
                     <Shield className="mr-2 h-4 w-4" />
-                    <span>Admin Dashboard</span>
+                    <span>{t('nav.admin')}</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sign out</span>
+                    <span>{t('nav.signOut')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Link to="/auth">
-                <Button>Sign In</Button>
+                <Button>{t('nav.signIn')}</Button>
               </Link>
             )}
           </div>
@@ -115,35 +117,35 @@ const Navbar = () => {
                 className="text-gray-700 hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Eat
+                {t('nav.eat')}
               </Link>
               <Link 
                 to="/stay" 
                 className="text-gray-700 hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Stay
+                {t('nav.stay')}
               </Link>
               <Link 
                 to="/events" 
                 className="text-gray-700 hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Events
+                {t('nav.events')}
               </Link>
               <Link 
                 to="/adventure" 
                 className="text-gray-700 hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Adventure
+                {t('nav.adventure')}
               </Link>
               <Link 
                 to="/info" 
                 className="text-gray-700 hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Info
+                {t('nav.info')}
               </Link>
               
               {user ? (
@@ -153,14 +155,14 @@ const Navbar = () => {
                     className="text-gray-700 hover:text-primary transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
-                    Profile
+                    {t('nav.profile')}
                   </Link>
                   <Link 
                     to="/admin" 
                     className="text-gray-700 hover:text-primary transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
-                    Admin Dashboard
+                    {t('nav.admin')}
                   </Link>
                   <button 
                     onClick={() => {
@@ -169,7 +171,7 @@ const Navbar = () => {
                     }}
                     className="text-left text-gray-700 hover:text-primary transition-colors"
                   >
-                    Sign Out
+                    {t('nav.signOut')}
                   </button>
                 </>
               ) : (
@@ -178,7 +180,7 @@ const Navbar = () => {
                   className="text-gray-700 hover:text-primary transition-colors"
                   onClick={() => setIsOpen(false)}
                 >
-                  Sign In
+                  {t('nav.signIn')}
                 </Link>
               )}
             </div>
