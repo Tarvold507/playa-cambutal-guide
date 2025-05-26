@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -84,28 +83,21 @@ const AdminDashboard = () => {
     try {
       console.log('Fetching pending items...');
       
-      // Fetch ALL pending events using RPC call to bypass RLS
+      // Fetch ALL pending events - direct query to bypass RLS
       const { data: events, error: eventsError } = await supabase
-        .rpc('get_pending_events_for_admin');
+        .from('events')
+        .select(`
+          *,
+          profiles (name, email)
+        `)
+        .eq('approved', false)
+        .order('created_at', { ascending: false });
+      
+      console.log('Events query result:', { events, eventsError });
 
-      // If RPC doesn't exist, fallback to direct query
       if (eventsError) {
-        console.log('RPC failed, trying direct query:', eventsError);
-        const { data: fallbackEvents, error: fallbackError } = await supabase
-          .from('events')
-          .select(`
-            *,
-            profiles (name, email)
-          `)
-          .eq('approved', false)
-          .order('created_at', { ascending: false });
-        
-        if (!fallbackError) {
-          setPendingEvents(fallbackEvents || []);
-        } else {
-          console.error('Fallback events error:', fallbackError);
-          setPendingEvents([]);
-        }
+        console.error('Events error:', eventsError);
+        setPendingEvents([]);
       } else {
         setPendingEvents(events || []);
       }
