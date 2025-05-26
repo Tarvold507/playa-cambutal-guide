@@ -12,7 +12,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from '@/components/ui/textarea';
 
 const Profile = () => {
   const { user, profile, updateProfile } = useAuth();
@@ -69,7 +68,7 @@ const Profile = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      // Fetch event reminders
+      // Fetch event reminders with proper join
       const { data: reminders } = await supabase
         .from('user_event_reminders')
         .select(`
@@ -83,6 +82,8 @@ const Profile = () => {
           )
         `)
         .eq('user_id', user.id);
+
+      console.log('Fetched reminders:', reminders);
 
       setUserEvents(events || []);
       setUserBusinesses(businesses || []);
@@ -297,10 +298,10 @@ const Profile = () => {
                     {eventReminders.map((reminder: any) => (
                       <div key={reminder.id} className="border rounded-lg p-4 flex justify-between items-center">
                         <div>
-                          <h3 className="font-semibold">{reminder.events.title}</h3>
-                          <p className="text-sm text-muted-foreground">{reminder.events.location}</p>
+                          <h3 className="font-semibold">{reminder.events?.title || 'Event not found'}</h3>
+                          <p className="text-sm text-muted-foreground">{reminder.events?.location || ''}</p>
                           <p className="text-sm text-muted-foreground">
-                            Date: {new Date(reminder.events.event_date).toLocaleDateString()}
+                            Date: {reminder.events?.event_date ? new Date(reminder.events.event_date).toLocaleDateString() : 'Unknown'}
                           </p>
                         </div>
                         <Button 
