@@ -43,12 +43,15 @@ export const useRestaurantListings = () => {
 
       if (error) throw error;
       
-      // Transform the data to match our interface
-      const transformedData = data?.map(item => ({
+      // Transform the data to match our interface with proper type handling
+      const transformedData: RestaurantListing[] = data?.map(item => ({
         ...item,
-        hours: item.hours || {},
-        gallery_images: Array.isArray(item.gallery_images) ? item.gallery_images : [],
-        menu_images: Array.isArray(item.menu_images) ? item.menu_images : [],
+        hours: typeof item.hours === 'object' && item.hours !== null ? 
+          item.hours as Record<string, string> : {},
+        gallery_images: Array.isArray(item.gallery_images) ? 
+          item.gallery_images as string[] : [],
+        menu_images: Array.isArray(item.menu_images) ? 
+          item.menu_images as string[] : [],
       })) || [];
       
       setUserRestaurants(transformedData);

@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface EditFormData {
-  type?: 'event' | 'business';
+  type?: 'event' | 'business' | 'restaurant';
   id?: string;
   title?: string;
   location?: string;
@@ -16,6 +16,9 @@ interface EditFormData {
   name?: string;
   category?: string;
   address?: string;
+  hours?: Record<string, string>;
+  gallery_images?: string[];
+  menu_images?: string[];
   [key: string]: any;
 }
 
@@ -34,7 +37,11 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit {editForm.type === 'event' ? 'Event' : 'Business Listing'}</DialogTitle>
+          <DialogTitle>
+            Edit {editForm.type === 'event' ? 'Event' : 
+                  editForm.type === 'business' ? 'Business Listing' : 
+                  'Restaurant Listing'}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           {editForm.type === 'event' ? (
@@ -72,7 +79,7 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
                 />
               </div>
             </>
-          ) : (
+          ) : editForm.type === 'business' ? (
             <>
               <div>
                 <Label htmlFor="edit-name">Business Name</Label>
@@ -96,6 +103,41 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
                   id="edit-address"
                   value={editForm.address || ''}
                   onChange={(e) => onFormChange({ address: e.target.value })}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <Label htmlFor="edit-name">Restaurant Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editForm.name || ''}
+                  onChange={(e) => onFormChange({ name: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-category">Category</Label>
+                <Input
+                  id="edit-category"
+                  value={editForm.category || ''}
+                  onChange={(e) => onFormChange({ category: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-address">Address</Label>
+                <Input
+                  id="edit-address"
+                  value={editForm.address || ''}
+                  onChange={(e) => onFormChange({ address: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editForm.description || ''}
+                  onChange={(e) => onFormChange({ description: e.target.value })}
                 />
               </div>
             </>
