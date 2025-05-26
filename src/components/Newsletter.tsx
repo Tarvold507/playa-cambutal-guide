@@ -19,7 +19,7 @@ const Newsletter = () => {
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
         <p className="max-w-2xl mx-auto mb-8">
-          Join our newsletter to stay updated with the latest news, travel tips, and special offers for Playa Venao.
+          Join our newsletter to stay updated with the latest news, travel tips, and special offers for Playa Cambutal.
         </p>
         
         {isSubmitted ? (
