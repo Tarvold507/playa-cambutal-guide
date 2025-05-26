@@ -19,7 +19,7 @@ interface EditFormData {
   [key: string]: any;
 }
 
-interface EditItemDialogProps {
+interface AdminEditDialogProps {
   isOpen: boolean;
   onClose: () => void;
   editForm: EditFormData;
@@ -27,7 +27,7 @@ interface EditItemDialogProps {
   onSave: () => void;
 }
 
-const EditItemDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: EditItemDialogProps) => {
+const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: AdminEditDialogProps) => {
   const { t } = useLanguage();
 
   return (
@@ -114,4 +114,4 @@ const EditItemDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Edi
   );
 };
 
-export default EditItemDialog;
+export default AdminEditDialog;
