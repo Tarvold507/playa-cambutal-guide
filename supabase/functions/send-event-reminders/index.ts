@@ -55,27 +55,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Find all event reminders for events happening approximately 12 hours from now
     const { data: reminders, error } = await supabase
-      .from('event_reminders')
-      .select(`
-        id,
-        user_id,
-        event_id,
-        reminder_sent,
-        events!inner (
-          id,
-          title,
-          description,
-          location,
-          host,
-          event_date,
-          start_time
-        ),
-        profiles!inner (
-          name,
-          email
-        )
-      `)
-      .eq('events.event_date', reminderDate)
+      .from('event_reminders_view')
+      .select('*')
+      .eq('event_date', reminderDate)
       .eq('reminder_sent', false);
 
     if (error) {
@@ -102,8 +84,8 @@ const handler = async (req: Request): Promise<Response> => {
       try {
         // Parse the event start time to check if it's within the 12-hour window
         let eventHour = 0;
-        if (reminder.events.start_time) {
-          const timeParts = reminder.events.start_time.split(':');
+        if (reminder.start_time) {
+          const timeParts = reminder.start_time.split(':');
           eventHour = parseInt(timeParts[0]);
         }
 
@@ -113,26 +95,26 @@ const handler = async (req: Request): Promise<Response> => {
           continue;
         }
 
-        console.log(`Sending reminder for event: ${reminder.events.title} to ${reminder.profiles.email}`);
+        console.log(`Sending reminder for event: ${reminder.title} to ${reminder.email}`);
 
         // Here you would integrate with your email service (like Resend)
         // For now, we'll just log the email content and mark as sent
         
         const emailContent = {
-          to: reminder.profiles.email,
-          subject: `Reminder: ${reminder.events.title} is starting soon!`,
+          to: reminder.email,
+          subject: `Reminder: ${reminder.title} is starting soon!`,
           html: `
             <h2>Event Reminder</h2>
-            <p>Hi ${reminder.profiles.name},</p>
-            <p>This is a friendly reminder that the event "${reminder.events.title}" is starting in approximately 12 hours.</p>
+            <p>Hi ${reminder.name},</p>
+            <p>This is a friendly reminder that the event "${reminder.title}" is starting in approximately 12 hours.</p>
             
             <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3>${reminder.events.title}</h3>
-              <p><strong>Date:</strong> ${new Date(reminder.events.event_date).toLocaleDateString()}</p>
-              ${reminder.events.start_time ? `<p><strong>Time:</strong> ${reminder.events.start_time}</p>` : ''}
-              <p><strong>Location:</strong> ${reminder.events.location}</p>
-              <p><strong>Host:</strong> ${reminder.events.host}</p>
-              ${reminder.events.description ? `<p><strong>Description:</strong> ${reminder.events.description}</p>` : ''}
+              <h3>${reminder.title}</h3>
+              <p><strong>Date:</strong> ${new Date(reminder.event_date).toLocaleDateString()}</p>
+              ${reminder.start_time ? `<p><strong>Time:</strong> ${reminder.start_time}</p>` : ''}
+              <p><strong>Location:</strong> ${reminder.location}</p>
+              <p><strong>Host:</strong> ${reminder.host}</p>
+              ${reminder.description ? `<p><strong>Description:</strong> ${reminder.description}</p>` : ''}
             </div>
             
             <p>We hope to see you there!</p>
@@ -144,7 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         // Mark reminder as sent
         const { error: updateError } = await supabase
-          .from('event_reminders')
+          .from('user_event_reminders')
           .update({ reminder_sent: true })
           .eq('id', reminder.id);
 
@@ -154,8 +136,8 @@ const handler = async (req: Request): Promise<Response> => {
         } else {
           emailsSent.push({
             reminder_id: reminder.id,
-            event_title: reminder.events.title,
-            recipient: reminder.profiles.email
+            event_title: reminder.title,
+            recipient: reminder.email
           });
         }
 
