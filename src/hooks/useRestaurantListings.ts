@@ -15,7 +15,7 @@ export interface RestaurantListing {
   website?: string;
   email?: string;
   image_url?: string;
-  hours: any;
+  hours: Record<string, string>;
   gallery_images: string[];
   menu_images: string[];
   approved: boolean;
@@ -42,7 +42,16 @@ export const useRestaurantListings = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUserRestaurants(data || []);
+      
+      // Transform the data to match our interface
+      const transformedData = data?.map(item => ({
+        ...item,
+        hours: item.hours || {},
+        gallery_images: Array.isArray(item.gallery_images) ? item.gallery_images : [],
+        menu_images: Array.isArray(item.menu_images) ? item.menu_images : [],
+      })) || [];
+      
+      setUserRestaurants(transformedData);
     } catch (error) {
       console.error('Error fetching user restaurants:', error);
       toast({

@@ -16,6 +16,9 @@ interface EditFormData {
   name?: string;
   category?: string;
   address?: string;
+  hours?: Record<string, string>;
+  gallery_images?: string[];
+  menu_images?: string[];
   [key: string]: any;
 }
 
@@ -116,7 +119,14 @@ export const useAdminActions = () => {
         console.error('Restaurant error:', restaurantError);
         setPendingRestaurants([]);
       } else {
-        setPendingRestaurants(restaurants || []);
+        // Transform restaurant data to match our interface
+        const transformedRestaurants = restaurants?.map(item => ({
+          ...item,
+          hours: item.hours || {},
+          gallery_images: Array.isArray(item.gallery_images) ? item.gallery_images : [],
+          menu_images: Array.isArray(item.menu_images) ? item.menu_images : [],
+        })) || [];
+        setPendingRestaurants(transformedRestaurants);
       }
     } catch (error) {
       console.error('Error fetching pending items:', error);

@@ -16,7 +16,7 @@ interface PendingRestaurant {
   website?: string;
   email?: string;
   image_url?: string;
-  hours: any;
+  hours: Record<string, string>;
   gallery_images: string[];
   menu_images: string[];
   created_at: string;
