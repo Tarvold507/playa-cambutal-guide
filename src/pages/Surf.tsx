@@ -10,7 +10,7 @@ const surfItems = [
   {
     id: '1',
     title: 'Beginner Surf Lessons',
-    description: 'Start your surfing journey with professional instructors in the perfect learning environment of Playa Venao.',
+    description: 'Start your surfing journey with professional instructors in the perfect learning environment of Playa Cambutal.',
     imageSrc: 'https://images.unsplash.com/photo-1526342482877-8b16ae8a9098?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/surf/lessons',
     category: 'Lessons'
@@ -50,7 +50,7 @@ const surfItems = [
   {
     id: '6',
     title: 'Surf Guides',
-    description: 'Explore the best surf spots around Playa Venao with local guides who know when and where to find the best waves.',
+    description: 'Explore the best surf spots around Playa Cambutal with local guides who know when and where to find the best waves.',
     imageSrc: 'https://images.unsplash.com/photo-1559176863-a115e3e6b0b0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/surf/guides',
     category: 'Guides'
@@ -69,7 +69,7 @@ const Surf = () => {
       {/* Hero Section */}
       <Hero 
         title="Surf Paradise"
-        subtitle="Catch the perfect wave in Playa Venao"
+        subtitle="Catch the perfect wave in Playa Cambutal"
         imageSrc="https://images.unsplash.com/photo-1530684585734-6979140f1d82?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
       
@@ -78,13 +78,13 @@ const Surf = () => {
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">A Surfer's Paradise</h2>
           <p className="text-gray-600 mb-4">
-            Playa Venao is renowned for its consistent waves and versatile surf conditions, making it one of 
+            Playa Cambutal is renowned for its consistent waves and versatile surf conditions, making it one of 
             Panama's premier surf destinations. The beach's horseshoe shape creates different breaks suitable 
             for all levels of surfers.
           </p>
           <p className="text-gray-600">
             Whether you're a complete beginner looking to catch your first wave or an experienced surfer seeking 
-            challenging rides, Playa Venao offers year-round opportunities to enjoy this incredible sport.
+            challenging rides, Playa Cambutal offers year-round opportunities to enjoy this incredible sport.
           </p>
         </div>
       </section>
@@ -92,7 +92,7 @@ const Surf = () => {
       {/* Surf Services */}
       <CardSection 
         title="Surf Services"
-        description="Everything you need to make the most of your surfing experience in Playa Venao."
+        description="Everything you need to make the most of your surfing experience in Playa Cambutal."
         items={surfItems}
         bgColor="bg-gray-50"
       />
@@ -116,7 +116,7 @@ const Surf = () => {
               
               <div className="bg-gray-50 p-6 rounded-lg">
                 <h3 className="font-semibold text-lg text-gray-800 mb-2">Best Spots</h3>
-                <p className="text-gray-600">The main beach break at Playa Venao works on all tides and offers various peaks. The right side (looking at the ocean) tends to be better for beginners, while the center and left side can provide more powerful waves for intermediate and advanced surfers.</p>
+                <p className="text-gray-600">The main beach break at Playa Cambutal works on all tides and offers various peaks. The right side (looking at the ocean) tends to be better for beginners, while the center and left side can provide more powerful waves for intermediate and advanced surfers.</p>
               </div>
             </div>
           </div>

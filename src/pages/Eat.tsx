@@ -31,7 +31,7 @@ const eatItems = [
   {
     id: '3',
     title: 'Sunset Lounge',
-    description: 'The perfect spot to enjoy craft cocktails and tapas while watching Venao\'s famous sunsets.',
+    description: 'The perfect spot to enjoy craft cocktails and tapas while watching Cambutal\'s famous sunsets.',
     imageSrc: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/eat/sunset-lounge',
     category: 'Bar & Tapas',
@@ -40,7 +40,7 @@ const eatItems = [
   },
   {
     id: '4',
-    title: 'Pizzeria Venao',
+    title: 'Pizzeria Cambutal',
     description: 'Wood-fired pizzas with creative toppings, made with local and imported ingredients.',
     imageSrc: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/eat/pizzeria',
@@ -92,7 +92,7 @@ const Eat = () => {
       {/* Hero Section */}
       <Hero 
         title="Eat & Drink"
-        subtitle="Discover the best culinary experiences in Playa Venao"
+        subtitle="Discover the best culinary experiences in Playa Cambutal"
         imageSrc="https://images.unsplash.com/photo-1579631542761-3f43399f7fe8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
       
@@ -101,7 +101,7 @@ const Eat = () => {
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Culinary Delights in Paradise</h2>
           <p className="text-gray-600 mb-4">
-            Playa Venao may be small, but its food scene is surprisingly diverse and delicious. From 
+            Playa Cambutal may be small, but its food scene is surprisingly diverse and delicious. From 
             beachfront seafood shacks to upscale international cuisine, there's something to satisfy every palate.
           </p>
           <p className="text-gray-600">
@@ -122,7 +122,7 @@ const Eat = () => {
       {/* Restaurant Listings */}
       <CardSection 
         title="Where to Eat"
-        description="From casual beachfront dining to upscale restaurants, explore Playa Venao's food scene."
+        description="From casual beachfront dining to upscale restaurants, explore Playa Cambutal's food scene."
         items={filteredItems}
         bgColor="bg-gray-50"
       />

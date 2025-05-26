@@ -69,7 +69,7 @@ const Stay = () => {
       {/* Hero Section */}
       <Hero 
         title="Places to Stay"
-        subtitle="Find your perfect accommodation in Playa Venao"
+        subtitle="Find your perfect accommodation in Playa Cambutal"
         imageSrc="https://images.unsplash.com/photo-1600210492493-0946911123ea?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
       
@@ -78,12 +78,12 @@ const Stay = () => {
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Find Your Perfect Stay</h2>
           <p className="text-gray-600 mb-4">
-            Playa Venao offers a wide range of accommodations to suit every budget and travel style. From luxury 
+            Playa Cambutal offers a wide range of accommodations to suit every budget and travel style. From luxury 
             resorts to eco-friendly hostels, you'll find the perfect place to call home during your stay.
           </p>
           <p className="text-gray-600">
             Most accommodations are located either right on the beach or within a short walking distance, allowing 
-            you to easily enjoy all that Playa Venao has to offer.
+            you to easily enjoy all that Playa Cambutal has to offer.
           </p>
         </div>
       </section>
@@ -115,7 +115,7 @@ const Stay = () => {
               
               <div className="bg-gray-50 p-6 rounded-lg">
                 <h3 className="font-semibold text-lg text-gray-800 mb-2">Amenities to Look For</h3>
-                <p className="text-gray-600">Since Playa Venao can get quite hot, air conditioning or good fans are essential for comfort. Also consider if you need WiFi (quality varies), kitchen facilities, and whether the property has a generator (occasional power outages happen).</p>
+                <p className="text-gray-600">Since Playa Cambutal can get quite hot, air conditioning or good fans are essential for comfort. Also consider if you need WiFi (quality varies), kitchen facilities, and whether the property has a generator (occasional power outages happen).</p>
               </div>
             </div>
           </div>

@@ -23,7 +23,7 @@ const Terms = () => {
               </p>
               
               <p className="mb-4">
-                Please read these Terms of Service ("Terms") carefully before using the Venao Guide website.
+                Please read these Terms of Service ("Terms") carefully before using the Playa Cambutal Guide website.
               </p>
               
               <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">1. Acceptance of Terms</h2>
@@ -35,13 +35,13 @@ const Terms = () => {
               <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">2. Information Accuracy</h2>
               
               <p className="mb-4">
-                While we strive to provide accurate and up-to-date information about Playa Venao, we cannot guarantee the accuracy, completeness, or reliability of any information on our website. Information such as prices, schedules, and services offered by third parties may change without notice.
+                While we strive to provide accurate and up-to-date information about Playa Cambutal, we cannot guarantee the accuracy, completeness, or reliability of any information on our website. Information such as prices, schedules, and services offered by third parties may change without notice.
               </p>
               
               <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">3. Third-Party Content and Links</h2>
               
               <p className="mb-4">
-                Our website may contain links to third-party websites or services that are not owned or controlled by Venao Guide. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party websites or services.
+                Our website may contain links to third-party websites or services that are not owned or controlled by Playa Cambutal Guide. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party websites or services.
               </p>
               
               <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">4. User Conduct</h2>
@@ -61,7 +61,7 @@ const Terms = () => {
               <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">5. Intellectual Property</h2>
               
               <p className="mb-4">
-                All content on this website, including text, images, logos, and design, is the property of Venao Guide and is protected by copyright and other intellectual property laws. You may not use, reproduce, or distribute our content without our prior written consent.
+                All content on this website, including text, images, logos, and design, is the property of Playa Cambutal Guide and is protected by copyright and other intellectual property laws. You may not use, reproduce, or distribute our content without our prior written consent.
               </p>
               
               <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">6. Disclaimer of Warranties</h2>
@@ -73,7 +73,7 @@ const Terms = () => {
               <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">7. Limitation of Liability</h2>
               
               <p className="mb-4">
-                In no event shall Venao Guide, its directors, employees, partners, agents, suppliers, or affiliates be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses.
+                In no event shall Playa Cambutal Guide, its directors, employees, partners, agents, suppliers, or affiliates be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses.
               </p>
               
               <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">8. Changes to Terms</h2>
@@ -85,7 +85,7 @@ const Terms = () => {
               <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">9. Contact Us</h2>
               
               <p className="mb-4">
-                If you have any questions about these Terms, please contact us at info@venaoguide.com.
+                If you have any questions about these Terms, please contact us at info@playacambutalguide.com.
               </p>
             </div>
           </div>
