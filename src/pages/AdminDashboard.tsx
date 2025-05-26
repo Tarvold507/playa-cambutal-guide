@@ -1,19 +1,16 @@
+
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/LanguageContext';
+import PendingEventsTab from '@/components/admin/PendingEventsTab';
+import PendingBusinessesTab from '@/components/admin/PendingBusinessesTab';
+import EditItemDialog from '@/components/admin/EditItemDialog';
 
 interface EditFormData {
   type?: 'event' | 'business';
@@ -218,6 +215,10 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleFormChange = (updates: Partial<EditFormData>) => {
+    setEditForm(prev => ({ ...prev, ...updates }));
+  };
+
   if (!user) return null;
 
   return (
@@ -234,204 +235,31 @@ const AdminDashboard = () => {
           </TabsList>
           
           <TabsContent value="events">
-            <div className="space-y-4">
-              {pendingEvents.length === 0 ? (
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground">{t('admin.noEvents')}</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                pendingEvents.map((event: any) => (
-                  <Card key={event.id}>
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle>{event.title}</CardTitle>
-                          <p className="text-sm text-muted-foreground">
-                            Submitted by: {event.profiles?.name || 'Unknown'} ({event.profiles?.email || 'No email'})
-                          </p>
-                        </div>
-                        <Badge variant="secondary">Pending</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 mb-4">
-                        <p><strong>Date:</strong> {new Date(event.event_date).toLocaleDateString()}</p>
-                        <p><strong>Location:</strong> {event.location}</p>
-                        <p><strong>Host:</strong> {event.host}</p>
-                        <p><strong>Description:</strong> {event.description}</p>
-                        {event.full_description && (
-                          <p><strong>Full Description:</strong> {event.full_description}</p>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => handleApprove('events', event.id)}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          {t('admin.approve')}
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          onClick={() => handleEdit(event, 'event')}
-                        >
-                          {t('admin.edit')}
-                        </Button>
-                        <Button 
-                          variant="destructive"
-                          onClick={() => handleReject('events', event.id)}
-                        >
-                          {t('admin.reject')}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
+            <PendingEventsTab
+              pendingEvents={pendingEvents}
+              onApprove={(id) => handleApprove('events', id)}
+              onEdit={(item) => handleEdit(item, 'event')}
+              onReject={(id) => handleReject('events', id)}
+            />
           </TabsContent>
           
           <TabsContent value="businesses">
-            <div className="space-y-4">
-              {pendingBusinesses.length === 0 ? (
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-muted-foreground">{t('admin.noBusinesses')}</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                pendingBusinesses.map((business: any) => (
-                  <Card key={business.id}>
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle>{business.name}</CardTitle>
-                          <p className="text-sm text-muted-foreground">
-                            Submitted by: {business.profiles?.name || 'Unknown'} ({business.profiles?.email || 'No email'})
-                          </p>
-                        </div>
-                        <Badge variant="secondary">Pending</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 mb-4">
-                        <p><strong>Category:</strong> {business.category}</p>
-                        <p><strong>Address:</strong> {business.address}</p>
-                        <p><strong>Phone:</strong> {business.phone || 'N/A'}</p>
-                        <p><strong>Email:</strong> {business.email || 'N/A'}</p>
-                        <p><strong>Website:</strong> {business.website || 'N/A'}</p>
-                        <p><strong>Description:</strong> {business.description}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => handleApprove('business_listings', business.id)}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          {t('admin.approve')}
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          onClick={() => handleEdit(business, 'business')}
-                        >
-                          {t('admin.edit')}
-                        </Button>
-                        <Button 
-                          variant="destructive"
-                          onClick={() => handleReject('business_listings', business.id)}
-                        >
-                          {t('admin.reject')}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
+            <PendingBusinessesTab
+              pendingBusinesses={pendingBusinesses}
+              onApprove={(id) => handleApprove('business_listings', id)}
+              onEdit={(item) => handleEdit(item, 'business')}
+              onReject={(id) => handleReject('business_listings', id)}
+            />
           </TabsContent>
         </Tabs>
 
-        {/* Edit Dialog */}
-        <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit {editForm.type === 'event' ? 'Event' : 'Business Listing'}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              {editForm.type === 'event' ? (
-                <>
-                  <div>
-                    <Label htmlFor="edit-title">Title</Label>
-                    <Input
-                      id="edit-title"
-                      value={editForm.title || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-location">Location</Label>
-                    <Input
-                      id="edit-location"
-                      value={editForm.location || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-host">Host</Label>
-                    <Input
-                      id="edit-host"
-                      value={editForm.host || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, host: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-description">Description</Label>
-                    <Textarea
-                      id="edit-description"
-                      value={editForm.description || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <Label htmlFor="edit-name">Business Name</Label>
-                    <Input
-                      id="edit-name"
-                      value={editForm.name || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-category">Category</Label>
-                    <Input
-                      id="edit-category"
-                      value={editForm.category || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-address">Address</Label>
-                    <Input
-                      id="edit-address"
-                      value={editForm.address || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                    />
-                  </div>
-                </>
-              )}
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  {t('common.cancel')}
-                </Button>
-                <Button onClick={handleSaveEdit}>
-                  {t('common.save')} Changes
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <EditItemDialog
+          isOpen={isEditing}
+          onClose={() => setIsEditing(false)}
+          editForm={editForm}
+          onFormChange={handleFormChange}
+          onSave={handleSaveEdit}
+        />
       </div>
       
       <Footer />
