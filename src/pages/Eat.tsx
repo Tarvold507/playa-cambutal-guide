@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -9,8 +10,21 @@ import RestaurantFilter from '../components/RestaurantFilter';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-const eatItems = [
+interface RestaurantItem {
+  id: string;
+  title: string;
+  description: string;
+  imageSrc: string;
+  link: string;
+  category?: string;
+  openNow?: boolean;
+  hours?: string;
+}
+
+const staticEatItems = [
   {
     id: '1',
     title: 'Beachfront Grill',
@@ -74,21 +88,79 @@ const eatItems = [
 ];
 
 const Eat = () => {
-  const [filteredItems, setFilteredItems] = useState(eatItems);
+  const [allItems, setAllItems] = useState<RestaurantItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<RestaurantItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
+
+  const fetchApprovedRestaurants = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('restaurant_listings')
+        .select('*')
+        .eq('approved', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform database restaurants to match our RestaurantItem interface
+      const dbRestaurants: RestaurantItem[] = data?.map(restaurant => ({
+        id: restaurant.id,
+        title: restaurant.name,
+        description: restaurant.description || 'Delicious food awaits you at this local restaurant.',
+        imageSrc: restaurant.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        link: `/eat/restaurant/${restaurant.id}`,
+        category: restaurant.category,
+        // For now, we'll assume restaurants are open - this could be enhanced with real-time hours logic
+        openNow: true,
+        hours: 'Hours vary'
+      })) || [];
+
+      // Combine static and dynamic restaurants
+      const combinedItems = [...staticEatItems, ...dbRestaurants];
+      setAllItems(combinedItems);
+      setFilteredItems(combinedItems);
+    } catch (error) {
+      console.error('Error fetching approved restaurants:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load restaurants",
+        variant: "destructive",
+      });
+      // Fall back to static items if there's an error
+      setAllItems(staticEatItems);
+      setFilteredItems(staticEatItems);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    fetchApprovedRestaurants();
   }, []);
 
   const handleFilterChange = (showOpenOnly: boolean) => {
     if (showOpenOnly) {
-      setFilteredItems(eatItems.filter(item => item.openNow));
+      setFilteredItems(allItems.filter(item => item.openNow));
     } else {
-      setFilteredItems(eatItems);
+      setFilteredItems(allItems);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold text-gray-800">Loading restaurants...</h1>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
