@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Calendar, MapPin, User, Clock, Bell } from 'lucide-react';
 import {
@@ -49,13 +50,16 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
           .select('id')
           .eq('user_id', user.id)
           .eq('event_id', event.id)
-          .single();
+          .maybeSingle();
 
-        if (data) {
-          setReminderChecked(true);
+        if (error) {
+          console.error('Error checking existing reminder:', error);
+          return;
         }
+
+        setReminderChecked(!!data);
       } catch (error) {
-        // No existing reminder found, which is fine
+        console.error('Error checking existing reminder:', error);
         setReminderChecked(false);
       }
     };
@@ -85,7 +89,10 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
             event_id: event.id,
           });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error setting reminder:', error);
+          throw error;
+        }
 
         toast({
           title: "Reminder set!",
@@ -99,7 +106,10 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
           .eq('user_id', user.id)
           .eq('event_id', event.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error removing reminder:', error);
+          throw error;
+        }
 
         toast({
           title: "Reminder removed",
@@ -112,9 +122,10 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
       console.error('Reminder error:', error);
       toast({
         title: "Error",
-        description: "Failed to update reminder. Please try again.",
+        description: error.message || "Failed to update reminder. Please try again.",
         variant: "destructive",
       });
+      // Don't update the checkbox state if there was an error
     } finally {
       setSettingReminder(false);
     }
