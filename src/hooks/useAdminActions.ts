@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -61,6 +60,7 @@ export const useAdminActions = () => {
     try {
       console.log('Fetching pending items...');
       
+      // Remove the user_id filter to fetch ALL pending events, not just current user's
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select(`
@@ -79,6 +79,7 @@ export const useAdminActions = () => {
         setPendingEvents(events || []);
       }
 
+      // Remove the user_id filter to fetch ALL pending businesses, not just current user's
       const { data: businesses, error: businessError } = await supabase
         .from('business_listings')
         .select(`

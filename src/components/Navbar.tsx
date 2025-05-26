@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 import LanguageToggle from './LanguageToggle';
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, profile, signOut } = useAuth();
   const { t } = useLanguage();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -68,10 +69,12 @@ const Navbar = () => {
                     <User className="mr-2 h-4 w-4" />
                     <span>{t('nav.profile')}</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/admin')}>
-                    <Shield className="mr-2 h-4 w-4" />
-                    <span>{t('nav.admin')}</span>
-                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate('/admin')}>
+                      <Shield className="mr-2 h-4 w-4" />
+                      <span>{t('nav.admin')}</span>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -157,13 +160,15 @@ const Navbar = () => {
                   >
                     {t('nav.profile')}
                   </Link>
-                  <Link 
-                    to="/admin" 
-                    className="text-gray-700 hover:text-primary transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {t('nav.admin')}
-                  </Link>
+                  {isAdmin && (
+                    <Link 
+                      to="/admin" 
+                      className="text-gray-700 hover:text-primary transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {t('nav.admin')}
+                    </Link>
+                  )}
                   <button 
                     onClick={() => {
                       handleSignOut();
