@@ -1,11 +1,14 @@
-
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
 import CardSection from '../components/CardSection';
 import Newsletter from '../components/Newsletter';
 import RestaurantFilter from '../components/RestaurantFilter';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const eatItems = [
   {
@@ -72,6 +75,8 @@ const eatItems = [
 
 const Eat = () => {
   const [filteredItems, setFilteredItems] = useState(eatItems);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -150,6 +155,30 @@ const Eat = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Add Restaurant Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Own a Restaurant in Cambutal?</h2>
+          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+            Join our directory and reach more customers! Add your restaurant to our platform and showcase your 
+            delicious offerings to locals and tourists alike.
+          </p>
+          <Button 
+            onClick={() => navigate('/add-restaurant')}
+            size="lg"
+            className="bg-venao-dark hover:bg-venao-dark/90"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Add Your Restaurant Here
+          </Button>
+          {!user && (
+            <p className="text-sm text-gray-500 mt-2">
+              You'll need to sign in to add a restaurant listing.
+            </p>
+          )}
         </div>
       </section>
       

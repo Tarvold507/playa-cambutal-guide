@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface EditFormData {
-  type?: 'event' | 'business';
+  type?: 'event' | 'business' | 'restaurant';
   id?: string;
   title?: string;
   location?: string;
@@ -26,6 +27,7 @@ export const useAdminActions = () => {
   
   const [pendingEvents, setPendingEvents] = useState<any[]>([]);
   const [pendingBusinesses, setPendingBusinesses] = useState<any[]>([]);
+  const [pendingRestaurants, setPendingRestaurants] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<EditFormData>({});
@@ -60,7 +62,7 @@ export const useAdminActions = () => {
     try {
       console.log('Fetching pending items...');
       
-      // Fetch pending events (now with RLS policies allowing admins to see all)
+      // Fetch pending events
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select(`
@@ -71,17 +73,15 @@ export const useAdminActions = () => {
         .order('created_at', { ascending: false });
       
       console.log('Pending events query result:', { events, eventsError });
-      console.log('Number of pending events found:', events?.length || 0);
 
       if (eventsError) {
         console.error('Events error:', eventsError);
         setPendingEvents([]);
       } else {
-        console.log('Setting pending events:', events);
         setPendingEvents(events || []);
       }
 
-      // Fetch ALL pending businesses, not just current user's
+      // Fetch pending businesses
       const { data: businesses, error: businessError } = await supabase
         .from('business_listings')
         .select(`
@@ -92,23 +92,41 @@ export const useAdminActions = () => {
         .order('created_at', { ascending: false });
 
       console.log('Businesses query result:', { businesses, businessError });
-      console.log('Number of pending businesses found:', businesses?.length || 0);
 
       if (businessError) {
         console.error('Business error:', businessError);
         setPendingBusinesses([]);
       } else {
-        console.log('Setting pending businesses:', businesses);
         setPendingBusinesses(businesses || []);
+      }
+
+      // Fetch pending restaurants
+      const { data: restaurants, error: restaurantError } = await supabase
+        .from('restaurant_listings')
+        .select(`
+          *,
+          profiles!restaurant_listings_user_id_fkey (name, email)
+        `)
+        .eq('approved', false)
+        .order('created_at', { ascending: false });
+
+      console.log('Restaurants query result:', { restaurants, restaurantError });
+
+      if (restaurantError) {
+        console.error('Restaurant error:', restaurantError);
+        setPendingRestaurants([]);
+      } else {
+        setPendingRestaurants(restaurants || []);
       }
     } catch (error) {
       console.error('Error fetching pending items:', error);
       setPendingEvents([]);
       setPendingBusinesses([]);
+      setPendingRestaurants([]);
     }
   };
 
-  const handleApprove = async (type: 'events' | 'business_listings', id: string) => {
+  const handleApprove = async (type: 'events' | 'business_listings' | 'restaurant_listings', id: string) => {
     try {
       const { error } = await supabase
         .from(type)
@@ -137,7 +155,7 @@ export const useAdminActions = () => {
     }
   };
 
-  const handleReject = async (type: 'events' | 'business_listings', id: string) => {
+  const handleReject = async (type: 'events' | 'business_listings' | 'restaurant_listings', id: string) => {
     try {
       const { error } = await supabase
         .from(type)
@@ -162,7 +180,7 @@ export const useAdminActions = () => {
     }
   };
 
-  const handleEdit = (item: any, type: 'event' | 'business') => {
+  const handleEdit = (item: any, type: 'event' | 'business' | 'restaurant') => {
     setSelectedItem(item);
     setEditForm({ ...item, type });
     setIsEditing(true);
@@ -184,8 +202,12 @@ export const useAdminActions = () => {
 
       console.log('Updating with clean data:', cleanUpdateData);
 
+      const tableName = type === 'event' ? 'events' : 
+                      type === 'business' ? 'business_listings' : 
+                      'restaurant_listings';
+
       const { error } = await supabase
-        .from(type === 'event' ? 'events' : 'business_listings')
+        .from(tableName)
         .update(cleanUpdateData)
         .eq('id', selectedItem.id);
 
@@ -223,6 +245,7 @@ export const useAdminActions = () => {
   return {
     pendingEvents,
     pendingBusinesses,
+    pendingRestaurants,
     selectedItem,
     isEditing,
     editForm,

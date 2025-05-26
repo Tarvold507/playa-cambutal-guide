@@ -222,6 +222,72 @@ export type Database = {
         }
         Relationships: []
       }
+      restaurant_listings: {
+        Row: {
+          address: string
+          approved: boolean | null
+          approved_at: string | null
+          approved_by: string | null
+          category: string
+          created_at: string | null
+          description: string | null
+          email: string | null
+          gallery_images: Json | null
+          hours: Json | null
+          id: string
+          image_url: string | null
+          menu_images: Json | null
+          name: string
+          phone: string | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          address: string
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          gallery_images?: Json | null
+          hours?: Json | null
+          id?: string
+          image_url?: string | null
+          menu_images?: Json | null
+          name: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          gallery_images?: Json | null
+          hours?: Json | null
+          id?: string
+          image_url?: string | null
+          menu_images?: Json | null
+          name?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       user_event_reminders: {
         Row: {
           created_at: string
