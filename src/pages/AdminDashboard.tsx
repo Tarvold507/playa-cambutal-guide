@@ -10,21 +10,34 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+interface EditFormData {
+  type?: 'event' | 'business';
+  id?: string;
+  title?: string;
+  location?: string;
+  host?: string;
+  description?: string;
+  name?: string;
+  category?: string;
+  address?: string;
+  [key: string]: any;
+}
 
 const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [pendingEvents, setPendingEvents] = useState([]);
-  const [pendingBusinesses, setPendingBusinesses] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [pendingEvents, setPendingEvents] = useState<any[]>([]);
+  const [pendingBusinesses, setPendingBusinesses] = useState<any[]>([]);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({});
+  const [editForm, setEditForm] = useState<EditFormData>({});
 
   useEffect(() => {
     if (!user) {
@@ -144,14 +157,14 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleEdit = (item: any, type: string) => {
+  const handleEdit = (item: any, type: 'event' | 'business') => {
     setSelectedItem(item);
     setEditForm({ ...item, type });
     setIsEditing(true);
   };
 
   const handleSaveEdit = async () => {
-    if (!selectedItem || !editForm) return;
+    if (!selectedItem || !editForm.type) return;
 
     try {
       const { type, ...updateData } = editForm;
@@ -169,6 +182,7 @@ const AdminDashboard = () => {
 
       setIsEditing(false);
       setSelectedItem(null);
+      setEditForm({});
       fetchPendingItems();
     } catch (error) {
       console.error('Error updating item:', error);
