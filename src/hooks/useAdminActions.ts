@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +15,11 @@ interface EditFormData {
   name?: string;
   category?: string;
   address?: string;
+  phone?: string;
+  whatsapp?: string;
+  website?: string;
+  email?: string;
+  image_url?: string;
   hours?: Record<string, string>;
   gallery_images?: string[];
   menu_images?: string[];
@@ -103,13 +107,10 @@ export const useAdminActions = () => {
         setPendingBusinesses(businesses || []);
       }
 
-      // Fetch pending restaurants
+      // Fetch pending restaurants - use a separate query to get profile data
       const { data: restaurants, error: restaurantError } = await supabase
         .from('restaurant_listings')
-        .select(`
-          *,
-          profiles!restaurant_listings_user_id_fkey (name, email)
-        `)
+        .select('*')
         .eq('approved', false)
         .order('created_at', { ascending: false });
 
@@ -118,18 +119,32 @@ export const useAdminActions = () => {
       if (restaurantError) {
         console.error('Restaurant error:', restaurantError);
         setPendingRestaurants([]);
+      } else if (restaurants) {
+        // Fetch profile data separately for each restaurant
+        const restaurantsWithProfiles = await Promise.all(
+          restaurants.map(async (restaurant) => {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('name, email')
+              .eq('id', restaurant.user_id)
+              .single();
+
+            return {
+              ...restaurant,
+              hours: typeof restaurant.hours === 'object' && restaurant.hours !== null ? 
+                restaurant.hours as Record<string, string> : {},
+              gallery_images: Array.isArray(restaurant.gallery_images) ? 
+                restaurant.gallery_images as string[] : [],
+              menu_images: Array.isArray(restaurant.menu_images) ? 
+                restaurant.menu_images as string[] : [],
+              profiles: profile
+            };
+          })
+        );
+        
+        setPendingRestaurants(restaurantsWithProfiles);
       } else {
-        // Transform restaurant data to match our interface with proper type handling
-        const transformedRestaurants = restaurants?.map(item => ({
-          ...item,
-          hours: typeof item.hours === 'object' && item.hours !== null ? 
-            item.hours as Record<string, string> : {},
-          gallery_images: Array.isArray(item.gallery_images) ? 
-            item.gallery_images as string[] : [],
-          menu_images: Array.isArray(item.menu_images) ? 
-            item.menu_images as string[] : [],
-        })) || [];
-        setPendingRestaurants(transformedRestaurants);
+        setPendingRestaurants([]);
       }
     } catch (error) {
       console.error('Error fetching pending items:', error);
