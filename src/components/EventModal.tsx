@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, MapPin, User, Clock, Bell } from 'lucide-react';
 import {
   Dialog,
@@ -39,6 +38,31 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
 
   if (!event) return null;
 
+  // Check if user already has a reminder set for this event
+  useEffect(() => {
+    const checkExistingReminder = async () => {
+      if (!user || !event) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('user_event_reminders')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('event_id', event.id)
+          .single();
+
+        if (data) {
+          setReminderChecked(true);
+        }
+      } catch (error) {
+        // No existing reminder found, which is fine
+        setReminderChecked(false);
+      }
+    };
+
+    checkExistingReminder();
+  }, [user, event]);
+
   const handleReminderToggle = async (checked: boolean) => {
     if (!user) {
       toast({
@@ -55,7 +79,7 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
       if (checked) {
         // Add reminder
         const { error } = await supabase
-          .from('event_reminders')
+          .from('user_event_reminders')
           .insert({
             user_id: user.id,
             event_id: event.id,
@@ -65,12 +89,12 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
 
         toast({
           title: "Reminder set!",
-          description: "You'll be notified before this event starts.",
+          description: "You'll be notified 12 hours before this event starts.",
         });
       } else {
         // Remove reminder
         const { error } = await supabase
-          .from('event_reminders')
+          .from('user_event_reminders')
           .delete()
           .eq('user_id', user.id)
           .eq('event_id', event.id);
@@ -172,7 +196,7 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
                     disabled={settingReminder}
                   />
                   <label htmlFor="reminder" className="text-sm cursor-pointer">
-                    Remind me about this event
+                    Remind me 12 hours before this event
                   </label>
                 </div>
               ) : (
