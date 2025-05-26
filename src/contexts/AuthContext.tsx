@@ -41,22 +41,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
+        console.log('AuthContext - Auth state changed:', event, session?.user?.id);
+        console.log('AuthContext - User email:', session?.user?.email);
+        console.log('AuthContext - Full user object:', session?.user);
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          console.log('AuthContext - Fetching profile for user:', session.user.id);
           // Fetch user profile
           setTimeout(async () => {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            setProfile(profile);
+            try {
+              const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+              
+              console.log('AuthContext - Profile fetch result:', profile);
+              console.log('AuthContext - Profile fetch error:', error);
+              
+              setProfile(profile);
+            } catch (err) {
+              console.error('AuthContext - Profile fetch exception:', err);
+            }
           }, 0);
         } else {
+          console.log('AuthContext - No session, clearing profile');
           setProfile(null);
         }
         setLoading(false);
@@ -65,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('AuthContext - Initial session check:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -74,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signOut = async () => {
+    console.log('AuthContext - Signing out user');
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
@@ -83,6 +97,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return;
     
+    console.log('AuthContext - Updating profile for user:', user.id, 'with:', updates);
+    
     const { error } = await supabase
       .from('profiles')
       .update(updates)
@@ -90,6 +106,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
     if (!error && profile) {
       setProfile({ ...profile, ...updates });
+      console.log('AuthContext - Profile updated successfully');
+    } else {
+      console.error('AuthContext - Profile update error:', error);
     }
   };
 

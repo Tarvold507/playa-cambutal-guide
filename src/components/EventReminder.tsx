@@ -28,10 +28,20 @@ const EventReminder = ({ event }: EventReminderProps) => {
   const [reminderChecked, setReminderChecked] = useState(false);
   const [settingReminder, setSettingReminder] = useState(false);
 
+  // Debug logging
+  console.log('EventReminder - Current user:', user);
+  console.log('EventReminder - Event ID:', event.id);
+  console.log('EventReminder - User ID:', user?.id);
+
   // Check if user already has a reminder set for this event
   useEffect(() => {
     const checkExistingReminder = async () => {
-      if (!user || !event) return;
+      if (!user || !event) {
+        console.log('EventReminder - No user or event, skipping reminder check');
+        return;
+      }
+
+      console.log('EventReminder - Checking existing reminder for user:', user.id, 'event:', event.id);
 
       try {
         const { data, error } = await supabase
@@ -42,13 +52,14 @@ const EventReminder = ({ event }: EventReminderProps) => {
           .maybeSingle();
 
         if (error) {
-          console.error('Error checking existing reminder:', error);
+          console.error('EventReminder - Error checking existing reminder:', error);
           return;
         }
 
+        console.log('EventReminder - Existing reminder data:', data);
         setReminderChecked(!!data);
       } catch (error) {
-        console.error('Error checking existing reminder:', error);
+        console.error('EventReminder - Exception checking existing reminder:', error);
         setReminderChecked(false);
       }
     };
@@ -57,7 +68,14 @@ const EventReminder = ({ event }: EventReminderProps) => {
   }, [user, event]);
 
   const handleReminderToggle = async (checked: boolean) => {
+    console.log('EventReminder - Toggle called with checked:', checked);
+    console.log('EventReminder - Current user in toggle:', user);
+    console.log('EventReminder - User email:', user?.email);
+    console.log('EventReminder - User ID:', user?.id);
+    console.log('EventReminder - Event ID:', event.id);
+
     if (!user) {
+      console.log('EventReminder - No user found, showing auth required toast');
       toast({
         title: "Authentication required",
         description: "Please sign in to set event reminders.",
@@ -70,16 +88,31 @@ const EventReminder = ({ event }: EventReminderProps) => {
     
     try {
       if (checked) {
+        console.log('EventReminder - Attempting to INSERT reminder');
+        console.log('EventReminder - Insert data:', {
+          user_id: user.id,
+          event_id: event.id,
+        });
+
         // Add reminder
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('user_event_reminders')
           .insert({
             user_id: user.id,
             event_id: event.id,
-          });
+          })
+          .select();
+
+        console.log('EventReminder - Insert response data:', data);
+        console.log('EventReminder - Insert response error:', error);
 
         if (error) {
-          console.error('Error setting reminder:', error);
+          console.error('EventReminder - Insert error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          });
           throw error;
         }
 
@@ -88,15 +121,26 @@ const EventReminder = ({ event }: EventReminderProps) => {
           description: "You'll be notified 12 hours before this event starts.",
         });
       } else {
+        console.log('EventReminder - Attempting to DELETE reminder');
+        
         // Remove reminder
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('user_event_reminders')
           .delete()
           .eq('user_id', user.id)
-          .eq('event_id', event.id);
+          .eq('event_id', event.id)
+          .select();
+
+        console.log('EventReminder - Delete response data:', data);
+        console.log('EventReminder - Delete response error:', error);
 
         if (error) {
-          console.error('Error removing reminder:', error);
+          console.error('EventReminder - Delete error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          });
           throw error;
         }
 
@@ -107,8 +151,10 @@ const EventReminder = ({ event }: EventReminderProps) => {
       }
       
       setReminderChecked(checked);
+      console.log('EventReminder - Successfully updated reminder state to:', checked);
     } catch (error: any) {
-      console.error('Reminder error:', error);
+      console.error('EventReminder - Exception in toggle:', error);
+      console.error('EventReminder - Error stack:', error.stack);
       toast({
         title: "Error",
         description: error.message || "Failed to update reminder. Please try again.",
