@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface EditFormData {
   type?: 'event' | 'business';
@@ -29,6 +31,7 @@ interface EditFormData {
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -81,17 +84,31 @@ const AdminDashboard = () => {
     try {
       console.log('Fetching pending items...');
       
-      // Fetch ALL pending events (remove RLS temporarily for admin view)
+      // Fetch ALL pending events using RPC call to bypass RLS
       const { data: events, error: eventsError } = await supabase
-        .from('events')
-        .select(`
-          *,
-          profiles (name, email)
-        `)
-        .eq('approved', false)
-        .order('created_at', { ascending: false });
+        .rpc('get_pending_events_for_admin');
 
-      console.log('Events query result:', { events, eventsError });
+      // If RPC doesn't exist, fallback to direct query
+      if (eventsError) {
+        console.log('RPC failed, trying direct query:', eventsError);
+        const { data: fallbackEvents, error: fallbackError } = await supabase
+          .from('events')
+          .select(`
+            *,
+            profiles (name, email)
+          `)
+          .eq('approved', false)
+          .order('created_at', { ascending: false });
+        
+        if (!fallbackError) {
+          setPendingEvents(fallbackEvents || []);
+        } else {
+          console.error('Fallback events error:', fallbackError);
+          setPendingEvents([]);
+        }
+      } else {
+        setPendingEvents(events || []);
+      }
 
       // Fetch ALL pending business listings
       const { data: businesses, error: businessError } = await supabase
@@ -105,17 +122,16 @@ const AdminDashboard = () => {
 
       console.log('Businesses query result:', { businesses, businessError });
 
-      if (eventsError) {
-        console.error('Events error:', eventsError);
-      }
       if (businessError) {
         console.error('Business error:', businessError);
+        setPendingBusinesses([]);
+      } else {
+        setPendingBusinesses(businesses || []);
       }
-
-      setPendingEvents(events || []);
-      setPendingBusinesses(businesses || []);
     } catch (error) {
       console.error('Error fetching pending items:', error);
+      setPendingEvents([]);
+      setPendingBusinesses([]);
     }
   };
 
@@ -133,7 +149,7 @@ const AdminDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: "Item approved",
+        title: t('admin.approved'),
         description: `The ${type.slice(0, -1)} has been approved successfully.`,
       });
 
@@ -141,7 +157,7 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error approving item:', error);
       toast({
-        title: "Error",
+        title: t('common.error'),
         description: "Failed to approve item. Please try again.",
         variant: "destructive",
       });
@@ -166,7 +182,7 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error rejecting item:', error);
       toast({
-        title: "Error",
+        title: t('common.error'),
         description: "Failed to reject item. Please try again.",
         variant: "destructive",
       });
@@ -203,7 +219,7 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error updating item:', error);
       toast({
-        title: "Error",
+        title: t('common.error'),
         description: "Failed to update item. Please try again.",
         variant: "destructive",
       });
@@ -217,12 +233,12 @@ const AdminDashboard = () => {
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-8">{t('admin.title')}</h1>
         
         <Tabs defaultValue="events" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="events">Pending Events ({pendingEvents.length})</TabsTrigger>
-            <TabsTrigger value="businesses">Pending Businesses ({pendingBusinesses.length})</TabsTrigger>
+            <TabsTrigger value="events">{t('admin.pendingEvents')} ({pendingEvents.length})</TabsTrigger>
+            <TabsTrigger value="businesses">{t('admin.pendingBusinesses')} ({pendingBusinesses.length})</TabsTrigger>
           </TabsList>
           
           <TabsContent value="events">
@@ -230,7 +246,7 @@ const AdminDashboard = () => {
               {pendingEvents.length === 0 ? (
                 <Card>
                   <CardContent className="p-6">
-                    <p className="text-muted-foreground">No pending events to review.</p>
+                    <p className="text-muted-foreground">{t('admin.noEvents')}</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -262,19 +278,19 @@ const AdminDashboard = () => {
                           onClick={() => handleApprove('events', event.id)}
                           className="bg-green-600 hover:bg-green-700"
                         >
-                          Approve
+                          {t('admin.approve')}
                         </Button>
                         <Button 
                           variant="outline"
                           onClick={() => handleEdit(event, 'event')}
                         >
-                          Edit
+                          {t('admin.edit')}
                         </Button>
                         <Button 
                           variant="destructive"
                           onClick={() => handleReject('events', event.id)}
                         >
-                          Reject
+                          {t('admin.reject')}
                         </Button>
                       </div>
                     </CardContent>
@@ -289,7 +305,7 @@ const AdminDashboard = () => {
               {pendingBusinesses.length === 0 ? (
                 <Card>
                   <CardContent className="p-6">
-                    <p className="text-muted-foreground">No pending business listings to review.</p>
+                    <p className="text-muted-foreground">{t('admin.noBusinesses')}</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -320,19 +336,19 @@ const AdminDashboard = () => {
                           onClick={() => handleApprove('business_listings', business.id)}
                           className="bg-green-600 hover:bg-green-700"
                         >
-                          Approve
+                          {t('admin.approve')}
                         </Button>
                         <Button 
                           variant="outline"
                           onClick={() => handleEdit(business, 'business')}
                         >
-                          Edit
+                          {t('admin.edit')}
                         </Button>
                         <Button 
                           variant="destructive"
                           onClick={() => handleReject('business_listings', business.id)}
                         >
-                          Reject
+                          {t('admin.reject')}
                         </Button>
                       </div>
                     </CardContent>
@@ -415,10 +431,10 @@ const AdminDashboard = () => {
               )}
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button onClick={handleSaveEdit}>
-                  Save Changes
+                  {t('common.save')} Changes
                 </Button>
               </div>
             </div>
