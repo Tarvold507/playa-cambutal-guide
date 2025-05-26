@@ -69,7 +69,7 @@ const Do = () => {
       {/* Hero Section */}
       <Hero 
         title="Things To Do"
-        subtitle="Explore activities and adventures in and around Playa Venao"
+        subtitle="Explore activities and adventures in and around Playa Cambutal"
         imageSrc="https://images.unsplash.com/photo-1605538032404-d7f635269120?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
       
@@ -78,12 +78,12 @@ const Do = () => {
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Beyond the Beach</h2>
           <p className="text-gray-600 mb-4">
-            While Playa Venao is famous for its surf, there's so much more to experience in this diverse region. 
+            While Playa Cambutal is famous for its surf, there's so much more to experience in this diverse region. 
             From yoga and wellness to adventure activities and wildlife encounters, you'll find plenty to fill 
             your days when you're not catching waves.
           </p>
           <p className="text-gray-600">
-            The area surrounding Playa Venao offers pristine jungles, mountains, and nearby islands to explore, 
+            The area surrounding Playa Cambutal offers pristine jungles, mountains, and nearby islands to explore, 
             providing a perfect mix of relaxation and adventure for travelers of all interests.
           </p>
         </div>
@@ -92,7 +92,7 @@ const Do = () => {
       {/* Activities Listings */}
       <CardSection 
         title="Activities & Adventures"
-        description="Discover the diverse range of experiences available in and around Playa Venao."
+        description="Discover the diverse range of experiences available in and around Playa Cambutal."
         items={doItems}
         bgColor="bg-gray-50"
       />
