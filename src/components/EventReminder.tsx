@@ -28,11 +28,6 @@ const EventReminder = ({ event }: EventReminderProps) => {
   const [reminderChecked, setReminderChecked] = useState(false);
   const [settingReminder, setSettingReminder] = useState(false);
 
-  // Debug logging
-  console.log('EventReminder - Current user:', user);
-  console.log('EventReminder - Event ID:', event.id);
-  console.log('EventReminder - User ID:', user?.id);
-
   // Check if user already has a reminder set for this event
   useEffect(() => {
     const checkExistingReminder = async () => {
@@ -70,7 +65,6 @@ const EventReminder = ({ event }: EventReminderProps) => {
   const handleReminderToggle = async (checked: boolean) => {
     console.log('EventReminder - Toggle called with checked:', checked);
     console.log('EventReminder - Current user in toggle:', user);
-    console.log('EventReminder - User email:', user?.email);
     console.log('EventReminder - User ID:', user?.id);
     console.log('EventReminder - Event ID:', event.id);
 
@@ -116,10 +110,18 @@ const EventReminder = ({ event }: EventReminderProps) => {
           throw error;
         }
 
+        // Verify that data was actually inserted
+        if (!data || data.length === 0) {
+          console.error('EventReminder - Insert succeeded but no data returned - possible RLS issue');
+          throw new Error('Failed to create reminder - no data returned');
+        }
+
+        console.log('EventReminder - Successfully inserted reminder:', data[0]);
         toast({
           title: "Reminder set!",
           description: "You'll be notified 12 hours before this event starts.",
         });
+        setReminderChecked(true);
       } else {
         console.log('EventReminder - Attempting to DELETE reminder');
         
@@ -148,19 +150,18 @@ const EventReminder = ({ event }: EventReminderProps) => {
           title: "Reminder removed",
           description: "You will no longer receive notifications for this event.",
         });
+        setReminderChecked(false);
       }
-      
-      setReminderChecked(checked);
-      console.log('EventReminder - Successfully updated reminder state to:', checked);
     } catch (error: any) {
       console.error('EventReminder - Exception in toggle:', error);
       console.error('EventReminder - Error stack:', error.stack);
+      
+      // Don't update the checkbox state if there was an error
       toast({
         title: "Error",
         description: error.message || "Failed to update reminder. Please try again.",
         variant: "destructive",
       });
-      // Don't update the checkbox state if there was an error
     } finally {
       setSettingReminder(false);
     }
