@@ -60,26 +60,7 @@ export const useAdminActions = () => {
     try {
       console.log('Fetching pending items...');
       
-      // First, let's check ALL events to see what's in the database
-      const { data: allEvents, error: allEventsError } = await supabase
-        .from('events')
-        .select(`
-          *,
-          profiles!events_user_id_fkey (name, email)
-        `)
-        .order('created_at', { ascending: false });
-      
-      console.log('ALL events in database:', allEvents);
-      console.log('Total events count:', allEvents?.length || 0);
-      
-      if (allEvents && allEvents.length > 0) {
-        console.log('Sample event data:', allEvents[0]);
-        console.log('Events with approved=false:', allEvents.filter(e => e.approved === false));
-        console.log('Events with approved=true:', allEvents.filter(e => e.approved === true));
-        console.log('Events with approved=null:', allEvents.filter(e => e.approved === null));
-      }
-      
-      // Now fetch only pending events
+      // Fetch pending events (now with RLS policies allowing admins to see all)
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select(`
