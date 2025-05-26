@@ -1,7 +1,9 @@
+
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import LanguageToggle from './LanguageToggle';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,8 +50,9 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Auth Section */}
+          {/* Language Toggle and Auth Section */}
           <div className="hidden md:flex items-center space-x-4">
+            <LanguageToggle />
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -102,6 +105,11 @@ const Navbar = () => {
         {isOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="flex flex-col space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-gray-600">Language:</span>
+                <LanguageToggle />
+              </div>
+              
               <Link 
                 to="/eat" 
                 className="text-gray-700 hover:text-primary transition-colors"

@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -6,10 +7,83 @@ import Newsletter from '../components/Newsletter';
 import BusinessDirectory from '../components/BusinessDirectory';
 import LocalServices from '../components/LocalServices';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from '@/components/ui/card';
-import RealEstate from './RealEstate';
-import Legal from './Legal';
-import Transportation from './Transportation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+const RealEstateContent = () => (
+  <Card className="w-full">
+    <CardHeader>
+      <CardTitle>Real Estate Services</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Property Management</h3>
+          <p className="text-gray-600">Professional property management services for vacation rentals and long-term properties.</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Real Estate Agents</h3>
+          <p className="text-gray-600">Local agents specializing in beachfront properties, land sales, and investment opportunities.</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Property Development</h3>
+          <p className="text-gray-600">Development companies offering new construction and renovation services.</p>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const LegalContent = () => (
+  <Card className="w-full">
+    <CardHeader>
+      <CardTitle>Legal Services</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Property Law</h3>
+          <p className="text-gray-600">Legal assistance with property purchases, titles, and real estate transactions.</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Business Formation</h3>
+          <p className="text-gray-600">Help with establishing businesses, corporations, and obtaining necessary permits.</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Immigration Services</h3>
+          <p className="text-gray-600">Assistance with visas, residency applications, and immigration procedures.</p>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const TransportationContent = () => (
+  <Card className="w-full">
+    <CardHeader>
+      <CardTitle>Transportation Services</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Airport Transfers</h3>
+          <p className="text-gray-600">Reliable transportation to and from Panama City airport and regional airports.</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Local Taxi Services</h3>
+          <p className="text-gray-600">Local taxi and ride services for getting around the area.</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Car Rentals</h3>
+          <p className="text-gray-600">Vehicle rental services including cars, ATVs, and motorcycles.</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Boat Services</h3>
+          <p className="text-gray-600">Water taxis, fishing charters, and island hopping tours.</p>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
 
 const Info = () => {
   useEffect(() => {
@@ -43,13 +117,13 @@ const Info = () => {
               <BusinessDirectory />
             </TabsContent>
             <TabsContent value="realestate">
-              <RealEstate />
+              <RealEstateContent />
             </TabsContent>
             <TabsContent value="legal">
-              <Legal />
+              <LegalContent />
             </TabsContent>
             <TabsContent value="transportation">
-              <Transportation />
+              <TransportationContent />
             </TabsContent>
           </Tabs>
         </div>

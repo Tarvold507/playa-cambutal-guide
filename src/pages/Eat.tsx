@@ -1,10 +1,11 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
 import CardSection from '../components/CardSection';
 import Newsletter from '../components/Newsletter';
+import RestaurantFilter from '../components/RestaurantFilter';
 
 const eatItems = [
   {
@@ -13,7 +14,9 @@ const eatItems = [
     description: 'Enjoy fresh seafood and grilled specialties with your toes in the sand at this casual beachfront eatery.',
     imageSrc: 'https://images.unsplash.com/photo-1619738566066-81c4559aba52?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/eat/beachfront-grill',
-    category: 'Seafood'
+    category: 'Seafood',
+    openNow: true,
+    hours: '11:00 AM - 10:00 PM'
   },
   {
     id: '2',
@@ -21,7 +24,9 @@ const eatItems = [
     description: 'A cozy spot offering organic breakfasts, smoothie bowls, and gourmet coffee in a lush garden setting.',
     imageSrc: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/eat/jungle-cafe',
-    category: 'Cafe'
+    category: 'Cafe',
+    openNow: true,
+    hours: '7:00 AM - 3:00 PM'
   },
   {
     id: '3',
@@ -29,7 +34,9 @@ const eatItems = [
     description: 'The perfect spot to enjoy craft cocktails and tapas while watching Venao\'s famous sunsets.',
     imageSrc: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/eat/sunset-lounge',
-    category: 'Bar & Tapas'
+    category: 'Bar & Tapas',
+    openNow: false,
+    hours: '5:00 PM - 12:00 AM'
   },
   {
     id: '4',
@@ -37,7 +44,9 @@ const eatItems = [
     description: 'Wood-fired pizzas with creative toppings, made with local and imported ingredients.',
     imageSrc: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/eat/pizzeria',
-    category: 'Italian'
+    category: 'Italian',
+    openNow: true,
+    hours: '12:00 PM - 11:00 PM'
   },
   {
     id: '5',
@@ -45,7 +54,9 @@ const eatItems = [
     description: 'Fresh sushi and Japanese-inspired dishes using locally caught fish and imported specialties.',
     imageSrc: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/eat/sushi',
-    category: 'Japanese'
+    category: 'Japanese',
+    openNow: false,
+    hours: '6:00 PM - 11:00 PM'
   },
   {
     id: '6',
@@ -53,14 +64,26 @@ const eatItems = [
     description: 'Experience authentic Panamanian home cooking at this family-run restaurant offering daily specials.',
     imageSrc: 'https://images.unsplash.com/photo-1628519592419-bf1b8fb630cb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: '/eat/comedor',
-    category: 'Panamanian'
+    category: 'Panamanian',
+    openNow: true,
+    hours: '11:00 AM - 9:00 PM'
   }
 ];
 
 const Eat = () => {
+  const [filteredItems, setFilteredItems] = useState(eatItems);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const handleFilterChange = (showOpenOnly: boolean) => {
+    if (showOpenOnly) {
+      setFilteredItems(eatItems.filter(item => item.openNow));
+    } else {
+      setFilteredItems(eatItems);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -88,12 +111,19 @@ const Eat = () => {
           </p>
         </div>
       </section>
+
+      {/* Restaurant Filter */}
+      <section className="bg-gray-50 py-8">
+        <div className="container mx-auto px-4">
+          <RestaurantFilter onFilterChange={handleFilterChange} />
+        </div>
+      </section>
       
       {/* Restaurant Listings */}
       <CardSection 
         title="Where to Eat"
         description="From casual beachfront dining to upscale restaurants, explore Playa Venao's food scene."
-        items={eatItems}
+        items={filteredItems}
         bgColor="bg-gray-50"
       />
       
