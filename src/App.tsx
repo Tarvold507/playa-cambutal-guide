@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
+import RestaurantDetail from "./pages/RestaurantDetail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,6 +39,7 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/eat" element={<Eat />} />
+                <Route path="/eat/:slug" element={<RestaurantDetail />} />
                 <Route path="/stay" element={<Stay />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/adventure" element={<Adventure />} />
