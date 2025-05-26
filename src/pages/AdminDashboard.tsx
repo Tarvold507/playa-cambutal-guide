@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -80,12 +79,12 @@ const AdminDashboard = () => {
     try {
       console.log('Fetching pending items...');
       
-      // Fetch ALL pending events - direct query to bypass RLS
+      // Fetch ALL pending events - with explicit foreign key relationship
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select(`
           *,
-          profiles (name, email)
+          profiles!events_user_id_fkey (name, email)
         `)
         .eq('approved', false)
         .order('created_at', { ascending: false });
@@ -99,12 +98,12 @@ const AdminDashboard = () => {
         setPendingEvents(events || []);
       }
 
-      // Fetch ALL pending business listings
+      // Fetch ALL pending business listings - with explicit foreign key relationship
       const { data: businesses, error: businessError } = await supabase
         .from('business_listings')
         .select(`
           *,
-          profiles (name, email)
+          profiles!business_listings_user_id_fkey (name, email)
         `)
         .eq('approved', false)
         .order('created_at', { ascending: false });
