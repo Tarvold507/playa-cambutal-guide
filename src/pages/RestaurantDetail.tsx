@@ -105,9 +105,20 @@ const RestaurantDetail = () => {
           console.log('Transformed restaurant hours:', transformedRestaurant.hours);
           
           setRestaurant(transformedRestaurant);
-          setIsOpen(isRestaurantOpen(normalizedHours));
           
-          console.log('Restaurant open status:', isRestaurantOpen(normalizedHours));
+          const restaurantIsOpen = isRestaurantOpen(normalizedHours);
+          setIsOpen(restaurantIsOpen);
+          
+          console.log('Restaurant open status:', restaurantIsOpen);
+          console.log('Current day and time check:', {
+            currentDay: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
+            currentTime: new Date().toLocaleTimeString('en-US', { 
+              hour12: false, 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            }),
+            todayHours: normalizedHours[new Date().toLocaleDateString('en-US', { weekday: 'long' })]
+          });
         } else {
           console.log('Restaurant not found for slug:', slug);
         }
