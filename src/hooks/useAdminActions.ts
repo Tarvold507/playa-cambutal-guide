@@ -153,10 +153,13 @@ export const useAdminActions = () => {
         setPendingRestaurants([]);
       }
 
-      // Fetch pending hotels
+      // Fetch pending hotels with proper profile joining
       const { data: hotels, error: hotelError } = await supabase
         .from('hotel_listings')
-        .select('*')
+        .select(`
+          *,
+          profiles!hotel_listings_user_id_fkey (name, email)
+        `)
         .eq('approved', false)
         .order('created_at', { ascending: false });
 
@@ -164,30 +167,54 @@ export const useAdminActions = () => {
 
       if (hotelError) {
         console.error('Hotel error:', hotelError);
-        setPendingHotels([]);
-      } else if (hotels) {
-        const hotelsWithProfiles = await Promise.all(
-          hotels.map(async (hotel) => {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('name, email')
-              .eq('id', hotel.user_id)
-              .single();
+        // If the foreign key relationship doesn't work, fallback to manual join
+        const { data: hotelsFallback, error: hotelFallbackError } = await supabase
+          .from('hotel_listings')
+          .select('*')
+          .eq('approved', false)
+          .order('created_at', { ascending: false });
 
-            return {
-              ...hotel,
-              gallery_images: Array.isArray(hotel.gallery_images) ? 
-                hotel.gallery_images as string[] : [],
-              amenities: Array.isArray(hotel.amenities) ? 
-                hotel.amenities as string[] : [],
-              policies: typeof hotel.policies === 'object' && hotel.policies !== null ? 
-                hotel.policies as Record<string, any> : {},
-              profiles: profile
-            };
-          })
-        );
+        if (hotelFallbackError) {
+          console.error('Hotel fallback error:', hotelFallbackError);
+          setPendingHotels([]);
+        } else if (hotelsFallback) {
+          const hotelsWithProfiles = await Promise.all(
+            hotelsFallback.map(async (hotel) => {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('name, email')
+                .eq('id', hotel.user_id)
+                .single();
+
+              return {
+                ...hotel,
+                gallery_images: Array.isArray(hotel.gallery_images) ? 
+                  hotel.gallery_images as string[] : [],
+                amenities: Array.isArray(hotel.amenities) ? 
+                  hotel.amenities as string[] : [],
+                policies: typeof hotel.policies === 'object' && hotel.policies !== null ? 
+                  hotel.policies as Record<string, any> : {},
+                profiles: profile
+              };
+            })
+          );
+          
+          setPendingHotels(hotelsWithProfiles);
+        } else {
+          setPendingHotels([]);
+        }
+      } else if (hotels) {
+        const transformedHotels = hotels.map(hotel => ({
+          ...hotel,
+          gallery_images: Array.isArray(hotel.gallery_images) ? 
+            hotel.gallery_images as string[] : [],
+          amenities: Array.isArray(hotel.amenities) ? 
+            hotel.amenities as string[] : [],
+          policies: typeof hotel.policies === 'object' && hotel.policies !== null ? 
+            hotel.policies as Record<string, any> : {},
+        }));
         
-        setPendingHotels(hotelsWithProfiles);
+        setPendingHotels(transformedHotels);
       } else {
         setPendingHotels([]);
       }
