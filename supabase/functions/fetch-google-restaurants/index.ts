@@ -44,9 +44,20 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
     console.log('Starting Google Places API fetch for Cambutal restaurants...');
+
+    if (!GOOGLE_PLACES_API_KEY) {
+      console.error('Google Places API key not found');
+      return new Response(JSON.stringify({ 
+        error: 'Google Places API key not configured',
+        details: 'Please add your Google Places API key in the Supabase Edge Functions secrets.'
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Search for restaurants in Cambutal, Panama
     const searchUrl = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
@@ -54,12 +65,30 @@ serve(async (req) => {
     searchUrl.searchParams.set('type', 'restaurant');
     searchUrl.searchParams.set('key', GOOGLE_PLACES_API_KEY!);
 
+    console.log('Making request to Google Places API...');
     const searchResponse = await fetch(searchUrl.toString());
     const searchData = await searchResponse.json();
 
+    console.log('Google Places API response status:', searchData.status);
+
+    if (searchData.status === 'REQUEST_DENIED') {
+      console.error('Google Places API request denied:', searchData);
+      return new Response(JSON.stringify({ 
+        error: 'Google Places API request denied',
+        details: 'Your API key has restrictions that prevent server-side usage. Please configure your Google Places API key to allow requests from any HTTP referrer or remove HTTP referrer restrictions.',
+        help: 'Go to Google Cloud Console > APIs & Services > Credentials > Edit your API key > Remove HTTP referrer restrictions or add * as an allowed referrer.'
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (searchData.status !== 'OK') {
       console.error('Google Places API error:', searchData);
-      return new Response(JSON.stringify({ error: 'Google Places API error', details: searchData }), {
+      return new Response(JSON.stringify({ 
+        error: 'Google Places API error', 
+        details: searchData.error_message || `Status: ${searchData.status}`
+      }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -67,10 +96,23 @@ serve(async (req) => {
 
     console.log(`Found ${searchData.results.length} restaurants`);
 
+    if (!searchData.results || searchData.results.length === 0) {
+      return new Response(JSON.stringify({
+        success: true,
+        imported: 0,
+        restaurants: [],
+        message: 'No restaurants found in Cambutal, Panama area.'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const processedRestaurants = [];
 
-    // Process each restaurant
-    for (const place of searchData.results) {
+    // Process each restaurant (limit to first 5 to avoid timeout)
+    const restaurantsToProcess = searchData.results.slice(0, 5);
+    
+    for (const place of restaurantsToProcess) {
       try {
         console.log(`Processing restaurant: ${place.name}`);
 
@@ -90,13 +132,6 @@ serve(async (req) => {
 
         const placeDetails: GooglePlace = detailsData.result;
 
-        // Transform Google data to our schema
-        const category = mapGoogleTypeToCategory(placeDetails.types);
-        const hours = transformOpeningHours(placeDetails.opening_hours?.weekday_text);
-        
-        // Download and store images
-        const galleryImages = await downloadPlacePhotos(placeDetails, supabase);
-
         // Check if restaurant already exists
         const { data: existingRestaurant } = await supabase
           .from('restaurant_listings')
@@ -109,6 +144,13 @@ serve(async (req) => {
           console.log(`Restaurant ${placeDetails.name} already exists, skipping...`);
           continue;
         }
+
+        // Transform Google data to our schema
+        const category = mapGoogleTypeToCategory(placeDetails.types);
+        const hours = transformOpeningHours(placeDetails.opening_hours?.weekday_text);
+        
+        // Download and store images (limit to 2 images for faster processing)
+        const galleryImages = await downloadPlacePhotos(placeDetails, supabase, 2);
 
         // Create restaurant listing
         const restaurantData = {
@@ -153,14 +195,19 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       imported: processedRestaurants.length,
-      restaurants: processedRestaurants
+      restaurants: processedRestaurants,
+      total_found: searchData.results.length,
+      processed: restaurantsToProcess.length
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Error in fetch-google-restaurants function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: 'Internal server error',
+      details: error.message 
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -212,15 +259,15 @@ function transformOpeningHours(weekdayText?: string[]): Record<string, string> {
   return hours;
 }
 
-async function downloadPlacePhotos(place: GooglePlace, supabase: any): Promise<string[]> {
+async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos: number = 2): Promise<string[]> {
   const images: string[] = [];
   
   if (!place.photos || place.photos.length === 0) {
     return images;
   }
 
-  // Limit to first 5 photos to avoid excessive API calls
-  const photosToProcess = place.photos.slice(0, 5);
+  // Limit photos to avoid timeout
+  const photosToProcess = place.photos.slice(0, maxPhotos);
 
   for (let i = 0; i < photosToProcess.length; i++) {
     try {
