@@ -1,3 +1,4 @@
+
 import { formatInTimeZone } from 'date-fns-tz';
 
 const PANAMA_TIMEZONE = 'America/Panama';
@@ -74,17 +75,21 @@ const timeToMinutes = (timeStr: string): number => {
 
 export const convertTo24Hour = (time12h: string): string | null => {
   try {
-    // Clean up the input string
-    const cleanTime = time12h.trim();
+    // Clean up the input string - remove extra whitespace
+    const cleanTime = time12h.trim().replace(/\s+/g, ' ');
     
-    // If already in 24-hour format
+    console.log('Converting time:', cleanTime);
+    
+    // If already in 24-hour format (like "16:30")
     if (/^\d{1,2}:\d{2}$/.test(cleanTime)) {
       const [hours, minutes] = cleanTime.split(':');
       // Ensure proper formatting with leading zeros
-      return `${hours.padStart(2, '0')}:${minutes}`;
+      const formatted = `${hours.padStart(2, '0')}:${minutes}`;
+      console.log('Already 24-hour format, formatted:', formatted);
+      return formatted;
     }
 
-    // Handle 12-hour format
+    // Handle 12-hour format (like "4:30 PM")
     const timeMatch = cleanTime.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
     if (!timeMatch) {
       console.log('Failed to match time format for:', cleanTime);
@@ -94,14 +99,18 @@ export const convertTo24Hour = (time12h: string): string | null => {
     let [, hours, minutes, modifier] = timeMatch;
     let hourNum = parseInt(hours, 10);
 
+    console.log('Parsed 12-hour format:', { hours: hourNum, minutes, modifier });
+
+    // Convert 12-hour to 24-hour
     if (hourNum === 12) {
-      hourNum = 0;
-    }
-    if (modifier.toUpperCase() === 'PM') {
+      hourNum = modifier.toUpperCase() === 'AM' ? 0 : 12;
+    } else if (modifier.toUpperCase() === 'PM') {
       hourNum += 12;
     }
 
-    return `${hourNum.toString().padStart(2, '0')}:${minutes}`;
+    const converted = `${hourNum.toString().padStart(2, '0')}:${minutes}`;
+    console.log('Converted to 24-hour:', converted);
+    return converted;
   } catch (error) {
     console.error('Error converting time:', error);
     return null;
