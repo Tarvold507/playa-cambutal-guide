@@ -43,8 +43,12 @@ export const useHotelListings = () => {
 
       const transformedHotels: HotelListing[] = data?.map(hotel => ({
         ...hotel,
-        gallery_images: Array.isArray(hotel.gallery_images) ? hotel.gallery_images : [],
-        amenities: Array.isArray(hotel.amenities) ? hotel.amenities : [],
+        gallery_images: Array.isArray(hotel.gallery_images) 
+          ? hotel.gallery_images.filter((img): img is string => typeof img === 'string')
+          : [],
+        amenities: Array.isArray(hotel.amenities) 
+          ? hotel.amenities.filter((amenity): amenity is string => typeof amenity === 'string')
+          : [],
         policies: typeof hotel.policies === 'object' && hotel.policies !== null ? hotel.policies : {},
       })) || [];
 
@@ -88,8 +92,12 @@ export const useHotelDetails = (id: string) => {
         if (data) {
           setHotel({
             ...data,
-            gallery_images: Array.isArray(data.gallery_images) ? data.gallery_images : [],
-            amenities: Array.isArray(data.amenities) ? data.amenities : [],
+            gallery_images: Array.isArray(data.gallery_images) 
+              ? data.gallery_images.filter((img): img is string => typeof img === 'string')
+              : [],
+            amenities: Array.isArray(data.amenities) 
+              ? data.amenities.filter((amenity): amenity is string => typeof amenity === 'string')
+              : [],
             policies: typeof data.policies === 'object' && data.policies !== null ? data.policies : {},
           });
         }

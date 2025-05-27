@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -60,6 +61,17 @@ const staticStayItems = [
   }
 ];
 
+interface StayItem {
+  id: string;
+  title: string;
+  description: string;
+  imageSrc: string;
+  link: string;
+  category: string;
+  price?: number | null;
+  rating?: number | null;
+}
+
 const Stay = () => {
   const { user } = useAuth();
   const { hotels, loading } = useHotelListings();
@@ -71,7 +83,7 @@ const Stay = () => {
   }, []);
 
   // Combine static items with dynamic hotels
-  const dynamicItems = hotels.map(hotel => ({
+  const dynamicItems: StayItem[] = hotels.map(hotel => ({
     id: hotel.id,
     title: hotel.name,
     description: hotel.description || 'Comfortable accommodation in Playa Cambutal.',
@@ -82,7 +94,13 @@ const Stay = () => {
     rating: hotel.rating
   }));
 
-  const allItems = [...staticStayItems, ...dynamicItems];
+  const staticItems: StayItem[] = staticStayItems.map(item => ({
+    ...item,
+    price: null,
+    rating: null
+  }));
+
+  const allItems = [...staticItems, ...dynamicItems];
 
   // Filter items based on search and category
   const filteredItems = allItems.filter(item => {
