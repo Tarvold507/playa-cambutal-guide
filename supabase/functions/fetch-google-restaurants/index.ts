@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
@@ -318,6 +317,8 @@ serve(async (req) => {
           hours: hours,
           gallery_images: galleryImages,
           image_url: galleryImages[0] || null,
+          latitude: placeDetails.geometry.location.lat,
+          longitude: placeDetails.geometry.location.lng,
           approved: false,
           user_id: user.id,
         };

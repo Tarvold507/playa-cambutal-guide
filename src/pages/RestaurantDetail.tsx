@@ -10,6 +10,23 @@ import { findRestaurantBySlug } from '../utils/slugUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { isRestaurantOpen, formatHoursForDisplay, getCurrentPanamaTime } from '../utils/timeUtils';
+import RestaurantMap from '../components/RestaurantMap';
+
+interface Restaurant {
+  name: string;
+  category: string;
+  imageSrc: string;
+  description: string;
+  address: string;
+  phone?: string;
+  website?: string;
+  whatsapp?: string;
+  hours: Record<string, string>;
+  images?: string[];
+  menuImages?: string[];
+  latitude?: number;
+  longitude?: number;
+}
 
 const RestaurantDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -98,7 +115,9 @@ const RestaurantDetail = () => {
             images: Array.isArray(dbRestaurant.gallery_images) ? 
               dbRestaurant.gallery_images as string[] : [],
             menuImages: Array.isArray(dbRestaurant.menu_images) ? 
-              dbRestaurant.menu_images as string[] : []
+              dbRestaurant.menu_images as string[] : [],
+            latitude: dbRestaurant.latitude,
+            longitude: dbRestaurant.longitude
           };
           
           console.log('Transformed restaurant hours:', transformedRestaurant.hours);
@@ -230,9 +249,10 @@ const RestaurantDetail = () => {
       {/* Tabs Section */}
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="menu">Menu</TabsTrigger>
+            <TabsTrigger value="location">Location</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
           
@@ -297,6 +317,16 @@ const RestaurantDetail = () => {
                 <p>Menu images coming soon...</p>
               </div>
             )}
+          </TabsContent>
+          
+          <TabsContent value="location" className="mt-6">
+            <h3 className="text-xl font-semibold mb-4">Location</h3>
+            <RestaurantMap
+              latitude={restaurant.latitude || null}
+              longitude={restaurant.longitude || null}
+              name={restaurant.name}
+              address={restaurant.address}
+            />
           </TabsContent>
           
           <TabsContent value="reviews" className="mt-6">

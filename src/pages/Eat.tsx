@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -24,6 +23,8 @@ interface RestaurantItem {
   category?: string;
   openNow?: boolean;
   hours?: Record<string, string>;
+  latitude?: number;
+  longitude?: number;
 }
 
 const Eat = () => {
@@ -73,7 +74,9 @@ const Eat = () => {
           link: `/eat/${generateSlug(restaurant.name)}`,
           category: restaurant.category,
           openNow: isRestaurantOpen(normalizedHours),
-          hours: normalizedHours
+          hours: normalizedHours,
+          latitude: restaurant.latitude,
+          longitude: restaurant.longitude
         };
       }) || [];
 
