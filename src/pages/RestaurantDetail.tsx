@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -18,6 +19,22 @@ const RestaurantDetail = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // Helper function to normalize hours keys from lowercase to capitalized
+  const normalizeHoursKeys = (hours: Record<string, string>): Record<string, string> => {
+    const normalizedHours: Record<string, string> = {};
+    
+    Object.entries(hours).forEach(([key, value]) => {
+      // Capitalize the first letter of the day name
+      const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+      normalizedHours[capitalizedKey] = value;
+    });
+    
+    console.log('Original hours:', hours);
+    console.log('Normalized hours:', normalizedHours);
+    
+    return normalizedHours;
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
     
@@ -30,6 +47,8 @@ const RestaurantDetail = () => {
       // First check static restaurant data
       const staticRestaurant = findRestaurantBySlug(slug, restaurantData);
       if (staticRestaurant) {
+        console.log('Found static restaurant:', staticRestaurant.name);
+        console.log('Static restaurant hours:', staticRestaurant.hours);
         setRestaurant(staticRestaurant);
         setIsOpen(isRestaurantOpen(staticRestaurant.hours));
         setLoading(false);
@@ -57,10 +76,16 @@ const RestaurantDetail = () => {
         });
 
         if (dbRestaurant) {
+          console.log('Found database restaurant:', dbRestaurant.name);
+          console.log('Raw database hours:', dbRestaurant.hours);
+          
           // Transform database restaurant to match Restaurant interface
-          const restaurantHours = typeof dbRestaurant.hours === 'object' && dbRestaurant.hours !== null ? 
+          const rawHours = typeof dbRestaurant.hours === 'object' && dbRestaurant.hours !== null ? 
             dbRestaurant.hours as Record<string, string> : {};
-
+          
+          // Normalize the hours keys to be capitalized
+          const normalizedHours = normalizeHoursKeys(rawHours);
+          
           const transformedRestaurant: Restaurant = {
             name: dbRestaurant.name,
             category: dbRestaurant.category,
@@ -70,15 +95,21 @@ const RestaurantDetail = () => {
             phone: dbRestaurant.phone,
             website: dbRestaurant.website,
             whatsapp: dbRestaurant.whatsapp,
-            hours: restaurantHours,
+            hours: normalizedHours,
             images: Array.isArray(dbRestaurant.gallery_images) ? 
               dbRestaurant.gallery_images as string[] : [],
             menuImages: Array.isArray(dbRestaurant.menu_images) ? 
               dbRestaurant.menu_images as string[] : []
           };
           
+          console.log('Transformed restaurant hours:', transformedRestaurant.hours);
+          
           setRestaurant(transformedRestaurant);
-          setIsOpen(isRestaurantOpen(restaurantHours));
+          setIsOpen(isRestaurantOpen(normalizedHours));
+          
+          console.log('Restaurant open status:', isRestaurantOpen(normalizedHours));
+        } else {
+          console.log('Restaurant not found for slug:', slug);
         }
       } catch (error) {
         console.error('Error fetching restaurant:', error);
