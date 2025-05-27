@@ -303,6 +303,8 @@ serve(async (req) => {
         const hours = transformOpeningHours(placeDetails.opening_hours?.weekday_text, placeDetails.opening_hours?.periods);
         const description = generateDescription(placeDetails);
 
+        console.log(`Hours for ${placeDetails.name}:`, hours);
+
         // Download photos with error handling
         const galleryImages = await downloadPlacePhotos(placeDetails, supabase, 3);
 
@@ -428,40 +430,124 @@ function mapGoogleTypeToCategory(types: string[]): string {
 function transformOpeningHours(weekdayText?: string[], periods?: Array<any>): Record<string, string> {
   const hours: Record<string, string> = {};
   
-  if (!weekdayText && !periods) return hours;
+  if (!weekdayText && !periods) {
+    console.log('No opening hours data available');
+    return hours;
+  }
 
   const dayMap: Record<string, string> = {
-    'Monday': 'monday',
-    'Tuesday': 'tuesday', 
-    'Wednesday': 'wednesday',
-    'Thursday': 'thursday',
-    'Friday': 'friday',
-    'Saturday': 'saturday',
-    'Sunday': 'sunday'
+    'Monday': 'Monday',
+    'Tuesday': 'Tuesday', 
+    'Wednesday': 'Wednesday',
+    'Thursday': 'Thursday',
+    'Friday': 'Friday',
+    'Saturday': 'Saturday',
+    'Sunday': 'Sunday'
   };
 
-  if (weekdayText) {
+  if (weekdayText && weekdayText.length > 0) {
+    console.log('Processing weekdayText:', weekdayText);
+    
     for (const dayText of weekdayText) {
       try {
-        const [day, time] = dayText.split(': ');
+        console.log('Processing day text:', dayText);
+        
+        // Split on colon to separate day from hours
+        const colonIndex = dayText.indexOf(':');
+        if (colonIndex === -1) {
+          console.warn(`No colon found in: ${dayText}`);
+          continue;
+        }
+        
+        const day = dayText.substring(0, colonIndex).trim();
+        const time = dayText.substring(colonIndex + 1).trim();
+        
+        console.log(`Day: "${day}", Time: "${time}"`);
+        
         const normalizedDay = dayMap[day];
         if (normalizedDay) {
-          if (time === 'Closed') {
+          if (time === 'Closed' || time.toLowerCase() === 'closed') {
             hours[normalizedDay] = 'Closed';
-          } else if (time === 'Open 24 hours') {
+          } else if (time === 'Open 24 hours' || time.toLowerCase().includes('24 hours')) {
             hours[normalizedDay] = '24 hours';
           } else {
-            const cleanTime = time.replace(/\u202f/g, ' ').replace(/\u2013/g, '-');
+            // Clean up the time string - remove special characters and normalize dashes
+            const cleanTime = time
+              .replace(/\u202f/g, ' ')  // Replace narrow no-break space
+              .replace(/\u2013/g, '-')  // Replace en dash
+              .replace(/\u2014/g, '-')  // Replace em dash
+              .replace(/–/g, '-')       // Replace en dash
+              .replace(/—/g, '-')       // Replace em dash
+              .trim();
+            
             hours[normalizedDay] = cleanTime;
           }
+          
+          console.log(`Set hours for ${normalizedDay}: ${hours[normalizedDay]}`);
+        } else {
+          console.warn(`Day not recognized: ${day}`);
         }
       } catch (error) {
         console.warn(`Error parsing hours: ${dayText}`, error);
       }
     }
+  } else {
+    console.log('No weekdayText available, trying periods...');
+    
+    // Fallback to periods if weekdayText is not available
+    if (periods && periods.length > 0) {
+      console.log('Processing periods:', periods);
+      
+      // Initialize all days as closed
+      Object.values(dayMap).forEach(day => {
+        hours[day] = 'Closed';
+      });
+      
+      // Map Google's day numbers to day names (0 = Sunday, 1 = Monday, etc.)
+      const googleDayMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      
+      for (const period of periods) {
+        try {
+          if (period.open) {
+            const dayName = googleDayMap[period.open.day];
+            const openTime = formatGoogleTime(period.open.time);
+            const closeTime = period.close ? formatGoogleTime(period.close.time) : '24:00';
+            
+            if (dayName && openTime) {
+              hours[dayName] = `${openTime} - ${closeTime}`;
+              console.log(`Set hours from periods for ${dayName}: ${hours[dayName]}`);
+            }
+          }
+        } catch (error) {
+          console.warn('Error processing period:', period, error);
+        }
+      }
+    }
   }
 
+  console.log('Final transformed hours:', hours);
   return hours;
+}
+
+function formatGoogleTime(timeString: string): string {
+  // Google time format is HHMM (e.g., "0900" for 9:00 AM)
+  if (!timeString || timeString.length !== 4) {
+    return timeString;
+  }
+  
+  const hours = timeString.substring(0, 2);
+  const minutes = timeString.substring(2, 4);
+  const hourNum = parseInt(hours, 10);
+  
+  if (hourNum === 0) {
+    return `12:${minutes} AM`;
+  } else if (hourNum < 12) {
+    return `${hourNum}:${minutes} AM`;
+  } else if (hourNum === 12) {
+    return `12:${minutes} PM`;
+  } else {
+    return `${hourNum - 12}:${minutes} PM`;
+  }
 }
 
 function generateDescription(place: GooglePlace): string {
