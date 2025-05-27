@@ -10,6 +10,7 @@ import PendingEventsTab from '@/components/admin/PendingEventsTab';
 import PendingBusinessesTab from '@/components/admin/PendingBusinessesTab';
 import PendingRestaurantsTab from '@/components/admin/PendingRestaurantsTab';
 import PendingHotelsTab from '@/components/admin/PendingHotelsTab';
+import LiveHotelsTab from '@/components/admin/LiveHotelsTab';
 import AdminEditDialog from '@/components/admin/AdminEditDialog';
 import { useAdminActions } from '@/hooks/useAdminActions';
 
@@ -23,10 +24,11 @@ const AdminDashboard = () => {
     pendingBusinesses,
     pendingRestaurants,
     pendingHotels,
+    liveHotels,
     isEditing,
     editForm,
     checkAdminStatus,
-    fetchPendingItems,
+    refreshAllData,
     handleApprove,
     handleReject,
     handleEdit,
@@ -45,7 +47,7 @@ const AdminDashboard = () => {
   }, [user, navigate]);
 
   useEffect(() => {
-    fetchPendingItems();
+    refreshAllData();
   }, []);
 
   if (!user) return null;
@@ -58,11 +60,12 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold mb-8">{t('admin.title')}</h1>
         
         <Tabs defaultValue="events" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="events">{t('admin.pendingEvents')} ({pendingEvents.length})</TabsTrigger>
             <TabsTrigger value="businesses">{t('admin.pendingBusinesses')} ({pendingBusinesses.length})</TabsTrigger>
             <TabsTrigger value="restaurants">Pending Restaurants ({pendingRestaurants.length})</TabsTrigger>
             <TabsTrigger value="hotels">Pending Hotels ({pendingHotels.length})</TabsTrigger>
+            <TabsTrigger value="live-hotels">Live Hotels ({liveHotels.length})</TabsTrigger>
           </TabsList>
           
           <TabsContent value="events">
@@ -98,6 +101,13 @@ const AdminDashboard = () => {
               onApprove={(id) => handleApprove('hotel_listings', id)}
               onEdit={(item) => handleEdit(item, 'hotel')}
               onReject={(id) => handleReject('hotel_listings', id)}
+            />
+          </TabsContent>
+
+          <TabsContent value="live-hotels">
+            <LiveHotelsTab
+              liveHotels={liveHotels}
+              onEdit={(item) => handleEdit(item, 'hotel')}
             />
           </TabsContent>
         </Tabs>

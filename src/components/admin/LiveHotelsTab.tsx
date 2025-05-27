@@ -2,34 +2,35 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Check, X, MapPin, Star, ExternalLink } from 'lucide-react';
+import { Edit, MapPin, Star, ExternalLink } from 'lucide-react';
 import { getAmenityIcon } from '@/utils/amenityIcons';
 
-interface PendingHotelsTabProps {
-  pendingHotels: any[];
-  onApprove: (id: string) => void;
+interface LiveHotelsTabProps {
+  liveHotels: any[];
   onEdit: (item: any) => void;
-  onReject: (id: string) => void;
 }
 
-const PendingHotelsTab = ({ pendingHotels, onApprove, onEdit, onReject }: PendingHotelsTabProps) => {
-  if (pendingHotels.length === 0) {
+const LiveHotelsTab = ({ liveHotels, onEdit }: LiveHotelsTabProps) => {
+  if (liveHotels.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">No pending hotel listings.</p>
+        <p className="text-gray-500">No live hotel listings.</p>
       </div>
     );
   }
 
   return (
     <div className="grid gap-6">
-      {pendingHotels.map((hotel) => (
+      {liveHotels.map((hotel) => (
         <Card key={hotel.id}>
           <CardHeader>
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <CardTitle className="flex items-center gap-2">
                   {hotel.name}
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    Live
+                  </Badge>
                   <Badge variant="secondary">{hotel.category}</Badge>
                   {hotel.rating && (
                     <div className="flex items-center gap-1 text-sm">
@@ -56,24 +57,6 @@ const PendingHotelsTab = ({ pendingHotels, onApprove, onEdit, onReject }: Pendin
                 >
                   <Edit className="w-4 h-4 mr-1" />
                   Edit
-                </Button>
-                <Button
-                  onClick={() => onApprove(hotel.id)}
-                  variant="outline"
-                  size="sm"
-                  className="text-green-600 border-green-600 hover:bg-green-50"
-                >
-                  <Check className="w-4 h-4 mr-1" />
-                  Approve
-                </Button>
-                <Button
-                  onClick={() => onReject(hotel.id)}
-                  variant="outline"
-                  size="sm"
-                  className="text-red-600 border-red-600 hover:bg-red-50"
-                >
-                  <X className="w-4 h-4 mr-1" />
-                  Reject
                 </Button>
               </div>
             </div>
@@ -155,4 +138,4 @@ const PendingHotelsTab = ({ pendingHotels, onApprove, onEdit, onReject }: Pendin
   );
 };
 
-export default PendingHotelsTab;
+export default LiveHotelsTab;

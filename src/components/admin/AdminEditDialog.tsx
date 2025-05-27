@@ -1,10 +1,10 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/contexts/LanguageContext';
+import HotelEditForm from './HotelEditForm';
 
 interface EditFormData {
   type?: 'event' | 'business' | 'restaurant' | 'hotel';
@@ -30,6 +30,8 @@ interface EditFormData {
   price_from?: number;
   commission_rate?: number;
   policies?: Record<string, any>;
+  full_description?: string;
+  rating?: number;
   [key: string]: any;
 }
 
@@ -46,7 +48,7 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             Edit {editForm.type === 'event' ? 'Event' : 
@@ -58,6 +60,7 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
         <div className="space-y-4">
           {editForm.type === 'event' ? (
             <>
+              {/* Event form fields - keep existing code */}
               <div>
                 <Label htmlFor="edit-title">Title</Label>
                 <Input
@@ -93,6 +96,7 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
             </>
           ) : editForm.type === 'business' ? (
             <>
+              {/* Business form fields - keep existing code */}
               <div>
                 <Label htmlFor="edit-name">Business Name</Label>
                 <Input
@@ -120,6 +124,7 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
             </>
           ) : editForm.type === 'restaurant' ? (
             <>
+              {/* Restaurant form fields - keep existing code */}
               <div>
                 <Label htmlFor="edit-name">Restaurant Name</Label>
                 <Input
@@ -154,59 +159,12 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
               </div>
             </>
           ) : (
-            <>
-              <div>
-                <Label htmlFor="edit-name">Hotel Name</Label>
-                <Input
-                  id="edit-name"
-                  value={editForm.name || ''}
-                  onChange={(e) => onFormChange({ name: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-category">Category</Label>
-                <Input
-                  id="edit-category"
-                  value={editForm.category || ''}
-                  onChange={(e) => onFormChange({ category: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-address">Address</Label>
-                <Input
-                  id="edit-address"
-                  value={editForm.address || ''}
-                  onChange={(e) => onFormChange({ address: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-description">Description</Label>
-                <Textarea
-                  id="edit-description"
-                  value={editForm.description || ''}
-                  onChange={(e) => onFormChange({ description: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-affiliate-url">Expedia Affiliate URL</Label>
-                <Input
-                  id="edit-affiliate-url"
-                  value={editForm.affiliate_url || ''}
-                  onChange={(e) => onFormChange({ affiliate_url: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-price-from">Price From (USD)</Label>
-                <Input
-                  id="edit-price-from"
-                  type="number"
-                  value={editForm.price_from || ''}
-                  onChange={(e) => onFormChange({ price_from: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
-            </>
+            <HotelEditForm
+              editForm={editForm}
+              onFormChange={onFormChange}
+            />
           )}
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-4 border-t">
             <Button variant="outline" onClick={onClose}>
               {t('common.cancel')}
             </Button>
