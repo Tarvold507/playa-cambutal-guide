@@ -12,9 +12,9 @@ import { Badge } from '@/components/ui/badge';
 import { useHotelDetails } from '@/hooks/useHotelListings';
 
 const HotelDetail = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
-  const { hotel, loading } = useHotelDetails(id || '');
+  const { hotel, loading } = useHotelDetails(slug || '');
 
   useEffect(() => {
     window.scrollTo(0, 0);

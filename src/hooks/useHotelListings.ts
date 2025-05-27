@@ -3,9 +3,21 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+// Helper function to create URL-friendly slugs
+const createSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '_') // Replace spaces with underscores
+    .replace(/-+/g, '_') // Replace hyphens with underscores
+    .replace(/_+/g, '_') // Replace multiple underscores with single
+    .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
+};
+
 export interface HotelListing {
   id: string;
   name: string;
+  slug: string;
   description: string | null;
   full_description: string | null;
   category: string;
@@ -43,6 +55,7 @@ export const useHotelListings = () => {
 
       const transformedHotels: HotelListing[] = data?.map(hotel => ({
         ...hotel,
+        slug: createSlug(hotel.name),
         gallery_images: Array.isArray(hotel.gallery_images) 
           ? hotel.gallery_images.filter((img): img is string => typeof img === 'string')
           : [],
@@ -72,7 +85,7 @@ export const useHotelListings = () => {
   return { hotels, loading, refetch: fetchHotels };
 };
 
-export const useHotelDetails = (id: string) => {
+export const useHotelDetails = (slug: string) => {
   const [hotel, setHotel] = useState<HotelListing | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -80,26 +93,31 @@ export const useHotelDetails = (id: string) => {
   useEffect(() => {
     const fetchHotel = async () => {
       try {
+        // First fetch all hotels to find the one with matching slug
         const { data, error } = await supabase
           .from('hotel_listings')
           .select('*')
-          .eq('id', id)
-          .eq('approved', true)
-          .single();
+          .eq('approved', true);
 
         if (error) throw error;
 
         if (data) {
-          setHotel({
-            ...data,
-            gallery_images: Array.isArray(data.gallery_images) 
-              ? data.gallery_images.filter((img): img is string => typeof img === 'string')
-              : [],
-            amenities: Array.isArray(data.amenities) 
-              ? data.amenities.filter((amenity): amenity is string => typeof amenity === 'string')
-              : [],
-            policies: typeof data.policies === 'object' && data.policies !== null ? data.policies : {},
-          });
+          // Find hotel by slug
+          const matchingHotel = data.find(hotel => createSlug(hotel.name) === slug);
+          
+          if (matchingHotel) {
+            setHotel({
+              ...matchingHotel,
+              slug: createSlug(matchingHotel.name),
+              gallery_images: Array.isArray(matchingHotel.gallery_images) 
+                ? matchingHotel.gallery_images.filter((img): img is string => typeof img === 'string')
+                : [],
+              amenities: Array.isArray(matchingHotel.amenities) 
+                ? matchingHotel.amenities.filter((amenity): amenity is string => typeof amenity === 'string')
+                : [],
+              policies: typeof matchingHotel.policies === 'object' && matchingHotel.policies !== null ? matchingHotel.policies : {},
+            });
+          }
         }
       } catch (error) {
         console.error('Error fetching hotel details:', error);
@@ -113,10 +131,10 @@ export const useHotelDetails = (id: string) => {
       }
     };
 
-    if (id) {
+    if (slug) {
       fetchHotel();
     }
-  }, [id, toast]);
+  }, [slug, toast]);
 
   return { hotel, loading };
 };

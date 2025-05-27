@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -87,7 +88,7 @@ const Stay = () => {
     title: hotel.name,
     description: hotel.description || 'Comfortable accommodation in Playa Cambutal.',
     imageSrc: hotel.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    link: `/stay/${hotel.id}`,
+    link: `/stay/${hotel.slug}`,
     category: hotel.category,
     price: hotel.price_from,
     rating: hotel.rating
