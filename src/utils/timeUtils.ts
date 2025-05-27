@@ -1,4 +1,3 @@
-
 import { formatInTimeZone } from 'date-fns-tz';
 
 const PANAMA_TIMEZONE = 'America/Panama';
@@ -10,6 +9,7 @@ export const isRestaurantOpen = (hours: Record<string, string>): boolean => {
   const currentDay = formatInTimeZone(now, PANAMA_TIMEZONE, 'EEEE'); // Full day name like "Monday"
   const currentTime = formatInTimeZone(now, PANAMA_TIMEZONE, 'HH:mm'); // 24-hour format
   
+  console.log('=== Restaurant Open Check Debug ===');
   console.log('Panama timezone check:', {
     currentDay,
     currentTime,
@@ -17,53 +17,91 @@ export const isRestaurantOpen = (hours: Record<string, string>): boolean => {
   });
 
   const todayHours = hours[currentDay];
+  console.log('Today hours for', currentDay, ':', todayHours);
   
   if (!todayHours || todayHours.toLowerCase() === 'closed') {
+    console.log('Restaurant is closed today or no hours available');
     return false;
   }
 
   // Parse hours like "11:00 AM - 10:00 PM" or "11:00 - 22:00"
   const timeRange = todayHours.split(' - ');
+  console.log('Time range split:', timeRange);
+  
   if (timeRange.length !== 2) {
+    console.log('Invalid time range format');
     return false;
   }
 
-  const openTime = convertTo24Hour(timeRange[0].trim());
-  const closeTime = convertTo24Hour(timeRange[1].trim());
+  const openTimeStr = timeRange[0].trim();
+  const closeTimeStr = timeRange[1].trim();
+  console.log('Open time string:', openTimeStr);
+  console.log('Close time string:', closeTimeStr);
+
+  const openTime = convertTo24Hour(openTimeStr);
+  const closeTime = convertTo24Hour(closeTimeStr);
+  console.log('Converted open time:', openTime);
+  console.log('Converted close time:', closeTime);
 
   if (!openTime || !closeTime) {
+    console.log('Failed to convert times');
     return false;
   }
 
-  return currentTime >= openTime && currentTime <= closeTime;
+  // Convert times to minutes since midnight for reliable numeric comparison
+  const currentMinutes = timeToMinutes(currentTime);
+  const openMinutes = timeToMinutes(openTime);
+  const closeMinutes = timeToMinutes(closeTime);
+  
+  console.log('Time comparison (minutes since midnight):', {
+    current: currentMinutes,
+    open: openMinutes,
+    close: closeMinutes
+  });
+
+  const isOpen = currentMinutes >= openMinutes && currentMinutes <= closeMinutes;
+  console.log('Restaurant is open:', isOpen);
+  console.log('=== End Debug ===');
+
+  return isOpen;
+};
+
+// Helper function to convert time string to minutes since midnight
+const timeToMinutes = (timeStr: string): number => {
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  return hours * 60 + minutes;
 };
 
 export const convertTo24Hour = (time12h: string): string | null => {
   try {
+    // Clean up the input string
+    const cleanTime = time12h.trim();
+    
     // If already in 24-hour format
-    if (/^\d{2}:\d{2}$/.test(time12h)) {
-      return time12h;
+    if (/^\d{1,2}:\d{2}$/.test(cleanTime)) {
+      const [hours, minutes] = cleanTime.split(':');
+      // Ensure proper formatting with leading zeros
+      return `${hours.padStart(2, '0')}:${minutes}`;
     }
 
     // Handle 12-hour format
-    const [time, modifier] = time12h.split(' ');
-    if (!time || !modifier) {
+    const timeMatch = cleanTime.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!timeMatch) {
+      console.log('Failed to match time format for:', cleanTime);
       return null;
     }
 
-    let [hours, minutes] = time.split(':');
-    if (!hours || !minutes) {
-      return null;
-    }
+    let [, hours, minutes, modifier] = timeMatch;
+    let hourNum = parseInt(hours, 10);
 
-    if (hours === '12') {
-      hours = '00';
+    if (hourNum === 12) {
+      hourNum = 0;
     }
     if (modifier.toUpperCase() === 'PM') {
-      hours = String(parseInt(hours, 10) + 12);
+      hourNum += 12;
     }
 
-    return `${hours.padStart(2, '0')}:${minutes}`;
+    return `${hourNum.toString().padStart(2, '0')}:${minutes}`;
   } catch (error) {
     console.error('Error converting time:', error);
     return null;
