@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
@@ -47,22 +48,21 @@ interface SearchLocation {
   name: string;
   lat: number;
   lng: number;
-  radius: number; // in meters
+  radius: number;
 }
 
 const GOOGLE_PLACES_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-// More precise coordinates for Cambutal and surrounding areas
+// Enhanced search locations with more precise Cambutal coordinates
 const SEARCH_LOCATIONS: SearchLocation[] = [
-  { name: 'Cambutal Beach', lat: 7.31671, lng: -80.48333, radius: 2000 }, // More precise Cambutal coordinates
-  { name: 'Cambutal Village', lat: 7.31500, lng: -80.48500, radius: 1500 }, // Village center
-  { name: 'Guanico', lat: 7.4167, lng: -80.5, radius: 1500 }, // Reduced radius
-  { name: 'Horcones', lat: 7.25, lng: -80.45, radius: 1000 }, // Reduced radius
+  { name: 'Cambutal Beach', lat: 7.31671, lng: -80.48333, radius: 3000 },
+  { name: 'Cambutal Village', lat: 7.31500, lng: -80.48500, radius: 2000 },
+  { name: 'Guanico', lat: 7.4167, lng: -80.5, radius: 2000 },
+  { name: 'Horcones', lat: 7.25, lng: -80.45, radius: 1500 },
 ];
 
-// More specific food-related place types
 const PLACE_TYPES = ['restaurant', 'bar', 'cafe', 'meal_takeaway', 'food'];
 
 serve(async (req) => {
@@ -71,9 +71,20 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting targeted Google Places API fetch for Cambutal restaurants...');
+    console.log('Starting Google Places API fetch...');
 
-    // Get the authorization header to identify the user
+    // Parse request body to check for specific restaurant name
+    let requestBody;
+    try {
+      const text = await req.text();
+      requestBody = text ? JSON.parse(text) : {};
+    } catch {
+      requestBody = {};
+    }
+
+    const specificRestaurantName = requestBody.restaurantName;
+    console.log('Request details:', { specificRestaurantName, hasBody: !!requestBody });
+
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ 
@@ -87,7 +98,7 @@ serve(async (req) => {
     }
 
     if (!GOOGLE_PLACES_API_KEY) {
-      console.error('Google Places API key not found');
+      console.error('Google Places API key not found in environment variables');
       return new Response(JSON.stringify({ 
         success: false,
         error: 'Google Places API key not configured',
@@ -99,7 +110,8 @@ serve(async (req) => {
       });
     }
 
-    // Create Supabase client with user's auth token
+    console.log('Google Places API key found, length:', GOOGLE_PLACES_API_KEY.length);
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       global: {
         headers: {
@@ -108,7 +120,6 @@ serve(async (req) => {
       },
     });
 
-    // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       console.error('Failed to get user:', userError);
@@ -124,24 +135,28 @@ serve(async (req) => {
 
     console.log('Import initiated by user:', user.id);
 
-    // Collect all unique places from location-based searches
-    const allPlaces = new Map<string, GooglePlace>();
+    let allPlaces = new Map<string, GooglePlace>();
     let totalFound = 0;
     const searchResults = [];
 
-    for (const location of SEARCH_LOCATIONS) {
-      for (const placeType of PLACE_TYPES) {
+    if (specificRestaurantName) {
+      // Search for specific restaurant by name
+      console.log(`Searching for specific restaurant: ${specificRestaurantName}`);
+      
+      for (const location of SEARCH_LOCATIONS) {
         try {
-          console.log(`Searching for ${placeType} near ${location.name} (${location.lat}, ${location.lng})`);
-          
-          const searchUrl = new URL('https://maps.googleapis.com/maps/api/place/nearbysearch/json');
+          const searchUrl = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
+          searchUrl.searchParams.set('query', `${specificRestaurantName} restaurant ${location.name} Panama`);
           searchUrl.searchParams.set('location', `${location.lat},${location.lng}`);
-          searchUrl.searchParams.set('radius', location.radius.toString());
-          searchUrl.searchParams.set('type', placeType);
+          searchUrl.searchParams.set('radius', '5000');
           searchUrl.searchParams.set('key', GOOGLE_PLACES_API_KEY!);
 
+          console.log(`Text search URL: ${searchUrl.toString()}`);
           const searchResponse = await fetch(searchUrl.toString());
           const searchData = await searchResponse.json();
+
+          console.log(`Text search response status: ${searchData.status}`);
+          console.log(`Text search results count: ${searchData.results?.length || 0}`);
 
           if (searchData.status === 'REQUEST_DENIED') {
             console.error('Google Places API request denied:', searchData);
@@ -157,38 +172,80 @@ serve(async (req) => {
           }
 
           if (searchData.status === 'OK' && searchData.results) {
-            const locationResults = searchData.results.length;
-            totalFound += locationResults;
-            
-            // Filter out obvious non-restaurants before adding to collection
             for (const place of searchData.results) {
-              if (isValidRestaurant(place)) {
-                if (!allPlaces.has(place.place_id)) {
-                  allPlaces.set(place.place_id, place);
-                }
-              }
+              console.log(`Found place: ${place.name} - Types: ${place.types.join(', ')}`);
+              allPlaces.set(place.place_id, place);
+              totalFound++;
             }
-            
-            searchResults.push({
-              location: location.name,
-              type: placeType,
-              found: locationResults
-            });
-            
-            console.log(`Found ${locationResults} ${placeType}s near ${location.name}`);
-          } else if (searchData.status === 'ZERO_RESULTS') {
-            console.log(`No ${placeType}s found near ${location.name}`);
           }
         } catch (error) {
-          console.error(`Error searching for ${placeType} near ${location.name}:`, error);
-          continue;
+          console.error(`Error in text search near ${location.name}:`, error);
+        }
+      }
+    } else {
+      // Original location-based search
+      console.log('Starting location-based search for restaurants...');
+      
+      for (const location of SEARCH_LOCATIONS) {
+        for (const placeType of PLACE_TYPES) {
+          try {
+            console.log(`Searching for ${placeType} near ${location.name} (${location.lat}, ${location.lng})`);
+            
+            const searchUrl = new URL('https://maps.googleapis.com/maps/api/place/nearbysearch/json');
+            searchUrl.searchParams.set('location', `${location.lat},${location.lng}`);
+            searchUrl.searchParams.set('radius', location.radius.toString());
+            searchUrl.searchParams.set('type', placeType);
+            searchUrl.searchParams.set('key', GOOGLE_PLACES_API_KEY!);
+
+            const searchResponse = await fetch(searchUrl.toString());
+            const searchData = await searchResponse.json();
+
+            console.log(`Search ${placeType} near ${location.name}: Status=${searchData.status}, Results=${searchData.results?.length || 0}`);
+
+            if (searchData.status === 'REQUEST_DENIED') {
+              console.error('Google Places API request denied:', searchData);
+              return new Response(JSON.stringify({ 
+                success: false,
+                error: 'Google Places API request denied',
+                details: 'Your API key has restrictions that prevent server-side usage. Please configure your Google Places API key to allow requests from any HTTP referrer or remove HTTP referrer restrictions.',
+                help: 'Go to Google Cloud Console > APIs & Services > Credentials > Edit your API key > Remove HTTP referrer restrictions or add * as an allowed referrer.'
+              }), {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              });
+            }
+
+            if (searchData.status === 'OK' && searchData.results) {
+              const locationResults = searchData.results.length;
+              totalFound += locationResults;
+              
+              for (const place of searchData.results) {
+                console.log(`Found: ${place.name} - Types: ${place.types.join(', ')} - Rating: ${place.rating || 'N/A'}`);
+                
+                // Less restrictive filtering - just check if it has food-related types
+                if (hasValidFoodType(place.types)) {
+                  allPlaces.set(place.place_id, place);
+                  console.log(`Added to collection: ${place.name}`);
+                } else {
+                  console.log(`Filtered out: ${place.name} (no valid food types)`);
+                }
+              }
+              
+              searchResults.push({
+                location: location.name,
+                type: placeType,
+                found: locationResults
+              });
+            }
+          } catch (error) {
+            console.error(`Error searching for ${placeType} near ${location.name}:`, error);
+          }
         }
       }
     }
 
     const uniquePlaces = Array.from(allPlaces.values());
-    console.log(`Total unique places found: ${uniquePlaces.length} from ${totalFound} total results`);
-    console.log('Search breakdown:', searchResults);
+    console.log(`Total places in collection: ${uniquePlaces.length} from ${totalFound} total results`);
 
     if (uniquePlaces.length === 0) {
       return new Response(JSON.stringify({
@@ -197,7 +254,9 @@ serve(async (req) => {
         restaurants: [],
         total_found: totalFound,
         search_breakdown: searchResults,
-        message: 'No restaurants found in the specified Cambutal area locations.'
+        message: specificRestaurantName 
+          ? `No restaurants found matching "${specificRestaurantName}" in the Cambutal area.`
+          : 'No restaurants found in the specified Cambutal area locations.'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -206,14 +265,12 @@ serve(async (req) => {
     const processedRestaurants = [];
     const errors = [];
 
-    // Process places (limit to 20 for better quality control)
-    const placesToProcess = uniquePlaces.slice(0, 20);
-    
-    for (const place of placesToProcess) {
+    // Process all found places
+    for (const place of uniquePlaces) {
       try {
-        console.log(`Processing restaurant: ${place.name} (${place.place_id})`);
+        console.log(`Processing: ${place.name} (${place.place_id})`);
 
-        // Get detailed information with enhanced fields
+        // Get detailed information
         const detailsUrl = new URL('https://maps.googleapis.com/maps/api/place/details/json');
         detailsUrl.searchParams.set('place_id', place.place_id);
         detailsUrl.searchParams.set('fields', 'name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,price_level,opening_hours,photos,types,geometry,reviews');
@@ -230,31 +287,25 @@ serve(async (req) => {
 
         const placeDetails: GooglePlace = detailsData.result;
 
-        // Enhanced duplicate checking
+        // Check for existing restaurant with more lenient matching
         const { data: existingRestaurant } = await supabase
           .from('restaurant_listings')
           .select('id, name, address')
-          .or(`name.ilike.${placeDetails.name.replace(/'/g, "''")},and(name.ilike.%${placeDetails.name.split(' ')[0]}%,address.ilike.%${placeDetails.formatted_address.split(',')[0]}%)`)
+          .or(`name.ilike.%${placeDetails.name.replace(/'/g, "''")}%,address.ilike.%${placeDetails.formatted_address.split(',')[0]}%`)
           .maybeSingle();
 
         if (existingRestaurant) {
-          console.log(`Restaurant similar to ${placeDetails.name} already exists (${existingRestaurant.name}), skipping...`);
+          console.log(`Restaurant similar to ${placeDetails.name} already exists, skipping...`);
           continue;
         }
 
-        // Enhanced category mapping
         const category = mapGoogleTypeToCategory(placeDetails.types);
-        
-        // Improved hours processing
         const hours = transformOpeningHours(placeDetails.opening_hours?.weekday_text, placeDetails.opening_hours?.periods);
-        
-        // Enhanced description generation
         const description = generateDescription(placeDetails);
 
-        // Download and store images with proper error handling
+        // Download photos with error handling
         const galleryImages = await downloadPlacePhotos(placeDetails, supabase, 3);
 
-        // Create restaurant listing with enhanced data
         const restaurantData = {
           name: placeDetails.name,
           description: description,
@@ -265,11 +316,11 @@ serve(async (req) => {
           hours: hours,
           gallery_images: galleryImages,
           image_url: galleryImages[0] || null,
-          approved: false, // Require admin approval
+          approved: false,
           user_id: user.id,
         };
 
-        console.log(`Inserting restaurant ${placeDetails.name} with user_id: ${user.id}`);
+        console.log(`Inserting restaurant: ${placeDetails.name}`);
 
         const { data: newRestaurant, error } = await supabase
           .from('restaurant_listings')
@@ -278,7 +329,7 @@ serve(async (req) => {
           .single();
 
         if (error) {
-          console.error(`Failed to insert restaurant ${placeDetails.name}:`, error);
+          console.error(`Failed to insert ${placeDetails.name}:`, error);
           errors.push(`Failed to insert ${placeDetails.name}: ${error.message}`);
           continue;
         }
@@ -293,12 +344,11 @@ serve(async (req) => {
           address: placeDetails.formatted_address
         });
 
-        console.log(`Successfully imported: ${placeDetails.name} (Rating: ${placeDetails.rating || 'N/A'}, Reviews: ${placeDetails.user_ratings_total || 0}, Photos: ${galleryImages.length})`);
+        console.log(`Successfully imported: ${placeDetails.name}`);
 
       } catch (error) {
-        console.error(`Error processing restaurant ${place.name}:`, error);
+        console.error(`Error processing ${place.name}:`, error);
         errors.push(`Error processing ${place.name}: ${error.message}`);
-        continue;
       }
     }
 
@@ -308,18 +358,20 @@ serve(async (req) => {
       restaurants: processedRestaurants,
       total_found: totalFound,
       unique_places: uniquePlaces.length,
-      processed: placesToProcess.length,
+      processed: uniquePlaces.length,
       search_breakdown: searchResults,
-      locations_searched: SEARCH_LOCATIONS.map(l => l.name)
+      locations_searched: SEARCH_LOCATIONS.map(l => l.name),
+      search_type: specificRestaurantName ? 'name_based' : 'location_based'
     };
 
-    // Add detailed results
     if (errors.length > 0) {
-      response.details = `Imported ${processedRestaurants.length} restaurants successfully from ${SEARCH_LOCATIONS.map(l => l.name).join(', ')}. ${errors.length} errors occurred.`;
+      response.details = `Imported ${processedRestaurants.length} restaurants. ${errors.length} errors occurred.`;
       response.errors = errors;
     } else {
-      response.details = `Successfully imported ${processedRestaurants.length} restaurants from ${uniquePlaces.length} unique places found in ${SEARCH_LOCATIONS.map(l => l.name).join(', ')}.`;
+      response.details = `Successfully imported ${processedRestaurants.length} restaurants from ${uniquePlaces.length} unique places found.`;
     }
+
+    console.log('Final response:', response);
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -338,39 +390,10 @@ serve(async (req) => {
   }
 });
 
-// Filter function to identify valid restaurants
-function isValidRestaurant(place: GooglePlace): boolean {
-  const name = place.name.toLowerCase();
-  const types = place.types;
-  
-  // Exclude obvious non-restaurants
-  const excludeKeywords = [
-    'school', 'escuela', 'universidad', 'college',
-    'hospital', 'clinic', 'clinica',
-    'bank', 'banco', 'atm',
-    'gas station', 'gasolinera', 'fuel',
-    'church', 'iglesia', 'temple',
-    'hotel', 'lodge', 'hostel', 'resort',
-    'store', 'tienda', 'market', 'supermercado',
-    'pharmacy', 'farmacia',
-    'police', 'policia',
-    'government', 'gobierno',
-    'park', 'parque', 'reserve', 'reserva',
-    'beach', 'playa'
-  ];
-  
-  // Check if name contains excluded keywords
-  for (const keyword of excludeKeywords) {
-    if (name.includes(keyword)) {
-      return false;
-    }
-  }
-  
-  // Must have food-related types
+// Simplified validation - just check for food-related types
+function hasValidFoodType(types: string[]): boolean {
   const foodTypes = ['restaurant', 'bar', 'cafe', 'bakery', 'meal_takeaway', 'meal_delivery', 'food'];
-  const hasFoodType = types.some(type => foodTypes.includes(type));
-  
-  return hasFoodType;
+  return types.some(type => foodTypes.includes(type));
 }
 
 function mapGoogleTypeToCategory(types: string[]): string {
@@ -383,12 +406,9 @@ function mapGoogleTypeToCategory(types: string[]): string {
     'meal_delivery': 'Delivery',
     'food': 'Restaurant',
     'night_club': 'Bar & Tapas',
-    'establishment': 'Restaurant',
-    'lodging': 'Hotel Restaurant'
   };
 
-  // Prioritize more specific types
-  const priorityOrder = ['restaurant', 'bar', 'cafe', 'bakery', 'meal_takeaway', 'meal_delivery'];
+  const priorityOrder = ['restaurant', 'bar', 'cafe', 'bakery', 'meal_takeaway'];
   
   for (const priority of priorityOrder) {
     if (types.includes(priority) && categoryMap[priority]) {
@@ -396,14 +416,13 @@ function mapGoogleTypeToCategory(types: string[]): string {
     }
   }
 
-  // Fallback to any matching type
   for (const type of types) {
     if (categoryMap[type]) {
       return categoryMap[type];
     }
   }
   
-  return 'Restaurant'; // Default category
+  return 'Restaurant';
 }
 
 function transformOpeningHours(weekdayText?: string[], periods?: Array<any>): Record<string, string> {
@@ -421,7 +440,6 @@ function transformOpeningHours(weekdayText?: string[], periods?: Array<any>): Re
     'Sunday': 'sunday'
   };
 
-  // Process weekday text first (more reliable)
   if (weekdayText) {
     for (const dayText of weekdayText) {
       try {
@@ -433,23 +451,12 @@ function transformOpeningHours(weekdayText?: string[], periods?: Array<any>): Re
           } else if (time === 'Open 24 hours') {
             hours[normalizedDay] = '24 hours';
           } else {
-            // Clean up time format
             const cleanTime = time.replace(/\u202f/g, ' ').replace(/\u2013/g, '-');
             hours[normalizedDay] = cleanTime;
           }
         }
       } catch (error) {
-        console.warn(`Error parsing hours for day: ${dayText}`, error);
-        continue;
-      }
-    }
-  }
-
-  // Fill in any missing days as 'Hours vary' if we have some data
-  if (Object.keys(hours).length > 0 && Object.keys(hours).length < 7) {
-    for (const [, normalizedDay] of Object.entries(dayMap)) {
-      if (!hours[normalizedDay]) {
-        hours[normalizedDay] = 'Hours vary';
+        console.warn(`Error parsing hours: ${dayText}`, error);
       }
     }
   }
@@ -460,7 +467,6 @@ function transformOpeningHours(weekdayText?: string[], periods?: Array<any>): Re
 function generateDescription(place: GooglePlace): string {
   const parts = [];
   
-  // Determine location from address
   let location = 'Cambutal area, Panama';
   if (place.formatted_address) {
     const address = place.formatted_address.toLowerCase();
@@ -469,10 +475,8 @@ function generateDescription(place: GooglePlace): string {
     else if (address.includes('horcones')) location = 'Horcones, Panama';
   }
   
-  // Base description
   parts.push(`Restaurant in ${location}`);
   
-  // Add rating info if available
   if (place.rating) {
     const ratingText = `Rated ${place.rating} stars`;
     if (place.user_ratings_total) {
@@ -482,23 +486,11 @@ function generateDescription(place: GooglePlace): string {
     }
   }
   
-  // Add price level if available
   if (place.price_level !== undefined) {
     const priceTexts = ['Inexpensive', 'Moderate', 'Expensive', 'Very Expensive'];
     if (place.price_level >= 0 && place.price_level < priceTexts.length) {
       parts.push(`${priceTexts[place.price_level]} dining`);
     }
-  }
-  
-  // Add specialties based on types
-  const specialties = [];
-  if (place.types.includes('seafood_restaurant')) specialties.push('seafood');
-  if (place.types.includes('pizza_restaurant')) specialties.push('pizza');
-  if (place.types.includes('cafe')) specialties.push('coffee and light meals');
-  if (place.types.includes('bar')) specialties.push('drinks and appetizers');
-  
-  if (specialties.length > 0) {
-    parts.push(`Specializing in ${specialties.join(', ')}`);
   }
   
   return parts.join('. ') + '.';
@@ -512,7 +504,6 @@ async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos:
     return images;
   }
 
-  // Limit photos to avoid timeout
   const photosToProcess = place.photos.slice(0, maxPhotos);
 
   for (let i = 0; i < photosToProcess.length; i++) {
@@ -531,7 +522,6 @@ async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos:
         const fileName = `${place.place_id}_${i}_${Date.now()}.jpg`;
         const filePath = `restaurants/${fileName}`;
 
-        // Upload to Supabase Storage
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('restaurant-images')
           .upload(filePath, photoBlob, {
@@ -544,7 +534,6 @@ async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos:
           continue;
         }
 
-        // Get public URL
         const { data: { publicUrl } } = supabase.storage
           .from('restaurant-images')
           .getPublicUrl(filePath);
@@ -556,10 +545,8 @@ async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos:
       }
     } catch (error) {
       console.error(`Error downloading photo ${i} for ${place.name}:`, error);
-      continue;
     }
   }
 
-  console.log(`Successfully imported ${images.length} photos for ${place.name}`);
   return images;
 }

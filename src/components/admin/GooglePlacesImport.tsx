@@ -1,8 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Download, CheckCircle, AlertCircle, ExternalLink, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { MapPin, Download, CheckCircle, AlertCircle, ExternalLink, Trash2, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -20,6 +21,7 @@ interface ImportResult {
   error?: string;
   details?: string;
   help?: string;
+  search_type?: string;
 }
 
 interface CleanupResult {
@@ -33,6 +35,7 @@ interface CleanupResult {
 const GooglePlacesImport: React.FC = () => {
   const [importing, setImporting] = useState(false);
   const [cleaning, setCleaning] = useState(false);
+  const [restaurantName, setRestaurantName] = useState('');
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [cleanupResult, setCleanupResult] = useState<CleanupResult | null>(null);
   const { toast } = useToast();
@@ -44,7 +47,6 @@ const GooglePlacesImport: React.FC = () => {
     try {
       console.log('Starting restaurant data cleanup...');
       
-      // Get the current session to include auth headers
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -98,24 +100,28 @@ const GooglePlacesImport: React.FC = () => {
     }
   };
 
-  const handleImport = async () => {
+  const handleImport = async (searchByName = false) => {
     setImporting(true);
     setImportResult(null);
 
     try {
-      console.log('Starting Google Places import...');
+      console.log('Starting Google Places import...', { searchByName, restaurantName });
       
-      // Get the current session to include auth headers
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
         throw new Error('You must be logged in to import restaurants');
       }
 
+      const requestBody = searchByName && restaurantName 
+        ? { restaurantName: restaurantName.trim() }
+        : {};
+
       const { data, error } = await supabase.functions.invoke('fetch-google-restaurants', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
+        body: requestBody,
       });
 
       if (error) {
@@ -174,11 +180,39 @@ const GooglePlacesImport: React.FC = () => {
           Google Places Import
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <p className="text-gray-600">
-          Import restaurants from Google Places for Cambutal, Panama. This will fetch real restaurant data including photos, contact information, and hours.
+          Import restaurants from Google Places for Cambutal, Panama. You can either import all restaurants in the area or search for a specific restaurant by name.
         </p>
 
+        {/* Restaurant Name Search */}
+        <div className="space-y-3 p-4 bg-blue-50 rounded-lg">
+          <Label htmlFor="restaurant-name" className="text-sm font-medium">
+            Search for Specific Restaurant (Optional)
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              id="restaurant-name"
+              placeholder="Enter restaurant name (e.g., 'Villa Cambutal')"
+              value={restaurantName}
+              onChange={(e) => setRestaurantName(e.target.value)}
+              className="flex-1"
+            />
+            <Button 
+              onClick={() => handleImport(true)}
+              disabled={importing || !restaurantName.trim()}
+              variant="outline"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              {importing ? 'Searching...' : 'Search'}
+            </Button>
+          </div>
+          <p className="text-xs text-blue-700">
+            Enter a restaurant name to search specifically for that establishment in the Cambutal area.
+          </p>
+        </div>
+
+        {/* Main Import Buttons */}
         <div className="flex gap-2">
           <Button 
             onClick={handleCleanup}
@@ -191,12 +225,12 @@ const GooglePlacesImport: React.FC = () => {
           </Button>
 
           <Button 
-            onClick={handleImport}
+            onClick={() => handleImport(false)}
             disabled={importing}
             className="flex-1"
           >
             <Download className="w-4 h-4 mr-2" />
-            {importing ? 'Importing Restaurants...' : 'Import from Google Places'}
+            {importing ? 'Importing Restaurants...' : 'Import All Restaurants'}
           </Button>
         </div>
 
@@ -250,6 +284,11 @@ const GooglePlacesImport: React.FC = () => {
                   <span className="text-green-600 font-medium">
                     Import Completed!
                   </span>
+                  {importResult.search_type === 'name_based' && (
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      Name Search
+                    </span>
+                  )}
                 </>
               ) : (
                 <>
@@ -318,6 +357,7 @@ const GooglePlacesImport: React.FC = () => {
           <p>Note: Imported restaurants will require admin approval before appearing on the website.</p>
           <p>Use "Clean Database" to remove all unapproved imported restaurants before importing fresh data.</p>
           <p>Make sure your Google Places API key allows server-side requests without HTTP referrer restrictions.</p>
+          <p>For specific restaurant searches, try variations of the name if initial search doesn't find results.</p>
         </div>
       </CardContent>
     </Card>
