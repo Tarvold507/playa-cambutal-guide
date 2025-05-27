@@ -1,11 +1,19 @@
 
+import { formatInTimeZone } from 'date-fns-tz';
+
+const PANAMA_TIMEZONE = 'America/Panama';
+
 export const isRestaurantOpen = (hours: Record<string, string>): boolean => {
   const now = new Date();
-  const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
-  const currentTime = now.toLocaleTimeString('en-US', { 
-    hour12: false, 
-    hour: '2-digit', 
-    minute: '2-digit' 
+  
+  // Get current day and time in Panama timezone
+  const currentDay = formatInTimeZone(now, PANAMA_TIMEZONE, 'EEEE'); // Full day name like "Monday"
+  const currentTime = formatInTimeZone(now, PANAMA_TIMEZONE, 'HH:mm'); // 24-hour format
+  
+  console.log('Panama timezone check:', {
+    currentDay,
+    currentTime,
+    panamaTime: formatInTimeZone(now, PANAMA_TIMEZONE, 'yyyy-MM-dd HH:mm:ss zzz')
   });
 
   const todayHours = hours[currentDay];
@@ -72,4 +80,13 @@ export const formatHoursForDisplay = (hours: Record<string, string>): Array<{ da
     day,
     hours: hours[day] || 'Closed'
   }));
+};
+
+export const getCurrentPanamaTime = (): { currentDay: string; currentTime: string; fullDateTime: string } => {
+  const now = new Date();
+  return {
+    currentDay: formatInTimeZone(now, PANAMA_TIMEZONE, 'EEEE'),
+    currentTime: formatInTimeZone(now, PANAMA_TIMEZONE, 'HH:mm'),
+    fullDateTime: formatInTimeZone(now, PANAMA_TIMEZONE, 'yyyy-MM-dd HH:mm:ss zzz')
+  };
 };

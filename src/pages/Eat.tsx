@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -33,6 +34,19 @@ const Eat = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // Helper function to normalize hours keys from lowercase to capitalized
+  const normalizeHoursKeys = (hours: Record<string, string>): Record<string, string> => {
+    const normalizedHours: Record<string, string> = {};
+    
+    Object.entries(hours).forEach(([key, value]) => {
+      // Capitalize the first letter of the day name
+      const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+      normalizedHours[capitalizedKey] = value;
+    });
+    
+    return normalizedHours;
+  };
+
   const fetchApprovedRestaurants = async () => {
     try {
       const { data, error } = await supabase
@@ -45,8 +59,11 @@ const Eat = () => {
 
       // Transform database restaurants to match our RestaurantItem interface
       const dbRestaurants: RestaurantItem[] = data?.map(restaurant => {
-        const restaurantHours = typeof restaurant.hours === 'object' && restaurant.hours !== null ? 
+        const rawHours = typeof restaurant.hours === 'object' && restaurant.hours !== null ? 
           restaurant.hours as Record<string, string> : {};
+        
+        // Normalize the hours keys to be capitalized for consistency
+        const normalizedHours = normalizeHoursKeys(rawHours);
         
         return {
           id: restaurant.id,
@@ -55,8 +72,8 @@ const Eat = () => {
           imageSrc: restaurant.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
           link: `/eat/${generateSlug(restaurant.name)}`,
           category: restaurant.category,
-          openNow: isRestaurantOpen(restaurantHours),
-          hours: restaurantHours
+          openNow: isRestaurantOpen(normalizedHours),
+          hours: normalizedHours
         };
       }) || [];
 

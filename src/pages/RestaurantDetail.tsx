@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -10,7 +9,7 @@ import { restaurantData, Restaurant } from '../data/restaurants';
 import { findRestaurantBySlug } from '../utils/slugUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { isRestaurantOpen, formatHoursForDisplay } from '../utils/timeUtils';
+import { isRestaurantOpen, formatHoursForDisplay, getCurrentPanamaTime } from '../utils/timeUtils';
 
 const RestaurantDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -109,15 +108,12 @@ const RestaurantDetail = () => {
           const restaurantIsOpen = isRestaurantOpen(normalizedHours);
           setIsOpen(restaurantIsOpen);
           
+          // Log Panama time info for debugging
+          const panamaTime = getCurrentPanamaTime();
           console.log('Restaurant open status:', restaurantIsOpen);
-          console.log('Current day and time check:', {
-            currentDay: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
-            currentTime: new Date().toLocaleTimeString('en-US', { 
-              hour12: false, 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            }),
-            todayHours: normalizedHours[new Date().toLocaleDateString('en-US', { weekday: 'long' })]
+          console.log('Panama time check:', {
+            ...panamaTime,
+            todayHours: normalizedHours[panamaTime.currentDay]
           });
         } else {
           console.log('Restaurant not found for slug:', slug);
