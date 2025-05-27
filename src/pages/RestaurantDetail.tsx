@@ -9,6 +9,7 @@ import { restaurantData, Restaurant } from '../data/restaurants';
 import { findRestaurantBySlug } from '../utils/slugUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { isRestaurantOpen, formatHoursForDisplay } from '../utils/timeUtils';
 
 const RestaurantDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -30,26 +31,7 @@ const RestaurantDetail = () => {
       const staticRestaurant = findRestaurantBySlug(slug, restaurantData);
       if (staticRestaurant) {
         setRestaurant(staticRestaurant);
-        
-        // Check if restaurant is currently open
-        const now = new Date();
-        const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
-        const currentTime = now.toLocaleTimeString('en-US', { 
-          hour12: false, 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        });
-        
-        const todayHours = staticRestaurant.hours[currentDay];
-        if (todayHours && todayHours !== 'Closed') {
-          const [openTime, closeTime] = todayHours.split(' - ');
-          const openTime24 = convertTo24Hour(openTime);
-          const closeTime24 = convertTo24Hour(closeTime);
-          
-          if (currentTime >= openTime24 && currentTime <= closeTime24) {
-            setIsOpen(true);
-          }
-        }
+        setIsOpen(isRestaurantOpen(staticRestaurant.hours));
         setLoading(false);
         return;
       }
@@ -76,6 +58,9 @@ const RestaurantDetail = () => {
 
         if (dbRestaurant) {
           // Transform database restaurant to match Restaurant interface
+          const restaurantHours = typeof dbRestaurant.hours === 'object' && dbRestaurant.hours !== null ? 
+            dbRestaurant.hours as Record<string, string> : {};
+
           const transformedRestaurant: Restaurant = {
             name: dbRestaurant.name,
             category: dbRestaurant.category,
@@ -85,8 +70,7 @@ const RestaurantDetail = () => {
             phone: dbRestaurant.phone,
             website: dbRestaurant.website,
             whatsapp: dbRestaurant.whatsapp,
-            hours: typeof dbRestaurant.hours === 'object' && dbRestaurant.hours !== null ? 
-              dbRestaurant.hours as Record<string, string> : {},
+            hours: restaurantHours,
             images: Array.isArray(dbRestaurant.gallery_images) ? 
               dbRestaurant.gallery_images as string[] : [],
             menuImages: Array.isArray(dbRestaurant.menu_images) ? 
@@ -94,8 +78,7 @@ const RestaurantDetail = () => {
           };
           
           setRestaurant(transformedRestaurant);
-          // For database restaurants, assume they're open for now
-          setIsOpen(true);
+          setIsOpen(isRestaurantOpen(restaurantHours));
         }
       } catch (error) {
         console.error('Error fetching restaurant:', error);
@@ -111,18 +94,6 @@ const RestaurantDetail = () => {
 
     fetchRestaurant();
   }, [slug, toast]);
-
-  const convertTo24Hour = (time12h: string) => {
-    const [time, modifier] = time12h.split(' ');
-    let [hours, minutes] = time.split(':');
-    if (hours === '12') {
-      hours = '00';
-    }
-    if (modifier === 'PM') {
-      hours = String(parseInt(hours, 10) + 12);
-    }
-    return `${hours}:${minutes}`;
-  };
 
   const handleWhatsAppClick = () => {
     if (restaurant?.whatsapp) {
@@ -239,7 +210,7 @@ const RestaurantDetail = () => {
                   <>
                     <h3 className="text-xl font-semibold mb-4">Hours of Operation</h3>
                     <div className="space-y-2">
-                      {Object.entries(restaurant.hours).map(([day, hours]) => (
+                      {formatHoursForDisplay(restaurant.hours).map(({ day, hours }) => (
                         <div key={day} className="flex justify-between">
                           <span className="font-medium">{day}</span>
                           <span className="text-gray-600">{hours}</span>

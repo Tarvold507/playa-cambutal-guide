@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -13,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { generateSlug } from '../utils/slugUtils';
+import { isRestaurantOpen } from '../utils/timeUtils';
 
 interface RestaurantItem {
   id: string;
@@ -22,7 +22,7 @@ interface RestaurantItem {
   link: string;
   category?: string;
   openNow?: boolean;
-  hours?: string;
+  hours?: Record<string, string>;
 }
 
 const Eat = () => {
@@ -44,17 +44,21 @@ const Eat = () => {
       if (error) throw error;
 
       // Transform database restaurants to match our RestaurantItem interface
-      const dbRestaurants: RestaurantItem[] = data?.map(restaurant => ({
-        id: restaurant.id,
-        title: restaurant.name,
-        description: restaurant.description || 'Delicious food awaits you at this local restaurant.',
-        imageSrc: restaurant.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        link: `/eat/${generateSlug(restaurant.name)}`,
-        category: restaurant.category,
-        // For now, we'll assume restaurants are open - this could be enhanced with real-time hours logic
-        openNow: true,
-        hours: 'Hours vary'
-      })) || [];
+      const dbRestaurants: RestaurantItem[] = data?.map(restaurant => {
+        const restaurantHours = typeof restaurant.hours === 'object' && restaurant.hours !== null ? 
+          restaurant.hours as Record<string, string> : {};
+        
+        return {
+          id: restaurant.id,
+          title: restaurant.name,
+          description: restaurant.description || 'Delicious food awaits you at this local restaurant.',
+          imageSrc: restaurant.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+          link: `/eat/${generateSlug(restaurant.name)}`,
+          category: restaurant.category,
+          openNow: isRestaurantOpen(restaurantHours),
+          hours: restaurantHours
+        };
+      }) || [];
 
       setAllItems(dbRestaurants);
       setFilteredItems(dbRestaurants);
@@ -65,7 +69,6 @@ const Eat = () => {
         description: "Failed to load restaurants",
         variant: "destructive",
       });
-      // Set empty arrays if there's an error
       setAllItems([]);
       setFilteredItems([]);
     } finally {
