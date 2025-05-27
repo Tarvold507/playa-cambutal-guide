@@ -89,7 +89,7 @@ export const useAdminData = () => {
         setPendingRestaurants([]);
       }
 
-      // Fetch pending hotels - simplified approach without foreign key joins
+      // Fetch pending hotels
       console.log('Fetching pending hotels...');
       const { data: hotels, error: hotelError } = await supabase
         .from('hotel_listings')
@@ -102,42 +102,45 @@ export const useAdminData = () => {
       if (hotelError) {
         console.error('Hotel error:', hotelError);
         setPendingHotels([]);
-      } else if (hotels && hotels.length > 0) {
-        console.log(`Found ${hotels.length} pending hotels, fetching profiles...`);
-        
-        // Manually fetch profiles for each hotel
-        const hotelsWithProfiles = await Promise.all(
-          hotels.map(async (hotel) => {
-            console.log(`Fetching profile for hotel ${hotel.id} with user_id ${hotel.user_id}`);
-            
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('name, email')
-              .eq('id', hotel.user_id)
-              .single();
-
-            if (profileError) {
-              console.warn(`Failed to fetch profile for hotel ${hotel.id}:`, profileError);
-            }
-
-            return {
-              ...hotel,
-              gallery_images: Array.isArray(hotel.gallery_images) ? 
-                hotel.gallery_images as string[] : [],
-              amenities: Array.isArray(hotel.amenities) ? 
-                hotel.amenities as string[] : [],
-              policies: typeof hotel.policies === 'object' && hotel.policies !== null ? 
-                hotel.policies as Record<string, any> : {},
-              profiles: profile || null
-            };
-          })
-        );
-        
-        console.log('Hotels with profiles:', hotelsWithProfiles);
-        setPendingHotels(hotelsWithProfiles);
       } else {
-        console.log('No pending hotels found');
-        setPendingHotels([]);
+        const hotelArray = hotels || [];
+        console.log(`Processing ${hotelArray.length} pending hotels`);
+        
+        if (hotelArray.length > 0) {
+          // Manually fetch profiles for each hotel
+          const hotelsWithProfiles = await Promise.all(
+            hotelArray.map(async (hotel) => {
+              console.log(`Fetching profile for hotel ${hotel.id} with user_id ${hotel.user_id}`);
+              
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('name, email')
+                .eq('id', hotel.user_id)
+                .single();
+
+              if (profileError) {
+                console.warn(`Failed to fetch profile for hotel ${hotel.id}:`, profileError);
+              }
+
+              return {
+                ...hotel,
+                gallery_images: Array.isArray(hotel.gallery_images) ? 
+                  hotel.gallery_images as string[] : [],
+                amenities: Array.isArray(hotel.amenities) ? 
+                  hotel.amenities as string[] : [],
+                policies: typeof hotel.policies === 'object' && hotel.policies !== null ? 
+                  hotel.policies as Record<string, any> : {},
+                profiles: profile || null
+              };
+            })
+          );
+          
+          console.log('Final hotels with profiles:', hotelsWithProfiles);
+          setPendingHotels(hotelsWithProfiles);
+        } else {
+          console.log('No pending hotels found');
+          setPendingHotels([]);
+        }
       }
     } catch (error) {
       console.error('Error fetching pending items:', error);
