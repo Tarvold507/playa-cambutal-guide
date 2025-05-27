@@ -11,6 +11,7 @@ import PendingBusinessesTab from '@/components/admin/PendingBusinessesTab';
 import PendingRestaurantsTab from '@/components/admin/PendingRestaurantsTab';
 import PendingHotelsTab from '@/components/admin/PendingHotelsTab';
 import LiveHotelsTab from '@/components/admin/LiveHotelsTab';
+import GooglePlacesImport from '@/components/admin/GooglePlacesImport';
 import AdminEditDialog from '@/components/admin/AdminEditDialog';
 import { useAdminActions } from '@/hooks/useAdminActions';
 
@@ -60,12 +61,13 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold mb-8">{t('admin.title')}</h1>
         
         <Tabs defaultValue="events" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="events">{t('admin.pendingEvents')} ({pendingEvents.length})</TabsTrigger>
             <TabsTrigger value="businesses">{t('admin.pendingBusinesses')} ({pendingBusinesses.length})</TabsTrigger>
             <TabsTrigger value="restaurants">Pending Restaurants ({pendingRestaurants.length})</TabsTrigger>
             <TabsTrigger value="hotels">Pending Hotels ({pendingHotels.length})</TabsTrigger>
             <TabsTrigger value="live-hotels">Live Hotels ({liveHotels.length})</TabsTrigger>
+            <TabsTrigger value="import">Import Data</TabsTrigger>
           </TabsList>
           
           <TabsContent value="events">
@@ -109,6 +111,12 @@ const AdminDashboard = () => {
               liveHotels={liveHotels}
               onEdit={(item) => handleEdit(item, 'hotel')}
             />
+          </TabsContent>
+
+          <TabsContent value="import">
+            <div className="space-y-6">
+              <GooglePlacesImport />
+            </div>
           </TabsContent>
         </Tabs>
 
