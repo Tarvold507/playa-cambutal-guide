@@ -46,9 +46,23 @@ serve(async (req) => {
   try {
     console.log('Starting Google Places API fetch for Cambutal restaurants...');
 
+    // Get the authorization header to identify the user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ 
+        success: false,
+        error: 'Authentication required',
+        details: 'You must be logged in to import restaurants.'
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (!GOOGLE_PLACES_API_KEY) {
       console.error('Google Places API key not found');
       return new Response(JSON.stringify({ 
+        success: false,
         error: 'Google Places API key not configured',
         details: 'Please add your Google Places API key in the Supabase Edge Functions secrets.'
       }), {
@@ -57,7 +71,30 @@ serve(async (req) => {
       });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Create Supabase client with user's auth token
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      global: {
+        headers: {
+          Authorization: authHeader,
+        },
+      },
+    });
+
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error('Failed to get user:', userError);
+      return new Response(JSON.stringify({ 
+        success: false,
+        error: 'Authentication failed',
+        details: 'Unable to verify user identity.'
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log('Import initiated by user:', user.id);
 
     // Search for restaurants in Cambutal, Panama
     const searchUrl = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
@@ -74,6 +111,7 @@ serve(async (req) => {
     if (searchData.status === 'REQUEST_DENIED') {
       console.error('Google Places API request denied:', searchData);
       return new Response(JSON.stringify({ 
+        success: false,
         error: 'Google Places API request denied',
         details: 'Your API key has restrictions that prevent server-side usage. Please configure your Google Places API key to allow requests from any HTTP referrer or remove HTTP referrer restrictions.',
         help: 'Go to Google Cloud Console > APIs & Services > Credentials > Edit your API key > Remove HTTP referrer restrictions or add * as an allowed referrer.'
@@ -86,6 +124,7 @@ serve(async (req) => {
     if (searchData.status !== 'OK') {
       console.error('Google Places API error:', searchData);
       return new Response(JSON.stringify({ 
+        success: false,
         error: 'Google Places API error', 
         details: searchData.error_message || `Status: ${searchData.status}`
       }), {
@@ -108,6 +147,7 @@ serve(async (req) => {
     }
 
     const processedRestaurants = [];
+    const errors = [];
 
     // Process each restaurant (limit to first 5 to avoid timeout)
     const restaurantsToProcess = searchData.results.slice(0, 5);
@@ -127,6 +167,7 @@ serve(async (req) => {
 
         if (detailsData.status !== 'OK') {
           console.warn(`Failed to get details for ${place.name}:`, detailsData.status);
+          errors.push(`Failed to get details for ${place.name}: ${detailsData.status}`);
           continue;
         }
 
@@ -152,7 +193,7 @@ serve(async (req) => {
         // Download and store images (limit to 2 images for faster processing)
         const galleryImages = await downloadPlacePhotos(placeDetails, supabase, 2);
 
-        // Create restaurant listing
+        // Create restaurant listing with the authenticated user's ID
         const restaurantData = {
           name: placeDetails.name,
           description: `Restaurant in Cambutal, Panama imported from Google Places.`,
@@ -164,8 +205,10 @@ serve(async (req) => {
           gallery_images: galleryImages,
           image_url: galleryImages[0] || null,
           approved: false, // Require admin approval
-          user_id: '00000000-0000-0000-0000-000000000000', // System user ID
+          user_id: user.id, // Use authenticated user's ID
         };
+
+        console.log(`Inserting restaurant ${placeDetails.name} with user_id: ${user.id}`);
 
         const { data: newRestaurant, error } = await supabase
           .from('restaurant_listings')
@@ -175,6 +218,7 @@ serve(async (req) => {
 
         if (error) {
           console.error(`Failed to insert restaurant ${placeDetails.name}:`, error);
+          errors.push(`Failed to insert ${placeDetails.name}: ${error.message}`);
           continue;
         }
 
@@ -188,23 +232,32 @@ serve(async (req) => {
 
       } catch (error) {
         console.error(`Error processing restaurant ${place.name}:`, error);
+        errors.push(`Error processing ${place.name}: ${error.message}`);
         continue;
       }
     }
 
-    return new Response(JSON.stringify({
-      success: true,
+    const response = {
+      success: processedRestaurants.length > 0,
       imported: processedRestaurants.length,
       restaurants: processedRestaurants,
       total_found: searchData.results.length,
       processed: restaurantsToProcess.length
-    }), {
+    };
+
+    // Add error details if there were any
+    if (errors.length > 0) {
+      response.details = `Imported ${processedRestaurants.length} restaurants successfully. Errors: ${errors.join(', ')}`;
+    }
+
+    return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Error in fetch-google-restaurants function:', error);
     return new Response(JSON.stringify({ 
+      success: false,
       error: 'Internal server error',
       details: error.message 
     }), {

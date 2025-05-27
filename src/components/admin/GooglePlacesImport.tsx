@@ -34,7 +34,18 @@ const GooglePlacesImport: React.FC = () => {
     try {
       console.log('Starting Google Places import...');
       
-      const { data, error } = await supabase.functions.invoke('fetch-google-restaurants');
+      // Get the current session to include auth headers
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('You must be logged in to import restaurants');
+      }
+
+      const { data, error } = await supabase.functions.invoke('fetch-google-restaurants', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
       if (error) {
         console.error('Edge function error:', error);
@@ -44,15 +55,21 @@ const GooglePlacesImport: React.FC = () => {
       console.log('Import completed:', data);
       setImportResult(data);
 
-      if (data.success) {
+      if (data.success && data.imported > 0) {
         toast({
           title: "Import Completed",
           description: `Successfully imported ${data.imported} restaurants from Google Places.`,
         });
+      } else if (data.success && data.imported === 0) {
+        toast({
+          title: "Import Completed",
+          description: data.details || data.message || "No new restaurants were imported.",
+          variant: "default",
+        });
       } else {
         toast({
           title: "Import Failed",
-          description: data.details || "Failed to import restaurants from Google Places.",
+          description: data.details || data.error || "Failed to import restaurants from Google Places.",
           variant: "destructive",
         });
       }
@@ -70,7 +87,7 @@ const GooglePlacesImport: React.FC = () => {
       
       toast({
         title: "Import Failed",
-        description: "Failed to import restaurants from Google Places. Please check the configuration and try again.",
+        description: error.message || "Failed to import restaurants from Google Places. Please check the configuration and try again.",
         variant: "destructive",
       });
     } finally {
@@ -107,7 +124,7 @@ const GooglePlacesImport: React.FC = () => {
                 <>
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="text-green-600 font-medium">
-                    Import Successful!
+                    Import Completed!
                   </span>
                 </>
               ) : (
@@ -124,7 +141,7 @@ const GooglePlacesImport: React.FC = () => {
               <div className="bg-green-50 p-3 rounded-lg">
                 <p className="text-sm text-green-800">
                   Imported {importResult.imported} restaurants from {importResult.total_found || 0} found. 
-                  They are pending approval in the admin dashboard.
+                  {importResult.imported > 0 ? ' They are pending approval in the admin dashboard.' : ''}
                 </p>
                 {importResult.restaurants.length > 0 && (
                   <div className="mt-2">
@@ -135,6 +152,9 @@ const GooglePlacesImport: React.FC = () => {
                       ))}
                     </ul>
                   </div>
+                )}
+                {importResult.details && (
+                  <p className="text-xs text-green-700 mt-2">{importResult.details}</p>
                 )}
                 {importResult.message && (
                   <p className="text-xs text-green-700 mt-2">{importResult.message}</p>
