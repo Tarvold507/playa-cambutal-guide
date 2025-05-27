@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Clock, MapPin, Phone, Globe } from 'lucide-react';
-import { restaurantData, Restaurant } from '../data/restaurants';
+import { restaurantData, Restaurant as StaticRestaurant } from '../data/restaurants';
 import { findRestaurantBySlug } from '../utils/slugUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -116,8 +116,8 @@ const RestaurantDetail = () => {
               dbRestaurant.gallery_images as string[] : [],
             menuImages: Array.isArray(dbRestaurant.menu_images) ? 
               dbRestaurant.menu_images as string[] : [],
-            latitude: dbRestaurant.latitude,
-            longitude: dbRestaurant.longitude
+            latitude: dbRestaurant.latitude ? Number(dbRestaurant.latitude) : undefined,
+            longitude: dbRestaurant.longitude ? Number(dbRestaurant.longitude) : undefined
           };
           
           console.log('Transformed restaurant hours:', transformedRestaurant.hours);
