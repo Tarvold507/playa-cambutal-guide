@@ -70,7 +70,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <ul className="space-y-2 text-gray-400">
               <li>Playa Cambutal, Los Santos, Panama</li>
-              <li>info@playacambutal.com</li>
+              <li>info@playacambutalguide.com</li>
               <li>+507 123 4567</li>
             </ul>
           </div>
