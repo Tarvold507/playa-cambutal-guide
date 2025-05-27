@@ -19,19 +19,43 @@ export const isRestaurantOpen = (hours: Record<string, string>): boolean => {
 
   const todayHours = hours[currentDay];
   console.log('Today hours for', currentDay, ':', todayHours);
+  console.log('Raw hours string characters:', Array.from(todayHours || '').map(char => `"${char}" (${char.charCodeAt(0)})`));
   
   if (!todayHours || todayHours.toLowerCase() === 'closed') {
     console.log('Restaurant is closed today or no hours available');
     return false;
   }
 
-  // Parse hours like "11:00 AM - 10:00 PM" or "11:00 - 22:00"
-  const timeRange = todayHours.split(' - ');
-  console.log('Time range split:', timeRange);
+  // Use regex to split on various dash patterns with flexible spacing
+  // This handles: -, –, —, and multiple spaces around them
+  const dashPattern = /\s*[-–—]\s*/;
+  const timeRange = todayHours.split(dashPattern);
+  console.log('Time range split with regex:', timeRange);
   
+  // Fallback: try other common separators if regex split didn't work
   if (timeRange.length !== 2) {
-    console.log('Invalid time range format');
-    return false;
+    console.log('Regex split failed, trying fallback methods...');
+    
+    // Try splitting on common variations
+    const fallbackPatterns = [' - ', ' – ', ' — ', '-', '–', '—', ' to ', ' TO '];
+    let splitSuccess = false;
+    
+    for (const pattern of fallbackPatterns) {
+      const testSplit = todayHours.split(pattern);
+      if (testSplit.length === 2) {
+        timeRange.length = 0;
+        timeRange.push(...testSplit);
+        console.log(`Fallback split successful with pattern "${pattern}":`, timeRange);
+        splitSuccess = true;
+        break;
+      }
+    }
+    
+    if (!splitSuccess) {
+      console.log('All splitting methods failed. Time range:', timeRange);
+      console.log('Original string length:', todayHours.length);
+      return false;
+    }
   }
 
   const openTimeStr = timeRange[0].trim();
