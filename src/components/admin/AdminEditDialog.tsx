@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface EditFormData {
-  type?: 'event' | 'business' | 'restaurant';
+  type?: 'event' | 'business' | 'restaurant' | 'hotel';
   id?: string;
   title?: string;
   location?: string;
@@ -16,9 +16,20 @@ interface EditFormData {
   name?: string;
   category?: string;
   address?: string;
+  phone?: string;
+  whatsapp?: string;
+  website?: string;
+  email?: string;
+  image_url?: string;
   hours?: Record<string, string>;
   gallery_images?: string[];
   menu_images?: string[];
+  amenities?: string[];
+  affiliate_url?: string;
+  expedia_hotel_id?: string;
+  price_from?: number;
+  commission_rate?: number;
+  policies?: Record<string, any>;
   [key: string]: any;
 }
 
@@ -40,7 +51,8 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
           <DialogTitle>
             Edit {editForm.type === 'event' ? 'Event' : 
                   editForm.type === 'business' ? 'Business Listing' : 
-                  'Restaurant Listing'}
+                  editForm.type === 'restaurant' ? 'Restaurant Listing' :
+                  'Hotel Listing'}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
@@ -106,7 +118,7 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
                 />
               </div>
             </>
-          ) : (
+          ) : editForm.type === 'restaurant' ? (
             <>
               <div>
                 <Label htmlFor="edit-name">Restaurant Name</Label>
@@ -138,6 +150,58 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
                   id="edit-description"
                   value={editForm.description || ''}
                   onChange={(e) => onFormChange({ description: e.target.value })}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <Label htmlFor="edit-name">Hotel Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editForm.name || ''}
+                  onChange={(e) => onFormChange({ name: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-category">Category</Label>
+                <Input
+                  id="edit-category"
+                  value={editForm.category || ''}
+                  onChange={(e) => onFormChange({ category: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-address">Address</Label>
+                <Input
+                  id="edit-address"
+                  value={editForm.address || ''}
+                  onChange={(e) => onFormChange({ address: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editForm.description || ''}
+                  onChange={(e) => onFormChange({ description: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-affiliate-url">Expedia Affiliate URL</Label>
+                <Input
+                  id="edit-affiliate-url"
+                  value={editForm.affiliate_url || ''}
+                  onChange={(e) => onFormChange({ affiliate_url: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-price-from">Price From (USD)</Label>
+                <Input
+                  id="edit-price-from"
+                  type="number"
+                  value={editForm.price_from || ''}
+                  onChange={(e) => onFormChange({ price_from: parseFloat(e.target.value) || 0 })}
                 />
               </div>
             </>
