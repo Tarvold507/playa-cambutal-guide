@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
@@ -190,8 +189,8 @@ serve(async (req) => {
         const category = mapGoogleTypeToCategory(placeDetails.types);
         const hours = transformOpeningHours(placeDetails.opening_hours?.weekday_text);
         
-        // Download and store images (limit to 2 images for faster processing)
-        const galleryImages = await downloadPlacePhotos(placeDetails, supabase, 2);
+        // Download and store images (limit to 4 images for faster processing)
+        const galleryImages = await downloadPlacePhotos(placeDetails, supabase, 4);
 
         // Create restaurant listing with the authenticated user's ID
         const restaurantData = {
@@ -312,7 +311,7 @@ function transformOpeningHours(weekdayText?: string[]): Record<string, string> {
   return hours;
 }
 
-async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos: number = 2): Promise<string[]> {
+async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos: number = 4): Promise<string[]> {
   const images: string[] = [];
   
   if (!place.photos || place.photos.length === 0) {
