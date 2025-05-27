@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -12,6 +11,7 @@ import { Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { generateSlug } from '../utils/slugUtils';
 
 interface RestaurantItem {
   id: string;
@@ -30,7 +30,7 @@ const staticEatItems = [
     title: 'Beachfront Grill',
     description: 'Enjoy fresh seafood and grilled specialties with your toes in the sand at this casual beachfront eatery.',
     imageSrc: 'https://images.unsplash.com/photo-1619738566066-81c4559aba52?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/beachfront-grill',
+    link: '/eat/beachfront_grill',
     category: 'Seafood',
     openNow: true,
     hours: '11:00 AM - 10:00 PM'
@@ -40,7 +40,7 @@ const staticEatItems = [
     title: 'Jungle Cafe',
     description: 'A cozy spot offering organic breakfasts, smoothie bowls, and gourmet coffee in a lush garden setting.',
     imageSrc: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/jungle-cafe',
+    link: '/eat/jungle_cafe',
     category: 'Cafe',
     openNow: true,
     hours: '7:00 AM - 3:00 PM'
@@ -50,7 +50,7 @@ const staticEatItems = [
     title: 'Sunset Lounge',
     description: 'The perfect spot to enjoy craft cocktails and tapas while watching Cambutal\'s famous sunsets.',
     imageSrc: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/sunset-lounge',
+    link: '/eat/sunset_lounge',
     category: 'Bar & Tapas',
     openNow: false,
     hours: '5:00 PM - 12:00 AM'
@@ -60,7 +60,7 @@ const staticEatItems = [
     title: 'Pizzeria Cambutal',
     description: 'Wood-fired pizzas with creative toppings, made with local and imported ingredients.',
     imageSrc: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/pizzeria',
+    link: '/eat/pizzeria_cambutal',
     category: 'Italian',
     openNow: true,
     hours: '12:00 PM - 11:00 PM'
@@ -70,7 +70,7 @@ const staticEatItems = [
     title: 'Sushi Paradise',
     description: 'Fresh sushi and Japanese-inspired dishes using locally caught fish and imported specialties.',
     imageSrc: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/sushi',
+    link: '/eat/sushi_paradise',
     category: 'Japanese',
     openNow: false,
     hours: '6:00 PM - 11:00 PM'
@@ -80,7 +80,7 @@ const staticEatItems = [
     title: 'Local Comedor',
     description: 'Experience authentic Panamanian home cooking at this family-run restaurant offering daily specials.',
     imageSrc: 'https://images.unsplash.com/photo-1628519592419-bf1b8fb630cb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/comedor',
+    link: '/eat/local_comedor',
     category: 'Panamanian',
     openNow: true,
     hours: '11:00 AM - 9:00 PM'
@@ -111,7 +111,7 @@ const Eat = () => {
         title: restaurant.name,
         description: restaurant.description || 'Delicious food awaits you at this local restaurant.',
         imageSrc: restaurant.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        link: `/eat/restaurant/${restaurant.id}`,
+        link: `/eat/${generateSlug(restaurant.name)}`,
         category: restaurant.category,
         // For now, we'll assume restaurants are open - this could be enhanced with real-time hours logic
         openNow: true,
