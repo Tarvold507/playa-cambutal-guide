@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Download, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import { MapPin, Download, CheckCircle, AlertCircle, ExternalLink, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -22,10 +22,81 @@ interface ImportResult {
   help?: string;
 }
 
+interface CleanupResult {
+  success: boolean;
+  deleted: number;
+  message?: string;
+  error?: string;
+  details?: string;
+}
+
 const GooglePlacesImport: React.FC = () => {
   const [importing, setImporting] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [cleanupResult, setCleanupResult] = useState<CleanupResult | null>(null);
   const { toast } = useToast();
+
+  const handleCleanup = async () => {
+    setCleaning(true);
+    setCleanupResult(null);
+
+    try {
+      console.log('Starting restaurant data cleanup...');
+      
+      // Get the current session to include auth headers
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('You must be logged in to clean restaurant data');
+      }
+
+      const { data, error } = await supabase.functions.invoke('clean-restaurant-data', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      console.log('Cleanup completed:', data);
+      setCleanupResult(data);
+
+      if (data.success) {
+        toast({
+          title: "Cleanup Completed",
+          description: `Successfully deleted ${data.deleted} unapproved restaurant listings.`,
+        });
+      } else {
+        toast({
+          title: "Cleanup Failed",
+          description: data.details || data.error || "Failed to clean restaurant data.",
+          variant: "destructive",
+        });
+      }
+
+    } catch (error) {
+      console.error('Cleanup failed:', error);
+      const errorResult = {
+        success: false,
+        deleted: 0,
+        error: 'Cleanup failed',
+        details: error.message || 'An unexpected error occurred while cleaning restaurant data.'
+      };
+      setCleanupResult(errorResult);
+      
+      toast({
+        title: "Cleanup Failed",
+        description: error.message || "Failed to clean restaurant data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setCleaning(false);
+    }
+  };
 
   const handleImport = async () => {
     setImporting(true);
@@ -108,14 +179,67 @@ const GooglePlacesImport: React.FC = () => {
           Import restaurants from Google Places for Cambutal, Panama. This will fetch real restaurant data including photos, contact information, and hours.
         </p>
 
-        <Button 
-          onClick={handleImport}
-          disabled={importing}
-          className="w-full"
-        >
-          <Download className="w-4 h-4 mr-2" />
-          {importing ? 'Importing Restaurants...' : 'Import from Google Places'}
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleCleanup}
+            disabled={cleaning}
+            variant="outline"
+            className="flex-1"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            {cleaning ? 'Cleaning Database...' : 'Clean Database'}
+          </Button>
+
+          <Button 
+            onClick={handleImport}
+            disabled={importing}
+            className="flex-1"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            {importing ? 'Importing Restaurants...' : 'Import from Google Places'}
+          </Button>
+        </div>
+
+        {cleanupResult && (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center gap-2">
+              {cleanupResult.success ? (
+                <>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-green-600 font-medium">
+                    Cleanup Completed!
+                  </span>
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                  <span className="text-red-600 font-medium">
+                    Cleanup Failed
+                  </span>
+                </>
+              )}
+            </div>
+
+            {cleanupResult.success ? (
+              <div className="bg-green-50 p-3 rounded-lg">
+                <p className="text-sm text-green-800">
+                  {cleanupResult.message}
+                </p>
+              </div>
+            ) : (
+              <div className="bg-red-50 p-3 rounded-lg">
+                <p className="text-sm text-red-800 font-medium">
+                  {cleanupResult.error || 'Cleanup failed'}
+                </p>
+                {cleanupResult.details && (
+                  <p className="text-xs text-red-700 mt-1">
+                    {cleanupResult.details}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {importResult && (
           <div className="mt-4 space-y-3">
@@ -192,6 +316,7 @@ const GooglePlacesImport: React.FC = () => {
 
         <div className="text-xs text-gray-500 space-y-1">
           <p>Note: Imported restaurants will require admin approval before appearing on the website.</p>
+          <p>Use "Clean Database" to remove all unapproved imported restaurants before importing fresh data.</p>
           <p>Make sure your Google Places API key allows server-side requests without HTTP referrer restrictions.</p>
         </div>
       </CardContent>

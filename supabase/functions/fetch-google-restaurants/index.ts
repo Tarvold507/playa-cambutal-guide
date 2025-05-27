@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
@@ -55,15 +54,16 @@ const GOOGLE_PLACES_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-// Focused search locations with Cambutal as primary focus
+// More precise coordinates for Cambutal and surrounding areas
 const SEARCH_LOCATIONS: SearchLocation[] = [
-  { name: 'Cambutal', lat: 7.3167, lng: -80.4833, radius: 3000 }, // Increased radius for primary focus
-  { name: 'Guanico', lat: 7.4167, lng: -80.5, radius: 2000 }, // 2km radius
-  { name: 'Horcones', lat: 7.25, lng: -80.45, radius: 1500 }, // 1.5km radius
+  { name: 'Cambutal Beach', lat: 7.31671, lng: -80.48333, radius: 2000 }, // More precise Cambutal coordinates
+  { name: 'Cambutal Village', lat: 7.31500, lng: -80.48500, radius: 1500 }, // Village center
+  { name: 'Guanico', lat: 7.4167, lng: -80.5, radius: 1500 }, // Reduced radius
+  { name: 'Horcones', lat: 7.25, lng: -80.45, radius: 1000 }, // Reduced radius
 ];
 
-// Food-related place types to search for
-const PLACE_TYPES = ['restaurant', 'bar', 'cafe', 'bakery', 'meal_takeaway', 'food'];
+// More specific food-related place types
+const PLACE_TYPES = ['restaurant', 'bar', 'cafe', 'meal_takeaway', 'food'];
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -71,7 +71,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting targeted Google Places API fetch for Cambutal area restaurants...');
+    console.log('Starting targeted Google Places API fetch for Cambutal restaurants...');
 
     // Get the authorization header to identify the user
     const authHeader = req.headers.get('Authorization');
@@ -160,10 +160,12 @@ serve(async (req) => {
             const locationResults = searchData.results.length;
             totalFound += locationResults;
             
-            // Add unique places to our collection
+            // Filter out obvious non-restaurants before adding to collection
             for (const place of searchData.results) {
-              if (!allPlaces.has(place.place_id)) {
-                allPlaces.set(place.place_id, place);
+              if (isValidRestaurant(place)) {
+                if (!allPlaces.has(place.place_id)) {
+                  allPlaces.set(place.place_id, place);
+                }
               }
             }
             
@@ -204,8 +206,8 @@ serve(async (req) => {
     const processedRestaurants = [];
     const errors = [];
 
-    // Process places (limit to 30 for better coverage)
-    const placesToProcess = uniquePlaces.slice(0, 30);
+    // Process places (limit to 20 for better quality control)
+    const placesToProcess = uniquePlaces.slice(0, 20);
     
     for (const place of placesToProcess) {
       try {
@@ -250,7 +252,7 @@ serve(async (req) => {
         const description = generateDescription(placeDetails);
 
         // Download and store images with proper error handling
-        const galleryImages = await downloadPlacePhotos(placeDetails, supabase, 4);
+        const galleryImages = await downloadPlacePhotos(placeDetails, supabase, 3);
 
         // Create restaurant listing with enhanced data
         const restaurantData = {
@@ -335,6 +337,41 @@ serve(async (req) => {
     });
   }
 });
+
+// Filter function to identify valid restaurants
+function isValidRestaurant(place: GooglePlace): boolean {
+  const name = place.name.toLowerCase();
+  const types = place.types;
+  
+  // Exclude obvious non-restaurants
+  const excludeKeywords = [
+    'school', 'escuela', 'universidad', 'college',
+    'hospital', 'clinic', 'clinica',
+    'bank', 'banco', 'atm',
+    'gas station', 'gasolinera', 'fuel',
+    'church', 'iglesia', 'temple',
+    'hotel', 'lodge', 'hostel', 'resort',
+    'store', 'tienda', 'market', 'supermercado',
+    'pharmacy', 'farmacia',
+    'police', 'policia',
+    'government', 'gobierno',
+    'park', 'parque', 'reserve', 'reserva',
+    'beach', 'playa'
+  ];
+  
+  // Check if name contains excluded keywords
+  for (const keyword of excludeKeywords) {
+    if (name.includes(keyword)) {
+      return false;
+    }
+  }
+  
+  // Must have food-related types
+  const foodTypes = ['restaurant', 'bar', 'cafe', 'bakery', 'meal_takeaway', 'meal_delivery', 'food'];
+  const hasFoodType = types.some(type => foodTypes.includes(type));
+  
+  return hasFoodType;
+}
 
 function mapGoogleTypeToCategory(types: string[]): string {
   const categoryMap: Record<string, string> = {
@@ -467,7 +504,7 @@ function generateDescription(place: GooglePlace): string {
   return parts.join('. ') + '.';
 }
 
-async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos: number = 4): Promise<string[]> {
+async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos: number = 3): Promise<string[]> {
   const images: string[] = [];
   
   if (!place.photos || place.photos.length === 0) {
