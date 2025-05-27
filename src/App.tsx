@@ -20,6 +20,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import RestaurantDetail from "./pages/RestaurantDetail";
 import AddRestaurant from "./pages/AddRestaurant";
 import HotelDetail from "./pages/HotelDetail";
+import AddHotel from "./pages/AddHotel";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +46,7 @@ const App: React.FC = () => {
                 <Route path="/add-restaurant" element={<AddRestaurant />} />
                 <Route path="/stay" element={<Stay />} />
                 <Route path="/stay/:id" element={<HotelDetail />} />
+                <Route path="/add-hotel" element={<AddHotel />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/adventure" element={<Adventure />} />
                 <Route path="/info" element={<Info />} />

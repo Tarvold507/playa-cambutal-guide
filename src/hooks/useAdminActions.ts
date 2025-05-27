@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface EditFormData {
-  type?: 'event' | 'business' | 'restaurant';
+  type?: 'event' | 'business' | 'restaurant' | 'hotel';
   id?: string;
   title?: string;
   location?: string;
@@ -23,6 +23,12 @@ interface EditFormData {
   hours?: Record<string, string>;
   gallery_images?: string[];
   menu_images?: string[];
+  amenities?: string[];
+  affiliate_url?: string;
+  expedia_hotel_id?: string;
+  price_from?: number;
+  commission_rate?: number;
+  policies?: Record<string, any>;
   [key: string]: any;
 }
 
@@ -35,6 +41,7 @@ export const useAdminActions = () => {
   const [pendingEvents, setPendingEvents] = useState<any[]>([]);
   const [pendingBusinesses, setPendingBusinesses] = useState<any[]>([]);
   const [pendingRestaurants, setPendingRestaurants] = useState<any[]>([]);
+  const [pendingHotels, setPendingHotels] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<EditFormData>({});
@@ -107,7 +114,7 @@ export const useAdminActions = () => {
         setPendingBusinesses(businesses || []);
       }
 
-      // Fetch pending restaurants - use a separate query to get profile data
+      // Fetch pending restaurants
       const { data: restaurants, error: restaurantError } = await supabase
         .from('restaurant_listings')
         .select('*')
@@ -120,7 +127,6 @@ export const useAdminActions = () => {
         console.error('Restaurant error:', restaurantError);
         setPendingRestaurants([]);
       } else if (restaurants) {
-        // Fetch profile data separately for each restaurant
         const restaurantsWithProfiles = await Promise.all(
           restaurants.map(async (restaurant) => {
             const { data: profile } = await supabase
@@ -146,15 +152,55 @@ export const useAdminActions = () => {
       } else {
         setPendingRestaurants([]);
       }
+
+      // Fetch pending hotels
+      const { data: hotels, error: hotelError } = await supabase
+        .from('hotel_listings')
+        .select('*')
+        .eq('approved', false)
+        .order('created_at', { ascending: false });
+
+      console.log('Hotels query result:', { hotels, hotelError });
+
+      if (hotelError) {
+        console.error('Hotel error:', hotelError);
+        setPendingHotels([]);
+      } else if (hotels) {
+        const hotelsWithProfiles = await Promise.all(
+          hotels.map(async (hotel) => {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('name, email')
+              .eq('id', hotel.user_id)
+              .single();
+
+            return {
+              ...hotel,
+              gallery_images: Array.isArray(hotel.gallery_images) ? 
+                hotel.gallery_images as string[] : [],
+              amenities: Array.isArray(hotel.amenities) ? 
+                hotel.amenities as string[] : [],
+              policies: typeof hotel.policies === 'object' && hotel.policies !== null ? 
+                hotel.policies as Record<string, any> : {},
+              profiles: profile
+            };
+          })
+        );
+        
+        setPendingHotels(hotelsWithProfiles);
+      } else {
+        setPendingHotels([]);
+      }
     } catch (error) {
       console.error('Error fetching pending items:', error);
       setPendingEvents([]);
       setPendingBusinesses([]);
       setPendingRestaurants([]);
+      setPendingHotels([]);
     }
   };
 
-  const handleApprove = async (type: 'events' | 'business_listings' | 'restaurant_listings', id: string) => {
+  const handleApprove = async (type: 'events' | 'business_listings' | 'restaurant_listings' | 'hotel_listings', id: string) => {
     try {
       const { error } = await supabase
         .from(type)
@@ -183,7 +229,7 @@ export const useAdminActions = () => {
     }
   };
 
-  const handleReject = async (type: 'events' | 'business_listings' | 'restaurant_listings', id: string) => {
+  const handleReject = async (type: 'events' | 'business_listings' | 'restaurant_listings' | 'hotel_listings', id: string) => {
     try {
       const { error } = await supabase
         .from(type)
@@ -208,7 +254,7 @@ export const useAdminActions = () => {
     }
   };
 
-  const handleEdit = (item: any, type: 'event' | 'business' | 'restaurant') => {
+  const handleEdit = (item: any, type: 'event' | 'business' | 'restaurant' | 'hotel') => {
     setSelectedItem(item);
     setEditForm({ ...item, type });
     setIsEditing(true);
@@ -232,7 +278,8 @@ export const useAdminActions = () => {
 
       const tableName = type === 'event' ? 'events' : 
                       type === 'business' ? 'business_listings' : 
-                      'restaurant_listings';
+                      type === 'restaurant' ? 'restaurant_listings' :
+                      'hotel_listings';
 
       const { error } = await supabase
         .from(tableName)
@@ -274,6 +321,7 @@ export const useAdminActions = () => {
     pendingEvents,
     pendingBusinesses,
     pendingRestaurants,
+    pendingHotels,
     selectedItem,
     isEditing,
     editForm,

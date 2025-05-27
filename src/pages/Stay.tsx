@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -268,7 +267,7 @@ const Stay = () => {
             property to travelers from around the world.
           </p>
           <Button 
-            onClick={() => window.location.href = '/auth'}
+            onClick={() => window.location.href = user ? '/add-hotel' : '/auth'}
             size="lg"
             className="bg-venao-dark hover:bg-venao-dark/90"
           >

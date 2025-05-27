@@ -9,6 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import PendingEventsTab from '@/components/admin/PendingEventsTab';
 import PendingBusinessesTab from '@/components/admin/PendingBusinessesTab';
 import PendingRestaurantsTab from '@/components/admin/PendingRestaurantsTab';
+import PendingHotelsTab from '@/components/admin/PendingHotelsTab';
 import AdminEditDialog from '@/components/admin/AdminEditDialog';
 import { useAdminActions } from '@/hooks/useAdminActions';
 
@@ -21,6 +22,7 @@ const AdminDashboard = () => {
     pendingEvents,
     pendingBusinesses,
     pendingRestaurants,
+    pendingHotels,
     isEditing,
     editForm,
     checkAdminStatus,
@@ -56,10 +58,11 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold mb-8">{t('admin.title')}</h1>
         
         <Tabs defaultValue="events" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="events">{t('admin.pendingEvents')} ({pendingEvents.length})</TabsTrigger>
             <TabsTrigger value="businesses">{t('admin.pendingBusinesses')} ({pendingBusinesses.length})</TabsTrigger>
             <TabsTrigger value="restaurants">Pending Restaurants ({pendingRestaurants.length})</TabsTrigger>
+            <TabsTrigger value="hotels">Pending Hotels ({pendingHotels.length})</TabsTrigger>
           </TabsList>
           
           <TabsContent value="events">
@@ -86,6 +89,15 @@ const AdminDashboard = () => {
               onApprove={(id) => handleApprove('restaurant_listings', id)}
               onEdit={(item) => handleEdit(item, 'restaurant')}
               onReject={(id) => handleReject('restaurant_listings', id)}
+            />
+          </TabsContent>
+
+          <TabsContent value="hotels">
+            <PendingHotelsTab
+              pendingHotels={pendingHotels}
+              onApprove={(id) => handleApprove('hotel_listings', id)}
+              onEdit={(item) => handleEdit(item, 'hotel')}
+              onReject={(id) => handleReject('hotel_listings', id)}
             />
           </TabsContent>
         </Tabs>
