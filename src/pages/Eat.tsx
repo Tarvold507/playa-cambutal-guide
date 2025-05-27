@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -23,69 +24,6 @@ interface RestaurantItem {
   openNow?: boolean;
   hours?: string;
 }
-
-const staticEatItems = [
-  {
-    id: '1',
-    title: 'Beachfront Grill',
-    description: 'Enjoy fresh seafood and grilled specialties with your toes in the sand at this casual beachfront eatery.',
-    imageSrc: 'https://images.unsplash.com/photo-1619738566066-81c4559aba52?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/beachfront_grill',
-    category: 'Seafood',
-    openNow: true,
-    hours: '11:00 AM - 10:00 PM'
-  },
-  {
-    id: '2',
-    title: 'Jungle Cafe',
-    description: 'A cozy spot offering organic breakfasts, smoothie bowls, and gourmet coffee in a lush garden setting.',
-    imageSrc: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/jungle_cafe',
-    category: 'Cafe',
-    openNow: true,
-    hours: '7:00 AM - 3:00 PM'
-  },
-  {
-    id: '3',
-    title: 'Sunset Lounge',
-    description: 'The perfect spot to enjoy craft cocktails and tapas while watching Cambutal\'s famous sunsets.',
-    imageSrc: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/sunset_lounge',
-    category: 'Bar & Tapas',
-    openNow: false,
-    hours: '5:00 PM - 12:00 AM'
-  },
-  {
-    id: '4',
-    title: 'Pizzeria Cambutal',
-    description: 'Wood-fired pizzas with creative toppings, made with local and imported ingredients.',
-    imageSrc: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/pizzeria_cambutal',
-    category: 'Italian',
-    openNow: true,
-    hours: '12:00 PM - 11:00 PM'
-  },
-  {
-    id: '5',
-    title: 'Sushi Paradise',
-    description: 'Fresh sushi and Japanese-inspired dishes using locally caught fish and imported specialties.',
-    imageSrc: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/sushi_paradise',
-    category: 'Japanese',
-    openNow: false,
-    hours: '6:00 PM - 11:00 PM'
-  },
-  {
-    id: '6',
-    title: 'Local Comedor',
-    description: 'Experience authentic Panamanian home cooking at this family-run restaurant offering daily specials.',
-    imageSrc: 'https://images.unsplash.com/photo-1628519592419-bf1b8fb630cb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/eat/local_comedor',
-    category: 'Panamanian',
-    openNow: true,
-    hours: '11:00 AM - 9:00 PM'
-  }
-];
 
 const Eat = () => {
   const [allItems, setAllItems] = useState<RestaurantItem[]>([]);
@@ -118,10 +56,8 @@ const Eat = () => {
         hours: 'Hours vary'
       })) || [];
 
-      // Combine static and dynamic restaurants
-      const combinedItems = [...staticEatItems, ...dbRestaurants];
-      setAllItems(combinedItems);
-      setFilteredItems(combinedItems);
+      setAllItems(dbRestaurants);
+      setFilteredItems(dbRestaurants);
     } catch (error) {
       console.error('Error fetching approved restaurants:', error);
       toast({
@@ -129,9 +65,9 @@ const Eat = () => {
         description: "Failed to load restaurants",
         variant: "destructive",
       });
-      // Fall back to static items if there's an error
-      setAllItems(staticEatItems);
-      setFilteredItems(staticEatItems);
+      // Set empty arrays if there's an error
+      setAllItems([]);
+      setFilteredItems([]);
     } finally {
       setLoading(false);
     }
