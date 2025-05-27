@@ -189,6 +189,90 @@ export type Database = {
           },
         ]
       }
+      hotel_listings: {
+        Row: {
+          address: string
+          affiliate_url: string
+          amenities: Json | null
+          approved: boolean | null
+          approved_at: string | null
+          approved_by: string | null
+          category: string
+          commission_rate: number | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          expedia_hotel_id: string | null
+          full_description: string | null
+          gallery_images: Json | null
+          id: string
+          image_url: string | null
+          latitude: number | null
+          longitude: number | null
+          name: string
+          policies: Json | null
+          price_from: number | null
+          rating: number | null
+          review_count: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          affiliate_url: string
+          amenities?: Json | null
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          category: string
+          commission_rate?: number | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          expedia_hotel_id?: string | null
+          full_description?: string | null
+          gallery_images?: Json | null
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          policies?: Json | null
+          price_from?: number | null
+          rating?: number | null
+          review_count?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          affiliate_url?: string
+          amenities?: Json | null
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string
+          commission_rate?: number | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          expedia_hotel_id?: string | null
+          full_description?: string | null
+          gallery_images?: Json | null
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          policies?: Json | null
+          price_from?: number | null
+          rating?: number | null
+          review_count?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           business_affiliated: boolean | null

@@ -1,12 +1,15 @@
-
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
-import CardSection from '../components/CardSection';
 import Newsletter from '../components/Newsletter';
+import { Button } from '@/components/ui/button';
+import { Plus, Search, Filter } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useHotelListings } from '@/hooks/useHotelListings';
+import { Link } from 'react-router-dom';
 
-const stayItems = [
+const staticStayItems = [
   {
     id: '1',
     title: 'Luxury Beachfront Resort',
@@ -58,9 +61,50 @@ const stayItems = [
 ];
 
 const Stay = () => {
+  const { user } = useAuth();
+  const { hotels, loading } = useHotelListings();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Combine static items with dynamic hotels
+  const dynamicItems = hotels.map(hotel => ({
+    id: hotel.id,
+    title: hotel.name,
+    description: hotel.description || 'Comfortable accommodation in Playa Cambutal.',
+    imageSrc: hotel.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    link: `/stay/${hotel.id}`,
+    category: hotel.category,
+    price: hotel.price_from,
+    rating: hotel.rating
+  }));
+
+  const allItems = [...staticStayItems, ...dynamicItems];
+
+  // Filter items based on search and category
+  const filteredItems = allItems.filter(item => {
+    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = [...new Set(allItems.map(item => item.category))];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold text-gray-800">Loading accommodations...</h1>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -87,14 +131,89 @@ const Stay = () => {
           </p>
         </div>
       </section>
+
+      {/* Search and Filter Section */}
+      <section className="bg-gray-50 py-8">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search accommodations..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-venao-dark focus:border-transparent"
+                />
+              </div>
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-venao-dark focus:border-transparent appearance-none bg-white"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       
       {/* Accommodation Listings */}
-      <CardSection 
-        title="Accommodations"
-        description="From luxury resorts to budget-friendly hostels, find your perfect place to stay."
-        items={stayItems}
-        bgColor="bg-gray-50"
-      />
+      <section className="bg-gray-50 py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Accommodations</h2>
+            <p className="text-gray-600">From luxury resorts to budget-friendly hostels, find your perfect place to stay.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredItems.map(item => (
+              <Link key={item.id} to={item.link} className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                <div className="relative h-64 overflow-hidden">
+                  <img 
+                    src={item.imageSrc} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute top-4 left-4 bg-venao-dark/90 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    {item.category}
+                  </div>
+                  {item.price && (
+                    <div className="absolute top-4 right-4 bg-white/90 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                      From ${item.price}/night
+                    </div>
+                  )}
+                </div>
+                <div className="p-5 bg-white">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-venao transition-colors duration-300">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-600 line-clamp-3">{item.description}</p>
+                  {item.rating && (
+                    <div className="flex items-center mt-2 text-sm text-gray-500">
+                      <span className="text-yellow-400">★</span>
+                      <span className="ml-1">{item.rating}</span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {filteredItems.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-600">No accommodations found matching your criteria.</p>
+            </div>
+          )}
+        </div>
+      </section>
       
       {/* Accommodation Tips Section */}
       <section className="bg-white py-16">
@@ -119,6 +238,30 @@ const Stay = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+      
+      {/* Add Hotel Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Own a Hotel in Cambutal?</h2>
+          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+            Join our directory and reach more guests! Add your accommodation to our platform and showcase your 
+            property to travelers from around the world.
+          </p>
+          <Button 
+            onClick={() => window.location.href = '/auth'}
+            size="lg"
+            className="bg-venao-dark hover:bg-venao-dark/90"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Add Your Property
+          </Button>
+          {!user && (
+            <p className="text-sm text-gray-500 mt-2">
+              You'll need to sign in to add a property listing.
+            </p>
+          )}
         </div>
       </section>
       
