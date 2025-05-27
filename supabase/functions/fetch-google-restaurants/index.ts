@@ -44,24 +44,27 @@ interface GooglePlace {
   }>;
 }
 
-interface SearchQuery {
-  query: string;
-  type?: string;
+interface SearchLocation {
+  name: string;
+  lat: number;
+  lng: number;
+  radius: number; // in meters
 }
 
 const GOOGLE_PLACES_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-// Multiple search queries for comprehensive coverage
-const SEARCH_QUERIES: SearchQuery[] = [
-  { query: 'restaurants in Cambutal Panama', type: 'restaurant' },
-  { query: 'cafes in Cambutal Panama', type: 'cafe' },
-  { query: 'bars in Cambutal Panama', type: 'bar' },
-  { query: 'food in Cambutal Panama', type: 'food' },
-  { query: 'restaurants near Cambutal Los Santos Panama', type: 'restaurant' },
-  { query: 'dining Playa Cambutal Panama', type: 'restaurant' }
+// Specific locations with coordinates and smaller radius
+const SEARCH_LOCATIONS: SearchLocation[] = [
+  { name: 'Cambutal', lat: 7.3167, lng: -80.4833, radius: 2000 }, // 2km radius
+  { name: 'Guanico', lat: 7.4167, lng: -80.5, radius: 2000 }, // 2km radius
+  { name: 'Tonosi', lat: 7.3833, lng: -80.4333, radius: 3000 }, // 3km radius (slightly larger town)
+  { name: 'Horcones', lat: 7.25, lng: -80.45, radius: 1500 }, // 1.5km radius
 ];
+
+// Food-related place types to search for
+const PLACE_TYPES = ['restaurant', 'bar', 'cafe', 'bakery', 'meal_takeaway', 'food'];
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -69,7 +72,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting comprehensive Google Places API fetch for Cambutal restaurants...');
+    console.log('Starting targeted Google Places API fetch for Los Santos restaurants...');
 
     // Get the authorization header to identify the user
     const authHeader = req.headers.get('Authorization');
@@ -122,57 +125,69 @@ serve(async (req) => {
 
     console.log('Import initiated by user:', user.id);
 
-    // Collect all unique places from multiple searches
+    // Collect all unique places from location-based searches
     const allPlaces = new Map<string, GooglePlace>();
     let totalFound = 0;
+    const searchResults = [];
 
-    for (const searchQuery of SEARCH_QUERIES) {
-      try {
-        console.log(`Searching for: ${searchQuery.query}`);
-        
-        const searchUrl = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
-        searchUrl.searchParams.set('query', searchQuery.query);
-        if (searchQuery.type) {
-          searchUrl.searchParams.set('type', searchQuery.type);
-        }
-        searchUrl.searchParams.set('key', GOOGLE_PLACES_API_KEY!);
-
-        const searchResponse = await fetch(searchUrl.toString());
-        const searchData = await searchResponse.json();
-
-        if (searchData.status === 'REQUEST_DENIED') {
-          console.error('Google Places API request denied:', searchData);
-          return new Response(JSON.stringify({ 
-            success: false,
-            error: 'Google Places API request denied',
-            details: 'Your API key has restrictions that prevent server-side usage. Please configure your Google Places API key to allow requests from any HTTP referrer or remove HTTP referrer restrictions.',
-            help: 'Go to Google Cloud Console > APIs & Services > Credentials > Edit your API key > Remove HTTP referrer restrictions or add * as an allowed referrer.'
-          }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-
-        if (searchData.status === 'OK' && searchData.results) {
-          totalFound += searchData.results.length;
+    for (const location of SEARCH_LOCATIONS) {
+      for (const placeType of PLACE_TYPES) {
+        try {
+          console.log(`Searching for ${placeType} near ${location.name} (${location.lat}, ${location.lng})`);
           
-          // Add unique places to our collection
-          for (const place of searchData.results) {
-            if (!allPlaces.has(place.place_id)) {
-              allPlaces.set(place.place_id, place);
-            }
+          const searchUrl = new URL('https://maps.googleapis.com/maps/api/place/nearbysearch/json');
+          searchUrl.searchParams.set('location', `${location.lat},${location.lng}`);
+          searchUrl.searchParams.set('radius', location.radius.toString());
+          searchUrl.searchParams.set('type', placeType);
+          searchUrl.searchParams.set('key', GOOGLE_PLACES_API_KEY!);
+
+          const searchResponse = await fetch(searchUrl.toString());
+          const searchData = await searchResponse.json();
+
+          if (searchData.status === 'REQUEST_DENIED') {
+            console.error('Google Places API request denied:', searchData);
+            return new Response(JSON.stringify({ 
+              success: false,
+              error: 'Google Places API request denied',
+              details: 'Your API key has restrictions that prevent server-side usage. Please configure your Google Places API key to allow requests from any HTTP referrer or remove HTTP referrer restrictions.',
+              help: 'Go to Google Cloud Console > APIs & Services > Credentials > Edit your API key > Remove HTTP referrer restrictions or add * as an allowed referrer.'
+            }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
           }
-          
-          console.log(`Found ${searchData.results.length} places for "${searchQuery.query}"`);
+
+          if (searchData.status === 'OK' && searchData.results) {
+            const locationResults = searchData.results.length;
+            totalFound += locationResults;
+            
+            // Add unique places to our collection
+            for (const place of searchData.results) {
+              if (!allPlaces.has(place.place_id)) {
+                allPlaces.set(place.place_id, place);
+              }
+            }
+            
+            searchResults.push({
+              location: location.name,
+              type: placeType,
+              found: locationResults
+            });
+            
+            console.log(`Found ${locationResults} ${placeType}s near ${location.name}`);
+          } else if (searchData.status === 'ZERO_RESULTS') {
+            console.log(`No ${placeType}s found near ${location.name}`);
+          }
+        } catch (error) {
+          console.error(`Error searching for ${placeType} near ${location.name}:`, error);
+          continue;
         }
-      } catch (error) {
-        console.error(`Error searching for "${searchQuery.query}":`, error);
-        continue;
       }
     }
 
     const uniquePlaces = Array.from(allPlaces.values());
     console.log(`Total unique places found: ${uniquePlaces.length} from ${totalFound} total results`);
+    console.log('Search breakdown:', searchResults);
 
     if (uniquePlaces.length === 0) {
       return new Response(JSON.stringify({
@@ -180,7 +195,8 @@ serve(async (req) => {
         imported: 0,
         restaurants: [],
         total_found: totalFound,
-        message: 'No restaurants found in Cambutal, Panama area across all search queries.'
+        search_breakdown: searchResults,
+        message: 'No restaurants found in the specified Los Santos locations.'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -189,8 +205,8 @@ serve(async (req) => {
     const processedRestaurants = [];
     const errors = [];
 
-    // Process places (increased limit to 25 for better coverage)
-    const placesToProcess = uniquePlaces.slice(0, 25);
+    // Process places (limit to 30 for better coverage)
+    const placesToProcess = uniquePlaces.slice(0, 30);
     
     for (const place of placesToProcess) {
       try {
@@ -272,7 +288,8 @@ serve(async (req) => {
           status: 'imported',
           rating: placeDetails.rating,
           review_count: placeDetails.user_ratings_total,
-          photos_imported: galleryImages.length
+          photos_imported: galleryImages.length,
+          address: placeDetails.formatted_address
         });
 
         console.log(`Successfully imported: ${placeDetails.name} (Rating: ${placeDetails.rating || 'N/A'}, Reviews: ${placeDetails.user_ratings_total || 0}, Photos: ${galleryImages.length})`);
@@ -291,15 +308,16 @@ serve(async (req) => {
       total_found: totalFound,
       unique_places: uniquePlaces.length,
       processed: placesToProcess.length,
-      search_queries_used: SEARCH_QUERIES.length
+      search_breakdown: searchResults,
+      locations_searched: SEARCH_LOCATIONS.map(l => l.name)
     };
 
     // Add detailed results
     if (errors.length > 0) {
-      response.details = `Imported ${processedRestaurants.length} restaurants successfully. ${errors.length} errors occurred.`;
+      response.details = `Imported ${processedRestaurants.length} restaurants successfully from ${SEARCH_LOCATIONS.map(l => l.name).join(', ')}. ${errors.length} errors occurred.`;
       response.errors = errors;
     } else {
-      response.details = `Successfully imported ${processedRestaurants.length} restaurants from ${uniquePlaces.length} unique places found.`;
+      response.details = `Successfully imported ${processedRestaurants.length} restaurants from ${uniquePlaces.length} unique places found in ${SEARCH_LOCATIONS.map(l => l.name).join(', ')}.`;
     }
 
     return new Response(JSON.stringify(response), {
@@ -406,8 +424,18 @@ function transformOpeningHours(weekdayText?: string[], periods?: Array<any>): Re
 function generateDescription(place: GooglePlace): string {
   const parts = [];
   
+  // Determine location from address
+  let location = 'Los Santos, Panama';
+  if (place.formatted_address) {
+    const address = place.formatted_address.toLowerCase();
+    if (address.includes('cambutal')) location = 'Cambutal, Panama';
+    else if (address.includes('guanico')) location = 'Guanico, Panama';
+    else if (address.includes('tonosi')) location = 'Tonosi, Panama';
+    else if (address.includes('horcones')) location = 'Horcones, Panama';
+  }
+  
   // Base description
-  parts.push(`Restaurant in Cambutal, Panama`);
+  parts.push(`Restaurant in ${location}`);
   
   // Add rating info if available
   if (place.rating) {
@@ -465,7 +493,6 @@ async function downloadPlacePhotos(place: GooglePlace, supabase: any, maxPhotos:
       
       if (photoResponse.ok) {
         const photoBlob = await photoResponse.blob();
-        // Fix: Use place.place_id instead of undefined variable
         const fileName = `${place.place_id}_${i}_${Date.now()}.jpg`;
         const filePath = `restaurants/${fileName}`;
 
