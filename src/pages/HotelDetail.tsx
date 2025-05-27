@@ -1,7 +1,7 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { ArrowLeft, Star, Users, Wifi, Car, Coffee, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Star, ExternalLink } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ImageGallery from '../components/ImageGallery';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useHotelDetails } from '@/hooks/useHotelListings';
+import { getAmenityIcon } from '@/utils/amenityIcons';
 
 const HotelDetail = () => {
   const { slug } = useParams();
@@ -47,13 +48,6 @@ const HotelDetail = () => {
       </div>
     );
   }
-
-  const amenityIcons: Record<string, any> = {
-    'WiFi': Wifi,
-    'Parking': Car,
-    'Restaurant': Coffee,
-    'Pool': Users,
-  };
 
   const trackAffiliateClick = () => {
     console.log('Affiliate link clicked:', hotel.affiliate_url);
@@ -139,7 +133,7 @@ const HotelDetail = () => {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {hotel.amenities.map((amenity, index) => {
-                      const IconComponent = amenityIcons[amenity] || Users;
+                      const IconComponent = getAmenityIcon(amenity);
                       return (
                         <div key={index} className="flex items-center gap-2">
                           <IconComponent className="w-5 h-5 text-venao-dark" />
