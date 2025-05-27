@@ -55,11 +55,10 @@ const GOOGLE_PLACES_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-// Specific locations with coordinates and smaller radius
+// Focused search locations with Cambutal as primary focus
 const SEARCH_LOCATIONS: SearchLocation[] = [
-  { name: 'Cambutal', lat: 7.3167, lng: -80.4833, radius: 2000 }, // 2km radius
+  { name: 'Cambutal', lat: 7.3167, lng: -80.4833, radius: 3000 }, // Increased radius for primary focus
   { name: 'Guanico', lat: 7.4167, lng: -80.5, radius: 2000 }, // 2km radius
-  { name: 'Tonosi', lat: 7.3833, lng: -80.4333, radius: 3000 }, // 3km radius (slightly larger town)
   { name: 'Horcones', lat: 7.25, lng: -80.45, radius: 1500 }, // 1.5km radius
 ];
 
@@ -72,7 +71,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting targeted Google Places API fetch for Los Santos restaurants...');
+    console.log('Starting targeted Google Places API fetch for Cambutal area restaurants...');
 
     // Get the authorization header to identify the user
     const authHeader = req.headers.get('Authorization');
@@ -196,7 +195,7 @@ serve(async (req) => {
         restaurants: [],
         total_found: totalFound,
         search_breakdown: searchResults,
-        message: 'No restaurants found in the specified Los Santos locations.'
+        message: 'No restaurants found in the specified Cambutal area locations.'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -425,12 +424,11 @@ function generateDescription(place: GooglePlace): string {
   const parts = [];
   
   // Determine location from address
-  let location = 'Los Santos, Panama';
+  let location = 'Cambutal area, Panama';
   if (place.formatted_address) {
     const address = place.formatted_address.toLowerCase();
     if (address.includes('cambutal')) location = 'Cambutal, Panama';
     else if (address.includes('guanico')) location = 'Guanico, Panama';
-    else if (address.includes('tonosi')) location = 'Tonosi, Panama';
     else if (address.includes('horcones')) location = 'Horcones, Panama';
   }
   
