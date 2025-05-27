@@ -116,8 +116,8 @@ const RestaurantDetail = () => {
               dbRestaurant.gallery_images as string[] : [],
             menuImages: Array.isArray(dbRestaurant.menu_images) ? 
               dbRestaurant.menu_images as string[] : [],
-            latitude: dbRestaurant.latitude ? Number(dbRestaurant.latitude) : undefined,
-            longitude: dbRestaurant.longitude ? Number(dbRestaurant.longitude) : undefined
+            latitude: (dbRestaurant as any).latitude ? Number((dbRestaurant as any).latitude) : undefined,
+            longitude: (dbRestaurant as any).longitude ? Number((dbRestaurant as any).longitude) : undefined
           };
           
           console.log('Transformed restaurant hours:', transformedRestaurant.hours);

@@ -75,8 +75,8 @@ const Eat = () => {
           category: restaurant.category,
           openNow: isRestaurantOpen(normalizedHours),
           hours: normalizedHours,
-          latitude: restaurant.latitude ? Number(restaurant.latitude) : undefined,
-          longitude: restaurant.longitude ? Number(restaurant.longitude) : undefined
+          latitude: (restaurant as any).latitude ? Number((restaurant as any).latitude) : undefined,
+          longitude: (restaurant as any).longitude ? Number((restaurant as any).longitude) : undefined
         };
       }) || [];
 

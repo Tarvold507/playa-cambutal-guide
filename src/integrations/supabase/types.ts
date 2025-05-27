@@ -320,6 +320,8 @@ export type Database = {
           hours: Json | null
           id: string
           image_url: string | null
+          latitude: number | null
+          longitude: number | null
           menu_images: Json | null
           name: string
           phone: string | null
@@ -341,6 +343,8 @@ export type Database = {
           hours?: Json | null
           id?: string
           image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           menu_images?: Json | null
           name: string
           phone?: string | null
@@ -362,6 +366,8 @@ export type Database = {
           hours?: Json | null
           id?: string
           image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           menu_images?: Json | null
           name?: string
           phone?: string | null
