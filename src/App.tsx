@@ -12,6 +12,7 @@ import Eat from "./pages/Eat";
 import Stay from "./pages/Stay";
 import Events from "./pages/Events";
 import Adventure from "./pages/Adventure";
+import Surf from "./pages/Surf";
 import Info from "./pages/Info";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ const App: React.FC = () => {
                 <Route path="/add-hotel" element={<AddHotel />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/adventure" element={<Adventure />} />
+                <Route path="/adventure/surf" element={<Surf />} />
                 <Route path="/info" element={<Info />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/profile" element={<Profile />} />
