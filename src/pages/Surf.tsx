@@ -4,13 +4,79 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
-import CardSection from '../components/CardSection';
 import Newsletter from '../components/Newsletter';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Clock, MessageCircle, MapPin } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+interface SurfBusiness {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  hours: string;
+  whatsapp: string;
+  location?: string;
+}
+
+const placeholderBusinesses: SurfBusiness[] = [
+  {
+    id: '1',
+    name: 'Cambutal Surf Academy',
+    type: 'Lessons',
+    description: 'Professional surf instruction for all levels. Our certified instructors will have you catching waves in no time with personalized lessons and equipment included.',
+    hours: 'Daily 6:00 AM - 6:00 PM',
+    whatsapp: '+507-6123-4567',
+    location: 'Main Beach'
+  },
+  {
+    id: '2',
+    name: 'Pacific Wave Rentals',
+    type: 'Rentals',
+    description: 'Premium surfboard and equipment rentals. We stock the latest boards from top brands, plus wetsuits, leashes, and all the gear you need.',
+    hours: 'Daily 7:00 AM - 5:00 PM',
+    whatsapp: '+507-6234-5678',
+    location: 'Beach Road'
+  },
+  {
+    id: '3',
+    name: 'Cambutal Surf Shop',
+    type: 'Shop',
+    description: 'Your one-stop surf shop featuring boards, apparel, accessories, and local surf art. We carry international brands and support local shapers.',
+    hours: 'Mon-Sat 8:00 AM - 6:00 PM, Sun 9:00 AM - 4:00 PM',
+    whatsapp: '+507-6345-6789',
+    location: 'Village Center'
+  },
+  {
+    id: '4',
+    name: 'Ding Repair Panama',
+    type: 'Repair',
+    description: 'Expert surfboard repair services. Quick turnaround on dings, cracks, and custom modifications. We also do board shaping and fin installations.',
+    hours: 'Mon-Fri 8:00 AM - 4:00 PM',
+    whatsapp: '+507-6456-7890',
+    location: 'Workshop near beach'
+  },
+  {
+    id: '5',
+    name: 'Sunset Surf School',
+    type: 'Lessons',
+    description: 'Group and private surf lessons with a focus on ocean safety and sustainable surfing practices. Perfect for families and beginners.',
+    hours: 'Daily 7:00 AM - 5:00 PM',
+    whatsapp: '+507-6567-8901',
+    location: 'South Beach'
+  },
+  {
+    id: '6',
+    name: 'Azuero Board Works',
+    type: 'Shop',
+    description: 'Custom surfboard shaping and high-end surf equipment. We create boards tailored to local conditions and your surfing style.',
+    hours: 'Tue-Sat 9:00 AM - 5:00 PM',
+    whatsapp: '+507-6678-9012',
+    location: 'Artisan Quarter'
+  }
+];
 
 interface SurfBusinessItem {
   id: string;
@@ -66,6 +132,26 @@ const Surf = () => {
     fetchSurfBusinesses();
   }, []);
 
+  const getWhatsAppUrl = (number: string) => {
+    const cleanNumber = number.replace(/[^\d+]/g, '');
+    return `https://wa.me/${cleanNumber}`;
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'lessons':
+        return 'bg-blue-100 text-blue-800';
+      case 'rentals':
+        return 'bg-green-100 text-green-800';
+      case 'shop':
+        return 'bg-purple-100 text-purple-800';
+      case 'repair':
+        return 'bg-orange-100 text-orange-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -104,17 +190,98 @@ const Surf = () => {
       </section>
 
       {/* Surf Business Listings */}
+      <section className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Surf Services & Businesses</h2>
+            <p className="text-gray-600">Professional surf instruction, rentals, and services from local experts in Playa Cambutal.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {placeholderBusinesses.map(business => (
+              <div key={business.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-xl font-semibold text-gray-800">{business.name}</h3>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(business.type)}`}>
+                      {business.type}
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-600 mb-4 line-clamp-3">{business.description}</p>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Clock className="w-4 h-4 mr-2" />
+                      {business.hours}
+                    </div>
+                    {business.location && (
+                      <div className="flex items-center text-sm text-gray-500">
+                        <MapPin className="w-4 h-4 mr-2" />
+                        {business.location}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <a
+                    href={getWhatsAppUrl(business.whatsapp)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Contact on WhatsApp
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Database Business Listings */}
       {surfBusinesses.length > 0 && (
-        <CardSection 
-          title="Surf Services & Businesses"
-          description="Professional surf instruction, rentals, and services from local experts in Playa Cambutal."
-          items={surfBusinesses}
-          bgColor="bg-gray-50"
-        />
+        <section className="bg-white py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Featured Surf Businesses</h2>
+              <p className="text-gray-600">Additional surf services from our business directory.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {surfBusinesses.map(item => (
+                <a
+                  key={item.id}
+                  href={item.link}
+                  className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                >
+                  <div className="relative h-64 overflow-hidden">
+                    <img 
+                      src={item.imageSrc} 
+                      alt={item.title} 
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {item.category && (
+                      <div className="absolute top-4 left-4 bg-venao-dark/90 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        {item.category}
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-5 bg-white">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-venao transition-colors duration-300">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-600 line-clamp-3">{item.description}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Add Business Section */}
-      <section className="bg-white py-16">
+      <section className="bg-gray-50 py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Offer Surf Services in Cambutal?</h2>
           <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
@@ -134,98 +301,6 @@ const Surf = () => {
               You'll need to sign in to add a business listing.
             </p>
           )}
-        </div>
-      </section>
-      
-      {/* Wave Guide Section */}
-      <section className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">Seasonal Surf Guide</h2>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg text-gray-800 mb-3">Dry Season (December - April)</h3>
-                <p className="text-gray-600 mb-4">
-                  The prime surf season with consistent offshore winds and moderate-sized swells. 
-                  Perfect for intermediate surfers, with occasional bigger days for experienced riders.
-                </p>
-                <ul className="text-gray-600 space-y-1 text-sm">
-                  <li>• Wave size: 2-6 feet (occasionally larger)</li>
-                  <li>• Wind: Offshore mornings, light onshore afternoons</li>
-                  <li>• Water temp: 26-28°C (79-82°F)</li>
-                  <li>• Crowds: Moderate to high</li>
-                </ul>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg text-gray-800 mb-3">Green Season (May - November)</h3>
-                <p className="text-gray-600 mb-4">
-                  Larger, more powerful swells arrive, especially June-August. Morning sessions 
-                  are best before afternoon rains and winds affect conditions.
-                </p>
-                <ul className="text-gray-600 space-y-1 text-sm">
-                  <li>• Wave size: 3-8 feet (can be larger)</li>
-                  <li>• Wind: Variable, strongest afternoons</li>
-                  <li>• Water temp: 27-29°C (81-84°F)</li>
-                  <li>• Crowds: Light to moderate</li>
-                </ul>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-sm md:col-span-2">
-                <h3 className="font-semibold text-lg text-gray-800 mb-3">Best Surf Spots</h3>
-                <div className="grid md:grid-cols-3 gap-4 text-gray-600">
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">Main Beach (Beginners)</h4>
-                    <p className="text-sm">Right side of the bay with gentle, forgiving waves perfect for learning.</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">Center Peak (Intermediate)</h4>
-                    <p className="text-sm">Consistent break in the middle of the bay with left and right options.</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">Point Break (Advanced)</h4>
-                    <p className="text-sm">Left side point break offering longer rides and more powerful waves.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Surf Etiquette Section */}
-      <section className="bg-venao-light py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-white">
-            <h2 className="text-2xl font-bold mb-6 text-center">Surf Etiquette & Safety</h2>
-            <p className="mb-6 text-center">
-              Respecting local surf etiquette and safety guidelines helps ensure everyone has a safe and enjoyable experience:
-            </p>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="font-semibold text-lg mb-3">Basic Etiquette</h3>
-                <ul className="space-y-2 list-disc pl-5">
-                  <li>Wait your turn and don't drop in on other surfers</li>
-                  <li>The surfer closest to the peak has right of way</li>
-                  <li>Communicate with calls like "Left!" or "Right!"</li>
-                  <li>Don't paddle through the lineup; paddle around it</li>
-                  <li>Respect locals and the environment</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-3">Safety Tips</h3>
-                <ul className="space-y-2 list-disc pl-5">
-                  <li>Know your limits and surf within your ability</li>
-                  <li>Always surf with a buddy when possible</li>
-                  <li>Be aware of currents and changing conditions</li>
-                  <li>Use a leash and check your equipment</li>
-                  <li>Stay hydrated and protect yourself from the sun</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
