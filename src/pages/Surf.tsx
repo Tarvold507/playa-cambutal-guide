@@ -244,9 +244,9 @@ const Surf = () => {
                       allowTransparency={true}
                       src="//www.surf-forecast.com/breaks/Cambutal/forecasts/widget/a" 
                       scrolling="no" 
-                      frameBorder="0" 
-                      marginWidth="0" 
-                      marginHeight="0"
+                      frameBorder={0}
+                      marginWidth={0}
+                      marginHeight={0}
                       style={{ width: '100%', height: '400px' }}
                     />
                     <div className="footer">
