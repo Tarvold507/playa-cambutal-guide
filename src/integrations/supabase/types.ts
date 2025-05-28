@@ -9,6 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      adventure_business_listings: {
+        Row: {
+          approved: boolean | null
+          approved_at: string | null
+          approved_by: string | null
+          business_name: string
+          business_type: string
+          category: string
+          created_at: string | null
+          description: string
+          hours: string
+          id: string
+          location: string
+          updated_at: string | null
+          user_id: string
+          whatsapp: string
+        }
+        Insert: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          business_name: string
+          business_type: string
+          category: string
+          created_at?: string | null
+          description: string
+          hours: string
+          id?: string
+          location: string
+          updated_at?: string | null
+          user_id: string
+          whatsapp: string
+        }
+        Update: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          business_name?: string
+          business_type?: string
+          category?: string
+          created_at?: string | null
+          description?: string
+          hours?: string
+          id?: string
+          location?: string
+          updated_at?: string | null
+          user_id?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
       business_listings: {
         Row: {
           address: string

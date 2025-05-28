@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -19,6 +18,16 @@ interface SurfBusiness {
   hours: string;
   whatsapp: string;
   location?: string;
+}
+
+interface DatabaseSurfBusiness {
+  id: string;
+  business_name: string;
+  business_type: string;
+  description: string;
+  hours: string;
+  whatsapp: string;
+  location: string;
 }
 
 const placeholderBusinesses: SurfBusiness[] = [
@@ -89,6 +98,7 @@ interface SurfBusinessItem {
 
 const Surf = () => {
   const [surfBusinesses, setSurfBusinesses] = useState<SurfBusinessItem[]>([]);
+  const [adventureBusinesses, setAdventureBusinesses] = useState<DatabaseSurfBusiness[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -122,6 +132,28 @@ const Surf = () => {
         description: "Failed to load surf businesses",
         variant: "destructive",
       });
+    }
+  };
+
+  const fetchAdventureBusinesses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('adventure_business_listings')
+        .select('*')
+        .eq('approved', true)
+        .eq('category', 'surf')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setAdventureBusinesses(data || []);
+    } catch (error) {
+      console.error('Error fetching adventure businesses:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load adventure businesses",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -130,6 +162,7 @@ const Surf = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchSurfBusinesses();
+    fetchAdventureBusinesses();
   }, []);
 
   const getWhatsAppUrl = (number: string) => {
@@ -239,9 +272,59 @@ const Surf = () => {
         </div>
       </section>
 
+      {/* Adventure Business Listings from Database */}
+      {adventureBusinesses.length > 0 && (
+        <section className="bg-white py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Community Surf Businesses</h2>
+              <p className="text-gray-600">Local surf services shared by our community members.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {adventureBusinesses.map(business => (
+                <div key={business.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-xl font-semibold text-gray-800">{business.business_name}</h3>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(business.business_type)}`}>
+                        {business.business_type}
+                      </span>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-4 line-clamp-3">{business.description}</p>
+                    
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Clock className="w-4 h-4 mr-2" />
+                        {business.hours}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <MapPin className="w-4 h-4 mr-2" />
+                        {business.location}
+                      </div>
+                    </div>
+                    
+                    <a
+                      href={getWhatsAppUrl(business.whatsapp)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Contact on WhatsApp
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Database Business Listings */}
       {surfBusinesses.length > 0 && (
-        <section className="bg-white py-16">
+        <section className="bg-gray-50 py-16">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Featured Surf Businesses</h2>
@@ -289,12 +372,12 @@ const Surf = () => {
             rentals, repairs, or other surf-related services, showcase your business to our community.
           </p>
           <Button 
-            onClick={() => navigate('/add-business')}
+            onClick={() => navigate('/adventure')}
             size="lg"
             className="bg-venao-dark hover:bg-venao-dark/90"
           >
             <Plus className="w-5 h-5 mr-2" />
-            List Your Surf Business
+            Submit Your Surf Business
           </Button>
           {!user && (
             <p className="text-sm text-gray-500 mt-2">

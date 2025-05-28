@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -6,6 +5,7 @@ import Hero from '../components/Hero';
 import CardSection from '../components/CardSection';
 import Featured from '../components/Featured';
 import Newsletter from '../components/Newsletter';
+import AdventureBusinessSubmissionForm from '../components/AdventureBusinessSubmissionForm';
 
 const adventureItems = [
   {
@@ -91,6 +91,19 @@ const Adventure = () => {
         items={adventureItems}
         bgColor="bg-gray-50"
       />
+
+      {/* Business Submission Section */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Share Your Adventure Business</h2>
+          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+            Are you offering adventure services in Cambutal? Join our directory and connect with 
+            visitors looking for authentic local experiences. Whether you offer surf lessons, 
+            nature tours, fitness classes, or fishing charters, showcase your business to our community.
+          </p>
+          <AdventureBusinessSubmissionForm />
+        </div>
+      </section>
       
       <Featured 
         title="Surf Paradise"
