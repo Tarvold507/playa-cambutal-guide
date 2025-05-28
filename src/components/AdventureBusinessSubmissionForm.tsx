@@ -90,8 +90,14 @@ const AdventureBusinessSubmissionForm = () => {
       const { error } = await supabase
         .from('adventure_business_listings')
         .insert({
-          ...values,
           user_id: user.id,
+          business_name: values.business_name,
+          category: values.category,
+          business_type: values.business_type,
+          description: values.description,
+          hours: values.hours,
+          whatsapp: values.whatsapp,
+          location: values.location,
         });
 
       if (error) throw error;
