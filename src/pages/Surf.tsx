@@ -254,7 +254,7 @@ const Surf = () => {
                         <img src="//www.surf-forecast.com/images/widget.png" width="1" height="1" alt="Surf Forecast" />
                       </a>
                       <div className="about" id="cmt">
-                        More <a href="//www.surf-forecast.com/breaks/Cambutal">Detailed Surf Conditions &amp; Webcams for&nbsp;Playa Cambutal</a> <nobr>at&nbsp;<a href="//www.surf-forecast.com/">surf-forecast.com</a></nobr>.
+                        More <a href="//www.surf-forecast.com/breaks/Cambutal">Detailed Surf Conditions &amp; Webcams for&nbsp;Playa Cambutal</a> <span>at&nbsp;<a href="//www.surf-forecast.com/">surf-forecast.com</a></span>.
                       </div>
                     </div>
                   </div>
