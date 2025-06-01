@@ -61,6 +61,43 @@ const adventureItems = [
 const Adventure = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // Add SEO structured data
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Adventures in Cambutal, Panama - Activities & Tours",
+      "description": "Discover exciting adventures in Playa Cambutal, Panama. From surfing and yoga to wildlife tours and fishing charters.",
+      "url": window.location.href,
+      "mainEntity": {
+        "@type": "TouristDestination",
+        "name": "Cambutal Adventure Activities",
+        "description": "Adventure activities and tours in Playa Cambutal, Panama",
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 7.2833,
+          "longitude": -80.5167
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "Panama",
+          "addressRegion": "Los Santos Province",
+          "addressLocality": "Cambutal"
+        }
+      }
+    };
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+    
+    return () => {
+      const existingScript = document.querySelector('script[type="application/ld+json"]');
+      if (existingScript && existingScript.textContent === JSON.stringify(structuredData)) {
+        document.head.removeChild(existingScript);
+      }
+    };
   }, []);
 
   return (
@@ -68,19 +105,19 @@ const Adventure = () => {
       <Navbar />
       
       <Hero 
-        title="Adventures in Cambutal"
-        subtitle="Discover surfing, nature, and activities in paradise"
+        title="Adventures in Cambutal, Panama"
+        subtitle="Discover surfing, nature tours, and activities in Panama's beach paradise"
         imageSrc="https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
       
       <section className="bg-white py-16 md:py-24">
         <div className="container mx-auto px-4 text-center max-w-3xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Experience Cambutal</h2>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Experience Cambutal, Panama</h1>
           <p className="text-gray-600 mb-4">
             From world-class surfing to breathtaking nature experiences, Playa Cambutal offers endless 
-            opportunities for adventure. Whether you're seeking the perfect wave, wanting to explore 
-            pristine jungles, or looking to connect with nature through yoga, you'll find your perfect 
-            adventure here.
+            opportunities for adventure in Panama. Whether you're seeking the perfect wave, wanting to explore 
+            Panama's pristine jungles, or looking to connect with nature through yoga on the beach, 
+            you'll find your perfect adventure in this Pacific coast paradise.
           </p>
         </div>
       </section>

@@ -1,8 +1,18 @@
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://playacambutal.guide/sitemap.xml
+
+# Specific crawling instructions for better indexing
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +20,15 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
-Allow: /
+# Block access to admin and private areas
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /auth/
+
+# Important pages for Panama tourism
+Allow: /surf
+Allow: /eat
+Allow: /stay
+Allow: /adventure
+Allow: /events
+Allow: /transportation

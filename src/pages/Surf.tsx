@@ -163,6 +163,43 @@ const Surf = () => {
     window.scrollTo(0, 0);
     fetchSurfBusinesses();
     fetchAdventureBusinesses();
+    
+    // Add page-specific structured data
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Surfing in Playa Cambutal, Panama - Complete Surf Guide",
+      "description": "Discover world-class surfing in Playa Cambutal, Panama. Find surf schools, board rentals, and the best surf spots on Panama's Pacific coast.",
+      "url": window.location.href,
+      "mainEntity": {
+        "@type": "SportsActivityLocation",
+        "name": "Playa Cambutal Surf Breaks",
+        "description": "Premier surfing destination in Panama with consistent waves year-round",
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 7.2833,
+          "longitude": -80.5167
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "Panama",
+          "addressRegion": "Los Santos Province",
+          "addressLocality": "Cambutal"
+        }
+      }
+    };
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+    
+    return () => {
+      const existingScript = document.querySelector('script[type="application/ld+json"]');
+      if (existingScript && existingScript.textContent === JSON.stringify(structuredData)) {
+        document.head.removeChild(existingScript);
+      }
+    };
   }, []);
 
   const getWhatsAppUrl = (number: string) => {
@@ -191,32 +228,34 @@ const Surf = () => {
       
       {/* Hero Section */}
       <Hero 
-        title="Surf Paradise"
-        subtitle="Catch the perfect wave in Playa Cambutal - Panama's premier surf destination"
+        title="Surfing in Playa Cambutal, Panama"
+        subtitle="Catch the perfect wave in Panama's premier surf destination on the Pacific coast"
         imageSrc="https://images.unsplash.com/photo-1530684585734-6979140f1d82?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
       
       {/* Intro Section */}
       <section className="bg-white py-16 md:py-24" id="content">
         <div className="container mx-auto px-4 text-center max-w-4xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">World-Class Surfing in Panama</h2>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">World-Class Surfing in Cambutal, Panama</h1>
           <div className="text-gray-600 space-y-4 text-lg leading-relaxed">
             <p>
-              Playa Cambutal is renowned as one of Panama's premier surf destinations, offering consistent waves 
-              and versatile surf conditions year-round. The beach's unique horseshoe shape creates multiple breaks 
-              suitable for surfers of all skill levels, from gentle rollers perfect for beginners to powerful 
-              point breaks that challenge even the most experienced riders.
+              Playa Cambutal is renowned as Panama's premier surf destination, offering consistent waves 
+              and versatile surf conditions year-round on the Pacific coast. The beach's unique horseshoe shape 
+              creates multiple surf breaks suitable for all skill levels, from gentle rollers perfect for beginners 
+              to powerful point breaks that challenge even the most experienced surfers visiting Panama.
             </p>
             <p>
-              Located on the Azuero Peninsula's Pacific coast, Cambutal benefits from consistent south and southwest 
-              swells, with the best conditions typically occurring during the dry season (December-April) when 
-              offshore winds groom the waves to perfection. The warm water temperature year-round means you can 
-              surf comfortably in just board shorts or a spring suit.
+              Located on the Azuero Peninsula's Pacific coast in Los Santos Province, Cambutal benefits from 
+              consistent south and southwest swells from the Pacific Ocean. The best surf conditions in Panama 
+              typically occur during the dry season (December-April) when offshore winds groom the waves to 
+              perfection. The warm tropical water temperature year-round means you can surf comfortably in 
+              Cambutal without a wetsuit.
             </p>
             <p>
-              Whether you're taking your first surf lesson or searching for that perfect barrel, Playa Cambutal's 
-              welcoming surf community and professional services ensure an unforgettable experience in one of 
-              Central America's most beautiful coastal settings.
+              Whether you're taking your first surf lesson in Panama or searching for that perfect barrel, 
+              Playa Cambutal's welcoming surf community and professional surf services ensure an unforgettable 
+              experience in one of Central America's most beautiful coastal settings. Discover why Cambutal 
+              is becoming the go-to surf destination for visitors to Panama.
             </p>
           </div>
         </div>
@@ -366,10 +405,11 @@ const Surf = () => {
       {/* Add Business Section */}
       <section className="bg-gray-50 py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Offer Surf Services in Cambutal?</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Offer Surf Services in Cambutal, Panama?</h2>
           <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Join our directory and connect with surfers visiting Playa Cambutal! Whether you offer lessons, 
-            rentals, repairs, or other surf-related services, showcase your business to our community.
+            Join our directory and connect with surfers visiting Playa Cambutal, Panama! Whether you offer 
+            surf lessons, board rentals, repairs, or other surf-related services, showcase your business 
+            to the growing community of surfers discovering Panama's best waves.
           </p>
           <Button 
             onClick={() => navigate('/adventure')}
@@ -391,7 +431,7 @@ const Surf = () => {
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl font-bold text-gray-800 mb-8">Current Wave Forecast</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-8">Current Cambutal Wave Forecast</h2>
             <div className="surf-forecast-widget">
               <link href="//www.surf-forecast.com/stylesheets/widget.css" media="screen" rel="stylesheet" type="text/css" />
               <div className="wf-width-cont surf-fc-widget widget-centered">
@@ -406,6 +446,7 @@ const Surf = () => {
                       marginWidth={0}
                       marginHeight={0}
                       style={{ width: '100%', height: '400px' }}
+                      title="Playa Cambutal Surf Forecast - Panama"
                     />
                     <div className="footer">
                       <a className="logo" href="//www.surf-forecast.com/">
