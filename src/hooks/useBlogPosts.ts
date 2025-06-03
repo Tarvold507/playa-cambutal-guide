@@ -57,7 +57,14 @@ export const useBlogPosts = () => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setBlogPosts(data || []);
+      
+      // Type the data properly to match BlogPost interface
+      const typedData = (data || []).map(post => ({
+        ...post,
+        status: post.status as 'draft' | 'published' | 'archived'
+      }));
+      
+      setBlogPosts(typedData);
     } catch (error) {
       console.error('Error fetching blog posts:', error);
       toast({
@@ -87,7 +94,12 @@ export const useBlogPosts = () => {
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Type the data properly
+      return {
+        ...data,
+        status: data.status as 'draft' | 'published' | 'archived'
+      };
     } catch (error) {
       console.error('Error fetching blog post:', error);
       return null;
@@ -98,12 +110,18 @@ export const useBlogPosts = () => {
     if (!user) return;
 
     try {
+      // Remove fields that shouldn't be in the insert
+      const { profiles, id, created_at, updated_at, approved_by, approved_at, ...cleanPostData } = postData;
+      
       const { data, error } = await supabase
         .from('blog_posts')
-        .insert([{
-          ...postData,
+        .insert({
+          ...cleanPostData,
           user_id: user.id,
-        }])
+          title: cleanPostData.title || '',
+          slug: cleanPostData.slug || '',
+          content: cleanPostData.content || '',
+        })
         .select()
         .single();
 
@@ -114,7 +132,10 @@ export const useBlogPosts = () => {
         description: 'Blog post created successfully',
       });
 
-      return data;
+      return {
+        ...data,
+        status: data.status as 'draft' | 'published' | 'archived'
+      };
     } catch (error) {
       console.error('Error creating blog post:', error);
       toast({

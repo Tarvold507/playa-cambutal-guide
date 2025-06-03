@@ -60,12 +60,16 @@ export const usePageSEO = () => {
 
   const updatePageSEO = async (path: string, seoData: Partial<PageSEO>) => {
     try {
+      // Ensure required fields are present
+      const updateData = {
+        page_path: path,
+        page_title: seoData.page_title || `Page - ${path}`,
+        ...seoData,
+      };
+
       const { data, error } = await supabase
         .from('page_seo')
-        .upsert({
-          page_path: path,
-          ...seoData,
-        })
+        .upsert(updateData)
         .select()
         .single();
 

@@ -22,7 +22,14 @@ export const useAdminBlogData = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPendingBlogPosts(data || []);
+      
+      // Type the data properly to match BlogPost interface
+      const typedData = (data || []).map(post => ({
+        ...post,
+        status: post.status as 'draft' | 'published' | 'archived'
+      }));
+      
+      setPendingBlogPosts(typedData);
     } catch (error) {
       console.error('Error fetching pending blog posts:', error);
     }
@@ -43,7 +50,14 @@ export const useAdminBlogData = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setLiveBlogPosts(data || []);
+      
+      // Type the data properly to match BlogPost interface
+      const typedData = (data || []).map(post => ({
+        ...post,
+        status: post.status as 'draft' | 'published' | 'archived'
+      }));
+      
+      setLiveBlogPosts(typedData);
     } catch (error) {
       console.error('Error fetching live blog posts:', error);
     }
