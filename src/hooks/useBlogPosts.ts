@@ -43,7 +43,7 @@ export const useBlogPosts = () => {
         .from('blog_posts')
         .select(`
           *,
-          profiles:user_id (
+          profiles!blog_posts_user_id_fkey (
             name,
             email
           )
@@ -61,7 +61,8 @@ export const useBlogPosts = () => {
       // Type the data properly to match BlogPost interface
       const typedData = (data || []).map(post => ({
         ...post,
-        status: post.status as 'draft' | 'published' | 'archived'
+        status: post.status as 'draft' | 'published' | 'archived',
+        profiles: Array.isArray(post.profiles) ? post.profiles[0] : post.profiles
       }));
       
       setBlogPosts(typedData);
@@ -83,7 +84,7 @@ export const useBlogPosts = () => {
         .from('blog_posts')
         .select(`
           *,
-          profiles:user_id (
+          profiles!blog_posts_user_id_fkey (
             name,
             email
           )
@@ -98,7 +99,8 @@ export const useBlogPosts = () => {
       // Type the data properly
       return {
         ...data,
-        status: data.status as 'draft' | 'published' | 'archived'
+        status: data.status as 'draft' | 'published' | 'archived',
+        profiles: Array.isArray(data.profiles) ? data.profiles[0] : data.profiles
       };
     } catch (error) {
       console.error('Error fetching blog post:', error);
