@@ -1,6 +1,6 @@
 
 export interface EditFormData {
-  type?: 'event' | 'business' | 'restaurant' | 'hotel';
+  type?: 'event' | 'business' | 'restaurant' | 'hotel' | 'blog';
   id?: string;
   title?: string;
   location?: string;
@@ -23,8 +23,19 @@ export interface EditFormData {
   price_from?: number;
   commission_rate?: number;
   policies?: Record<string, any>;
+  // Blog specific fields
+  slug?: string;
+  content?: string;
+  excerpt?: string;
+  featured_image_url?: string;
+  tags?: string[];
+  status?: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
+  published_at?: string;
   [key: string]: any;
 }
 
-export type TableType = 'events' | 'business_listings' | 'restaurant_listings' | 'hotel_listings';
-export type ItemType = 'event' | 'business' | 'restaurant' | 'hotel';
+export type TableType = 'events' | 'business_listings' | 'restaurant_listings' | 'hotel_listings' | 'blog_posts';
+export type ItemType = 'event' | 'business' | 'restaurant' | 'hotel' | 'blog';

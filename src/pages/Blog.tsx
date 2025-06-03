@@ -1,0 +1,120 @@
+
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import Hero from '../components/Hero';
+import { useBlogPosts } from '../hooks/useBlogPosts';
+import { usePageSEO } from '../hooks/usePageSEO';
+import { updatePageHead } from '../utils/seoUtils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, User } from 'lucide-react';
+
+const Blog = () => {
+  const { blogPosts, loading } = useBlogPosts();
+  const { fetchSEOByPath } = usePageSEO();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    const loadSEO = async () => {
+      const seoData = await fetchSEOByPath('/blog');
+      updatePageHead(seoData, 'Blog - Playa Cambutal Guide');
+    };
+    
+    loadSEO();
+  }, [fetchSEOByPath]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center">Loading blog posts...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Navbar />
+      
+      <Hero 
+        title="Playa Cambutal Blog"
+        subtitle="Discover stories, tips, and insights about Panama's hidden paradise"
+        imageSrc="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80"
+      />
+      
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Latest Stories from Cambutal</h1>
+            
+            {blogPosts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-600 text-lg">No blog posts published yet. Check back soon for exciting stories about Playa Cambutal!</p>
+              </div>
+            ) : (
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {blogPosts.map((post) => (
+                  <Card key={post.id} className="hover:shadow-lg transition-shadow">
+                    {post.featured_image_url && (
+                      <div className="aspect-video overflow-hidden rounded-t-lg">
+                        <img 
+                          src={post.featured_image_url} 
+                          alt={post.title}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    )}
+                    <CardHeader>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                        <Calendar className="w-4 h-4" />
+                        {new Date(post.published_at || post.created_at).toLocaleDateString()}
+                        {post.profiles?.name && (
+                          <>
+                            <User className="w-4 h-4 ml-2" />
+                            {post.profiles.name}
+                          </>
+                        )}
+                      </div>
+                      <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                      {post.excerpt && (
+                        <CardDescription className="line-clamp-3">{post.excerpt}</CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-2 flex-wrap">
+                          {post.category && (
+                            <Badge variant="secondary">{post.category}</Badge>
+                          )}
+                          {post.tags?.slice(0, 2).map((tag) => (
+                            <Badge key={tag} variant="outline">{tag}</Badge>
+                          ))}
+                        </div>
+                        <Link 
+                          to={`/blog/${post.slug}`}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          Read More →
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default Blog;

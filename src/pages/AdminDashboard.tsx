@@ -10,10 +10,14 @@ import PendingEventsTab from '@/components/admin/PendingEventsTab';
 import PendingBusinessesTab from '@/components/admin/PendingBusinessesTab';
 import PendingRestaurantsTab from '@/components/admin/PendingRestaurantsTab';
 import PendingHotelsTab from '@/components/admin/PendingHotelsTab';
+import PendingBlogPostsTab from '@/components/admin/PendingBlogPostsTab';
 import LiveHotelsTab from '@/components/admin/LiveHotelsTab';
+import SEOManagementTab from '@/components/admin/SEOManagementTab';
 import GooglePlacesImport from '@/components/admin/GooglePlacesImport';
 import AdminEditDialog from '@/components/admin/AdminEditDialog';
 import { useAdminActions } from '@/hooks/useAdminActions';
+import { useAdminBlogData } from '@/hooks/admin/useAdminBlogData';
+import { useAdminSEOData } from '@/hooks/admin/useAdminSEOData';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -38,6 +42,18 @@ const AdminDashboard = () => {
     closeEditDialog,
   } = useAdminActions();
 
+  const {
+    pendingBlogPosts,
+    liveBlogPosts,
+    fetchPendingBlogPosts,
+    fetchLiveBlogPosts,
+  } = useAdminBlogData();
+
+  const {
+    pageSEO,
+    refreshSEOData,
+  } = useAdminSEOData();
+
   useEffect(() => {
     if (!user) {
       navigate('/auth');
@@ -49,7 +65,24 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     refreshAllData();
+    fetchPendingBlogPosts();
+    fetchLiveBlogPosts();
   }, []);
+
+  const refreshBlogData = () => {
+    fetchPendingBlogPosts();
+    fetchLiveBlogPosts();
+  };
+
+  const handleBlogApprove = async (id: string) => {
+    await handleApprove('blog_posts', id);
+    refreshBlogData();
+  };
+
+  const handleBlogReject = async (id: string) => {
+    await handleReject('blog_posts', id);
+    refreshBlogData();
+  };
 
   if (!user) return null;
 
@@ -61,13 +94,15 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold mb-8">{t('admin.title')}</h1>
         
         <Tabs defaultValue="events" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="events">{t('admin.pendingEvents')} ({pendingEvents.length})</TabsTrigger>
             <TabsTrigger value="businesses">{t('admin.pendingBusinesses')} ({pendingBusinesses.length})</TabsTrigger>
-            <TabsTrigger value="restaurants">Pending Restaurants ({pendingRestaurants.length})</TabsTrigger>
-            <TabsTrigger value="hotels">Pending Hotels ({pendingHotels.length})</TabsTrigger>
+            <TabsTrigger value="restaurants">Restaurants ({pendingRestaurants.length})</TabsTrigger>
+            <TabsTrigger value="hotels">Hotels ({pendingHotels.length})</TabsTrigger>
+            <TabsTrigger value="blog">Blog ({pendingBlogPosts.length})</TabsTrigger>
             <TabsTrigger value="live-hotels">Live Hotels ({liveHotels.length})</TabsTrigger>
-            <TabsTrigger value="import">Import Data</TabsTrigger>
+            <TabsTrigger value="seo">SEO ({pageSEO.length})</TabsTrigger>
+            <TabsTrigger value="import">Import</TabsTrigger>
           </TabsList>
           
           <TabsContent value="events">
@@ -106,10 +141,26 @@ const AdminDashboard = () => {
             />
           </TabsContent>
 
+          <TabsContent value="blog">
+            <PendingBlogPostsTab
+              pendingBlogPosts={pendingBlogPosts}
+              onApprove={handleBlogApprove}
+              onEdit={(item) => handleEdit(item, 'blog')}
+              onReject={handleBlogReject}
+            />
+          </TabsContent>
+
           <TabsContent value="live-hotels">
             <LiveHotelsTab
               liveHotels={liveHotels}
               onEdit={(item) => handleEdit(item, 'hotel')}
+            />
+          </TabsContent>
+
+          <TabsContent value="seo">
+            <SEOManagementTab
+              pageSEO={pageSEO}
+              onRefresh={refreshSEOData}
             />
           </TabsContent>
 

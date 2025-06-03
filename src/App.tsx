@@ -22,6 +22,9 @@ import RestaurantDetail from "./pages/RestaurantDetail";
 import AddRestaurant from "./pages/AddRestaurant";
 import HotelDetail from "./pages/HotelDetail";
 import AddHotel from "./pages/AddHotel";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+import AddBlog from "./pages/AddBlog";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +54,9 @@ const App: React.FC = () => {
                 <Route path="/events" element={<Events />} />
                 <Route path="/adventure" element={<Adventure />} />
                 <Route path="/adventure/surf" element={<Surf />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/add-blog" element={<AddBlog />} />
                 <Route path="/info" element={<Info />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/profile" element={<Profile />} />

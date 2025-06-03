@@ -38,7 +38,8 @@ export const useAdminEdit = () => {
       const tableName = type === 'event' ? 'events' : 
                       type === 'business' ? 'business_listings' : 
                       type === 'restaurant' ? 'restaurant_listings' :
-                      'hotel_listings';
+                      type === 'hotel' ? 'hotel_listings' :
+                      'blog_posts';
 
       const { error } = await supabase
         .from(tableName)

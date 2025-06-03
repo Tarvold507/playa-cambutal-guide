@@ -60,6 +60,72 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts: {
+        Row: {
+          approved: boolean | null
+          approved_at: string | null
+          approved_by: string | null
+          category: string | null
+          content: string
+          created_at: string
+          excerpt: string | null
+          featured_image_url: string | null
+          id: string
+          published_at: string | null
+          seo_description: string | null
+          seo_keywords: string | null
+          seo_title: string | null
+          slug: string
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string | null
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
+          slug: string
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string | null
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_listings: {
         Row: {
           address: string
@@ -321,6 +387,63 @@ export type Database = {
           review_count?: number | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      page_seo: {
+        Row: {
+          canonical_url: string | null
+          created_at: string
+          id: string
+          meta_description: string | null
+          meta_keywords: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          page_path: string
+          page_title: string
+          robots: string | null
+          schema_markup: Json | null
+          twitter_description: string | null
+          twitter_image: string | null
+          twitter_title: string | null
+          updated_at: string
+        }
+        Insert: {
+          canonical_url?: string | null
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          meta_keywords?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          page_path: string
+          page_title: string
+          robots?: string | null
+          schema_markup?: Json | null
+          twitter_description?: string | null
+          twitter_image?: string | null
+          twitter_title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          canonical_url?: string | null
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          meta_keywords?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          page_path?: string
+          page_title?: string
+          robots?: string | null
+          schema_markup?: Json | null
+          twitter_description?: string | null
+          twitter_image?: string | null
+          twitter_title?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
