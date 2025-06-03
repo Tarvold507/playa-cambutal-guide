@@ -21,7 +21,7 @@ const Footer = () => {
             {/* Social Links */}
             <div className="flex space-x-4 mt-6">
               <a 
-                href="https://facebook.com" 
+                href="https://www.facebook.com/61576766530599" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-primary transition-colors"
@@ -30,7 +30,7 @@ const Footer = () => {
                 <Facebook className="h-6 w-6" />
               </a>
               <a 
-                href="https://instagram.com" 
+                href="https://www.instagram.com/playacambutalguide" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-primary transition-colors"
