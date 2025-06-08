@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PageContent } from '@/hooks/usePageContent';
 import { useCMSImages } from '@/hooks/useCMSImages';
-import { Upload } from 'lucide-react';
+import HeroFields from './content-fields/HeroFields';
+import TextFields from './content-fields/TextFields';
+import ImageFields from './content-fields/ImageFields';
+import CardFields from './content-fields/CardFields';
 
 interface ContentEditDialogProps {
   isOpen: boolean;
@@ -18,7 +20,6 @@ interface ContentEditDialogProps {
   onSave: (content: Omit<PageContent, 'id' | 'created_at' | 'updated_at'>) => void;
 }
 
-// Type for content data based on content type
 interface ContentData {
   title?: string;
   subtitle?: string;
@@ -97,204 +98,22 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
   };
 
   const renderContentFields = () => {
+    const commonProps = {
+      contentData: formData.content_data,
+      updateContentData,
+      onImageUpload: handleImageUpload,
+      uploading,
+    };
+
     switch (formData.content_type) {
       case 'hero':
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={formData.content_data.title || ''}
-                onChange={(e) => updateContentData('title', e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="subtitle">Subtitle</Label>
-              <Textarea
-                id="subtitle"
-                value={formData.content_data.subtitle || ''}
-                onChange={(e) => updateContentData('subtitle', e.target.value)}
-                rows={3}
-              />
-            </div>
-            <div>
-              <Label htmlFor="background-image">Background Image</Label>
-              <div className="flex items-center gap-4">
-                <Input
-                  id="background-image"
-                  value={formData.content_data.imageSrc || ''}
-                  onChange={(e) => updateContentData('imageSrc', e.target.value)}
-                  placeholder="Image URL or upload below"
-                />
-                <label className="cursor-pointer">
-                  <Button type="button" variant="outline" disabled={uploading} asChild>
-                    <span>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload
-                    </span>
-                  </Button>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleImageUpload(file, 'imageSrc');
-                    }}
-                  />
-                </label>
-              </div>
-              {formData.content_data.imageSrc && (
-                <div className="mt-2">
-                  <img
-                    src={formData.content_data.imageSrc}
-                    alt="Preview"
-                    className="w-32 h-20 object-cover rounded border"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        );
-
+        return <HeroFields {...commonProps} />;
       case 'text':
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="text-content">Text Content</Label>
-              <Textarea
-                id="text-content"
-                value={formData.content_data.text || ''}
-                onChange={(e) => updateContentData('text', e.target.value)}
-                rows={6}
-                placeholder="Enter your text content here..."
-              />
-            </div>
-          </div>
-        );
-
+        return <TextFields contentData={formData.content_data} updateContentData={updateContentData} />;
       case 'image':
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="image-url">Image URL</Label>
-              <div className="flex items-center gap-4">
-                <Input
-                  id="image-url"
-                  value={formData.content_data.url || ''}
-                  onChange={(e) => updateContentData('url', e.target.value)}
-                  placeholder="Image URL or upload below"
-                />
-                <label className="cursor-pointer">
-                  <Button type="button" variant="outline" disabled={uploading} asChild>
-                    <span>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload
-                    </span>
-                  </Button>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleImageUpload(file, 'url');
-                    }}
-                  />
-                </label>
-              </div>
-              {formData.content_data.url && (
-                <div className="mt-2">
-                  <img
-                    src={formData.content_data.url}
-                    alt="Preview"
-                    className="w-32 h-20 object-cover rounded border"
-                  />
-                </div>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="alt-text">Alt Text</Label>
-              <Input
-                id="alt-text"
-                value={formData.content_data.alt || ''}
-                onChange={(e) => updateContentData('alt', e.target.value)}
-                placeholder="Describe the image for accessibility"
-              />
-            </div>
-            <div>
-              <Label htmlFor="caption">Caption (optional)</Label>
-              <Input
-                id="caption"
-                value={formData.content_data.caption || ''}
-                onChange={(e) => updateContentData('caption', e.target.value)}
-                placeholder="Image caption"
-              />
-            </div>
-          </div>
-        );
-
+        return <ImageFields {...commonProps} />;
       case 'card':
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="card-title">Card Title</Label>
-              <Input
-                id="card-title"
-                value={formData.content_data.title || ''}
-                onChange={(e) => updateContentData('title', e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="card-description">Description</Label>
-              <Textarea
-                id="card-description"
-                value={formData.content_data.description || ''}
-                onChange={(e) => updateContentData('description', e.target.value)}
-                rows={3}
-              />
-            </div>
-            <div>
-              <Label htmlFor="card-image">Card Image</Label>
-              <div className="flex items-center gap-4">
-                <Input
-                  id="card-image"
-                  value={formData.content_data.imageSrc || ''}
-                  onChange={(e) => updateContentData('imageSrc', e.target.value)}
-                  placeholder="Image URL or upload below"
-                />
-                <label className="cursor-pointer">
-                  <Button type="button" variant="outline" disabled={uploading} asChild>
-                    <span>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload
-                    </span>
-                  </Button>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleImageUpload(file, 'imageSrc');
-                    }}
-                  />
-                </label>
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="card-link">Link URL (optional)</Label>
-              <Input
-                id="card-link"
-                value={formData.content_data.link || ''}
-                onChange={(e) => updateContentData('link', e.target.value)}
-                placeholder="https://..."
-              />
-            </div>
-          </div>
-        );
-
+        return <CardFields {...commonProps} />;
       default:
         return (
           <div>
