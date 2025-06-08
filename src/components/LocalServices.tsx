@@ -1,45 +1,48 @@
 
 import { Wrench, Stethoscope, Waves, Car, ShieldCheck, School } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
-const services = [
-  {
-    name: "Emergency Services",
-    icon: Stethoscope,
-    details: "Local clinic and emergency contacts"
-  },
-  {
-    name: "Surf Lessons",
-    icon: Waves,
-    details: "Professional instructors available"
-  },
-  {
-    name: "Car Rental",
-    icon: Car,
-    details: "Local vehicle rental services"
-  },
-  {
-    name: "Security",
-    icon: ShieldCheck,
-    details: "Local police and security services"
-  },
-  {
-    name: "Language School",
-    icon: School,
-    details: "Spanish lessons and tutoring"
-  },
-  {
-    name: "Maintenance",
-    icon: Wrench,
-    details: "Home and property maintenance"
-  }
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const LocalServices = () => {
+  const { t } = useLanguage();
+  
+  const services = [
+    {
+      name: t('services.emergency'),
+      icon: Stethoscope,
+      details: t('services.emergencyDetails')
+    },
+    {
+      name: t('services.surfLessons'),
+      icon: Waves,
+      details: t('services.surfDetails')
+    },
+    {
+      name: t('services.carRental'),
+      icon: Car,
+      details: t('services.carDetails')
+    },
+    {
+      name: t('services.security'),
+      icon: ShieldCheck,
+      details: t('services.securityDetails')
+    },
+    {
+      name: t('services.language'),
+      icon: School,
+      details: t('services.languageDetails')
+    },
+    {
+      name: t('services.maintenance'),
+      icon: Wrench,
+      details: t('services.maintenanceDetails')
+    }
+  ];
+
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Local Services</CardTitle>
+        <CardTitle>{t('services.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

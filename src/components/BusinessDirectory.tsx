@@ -1,35 +1,38 @@
 
 import { Store, MapPin, Phone } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
-const businesses = [
-  {
-    name: "Cambutal Surf Shop",
-    category: "Retail",
-    address: "Main Beach Road",
-    phone: "+507 123-4567"
-  },
-  {
-    name: "Ocean View Restaurant",
-    category: "Restaurant",
-    address: "Playa Cambutal",
-    phone: "+507 123-4568"
-  },
-  {
-    name: "Beach Yoga Studio",
-    category: "Fitness",
-    address: "Sunset Point",
-    phone: "+507 123-4569"
-  }
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const BusinessDirectory = () => {
+  const { t } = useLanguage();
+  
+  const businesses = [
+    {
+      name: "Cambutal Surf Shop",
+      category: t('directory.retail'),
+      address: "Main Beach Road",
+      phone: "+507 123-4567"
+    },
+    {
+      name: "Ocean View Restaurant",
+      category: t('directory.restaurant'),
+      address: "Playa Cambutal",
+      phone: "+507 123-4568"
+    },
+    {
+      name: "Beach Yoga Studio",
+      category: t('directory.fitness'),
+      address: "Sunset Point",
+      phone: "+507 123-4569"
+    }
+  ];
+
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Store className="h-5 w-5" />
-          Business Directory
+          {t('directory.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
