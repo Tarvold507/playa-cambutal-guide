@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import Hero from '../components/Hero';
+import CMSHero from '../components/CMSHero';
 import Newsletter from '../components/Newsletter';
 import EventCalendar from '../components/EventCalendar';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -18,10 +18,11 @@ const Events = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      <Hero 
-        title={t('events.title')}
-        subtitle={t('events.subtitle')}
-        imageSrc="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
+      <CMSHero 
+        pagePath="/events"
+        fallbackTitle={t('events.title')}
+        fallbackSubtitle={t('events.subtitle')}
+        fallbackImageSrc="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
 
       <section className="bg-white py-16">

@@ -1,16 +1,16 @@
 
 import { useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import Hero from '../components/Hero';
+import CMSHero from '../components/CMSHero';
 import Newsletter from '../components/Newsletter';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EventCalendar from '../components/EventCalendar';
 import BusinessDirectory from '../components/BusinessDirectory';
 import LocalServices from '../components/LocalServices';
-import IntroSection from '../components/home/IntroSection';
+import CMSIntroSection from '../components/home/CMSIntroSection';
 import HomeCardSection from '../components/home/HomeCardSection';
-import FeaturedSections from '../components/home/FeaturedSections';
+import CMSFeaturedSections from '../components/home/CMSFeaturedSections';
 import HomeSEO from '../components/home/HomeSEO';
 
 const Index = () => {
@@ -26,15 +26,16 @@ const Index = () => {
       <HomeSEO />
       <Navbar />
       
-      {/* Hero Section */}
-      <Hero 
-        title={t('home.hero.title')}
-        subtitle={t('home.hero.subtitle')}
-        imageSrc="https://images.unsplash.com/photo-1506929562872-bb421503ef21?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
+      {/* Hero Section - now uses CMS */}
+      <CMSHero 
+        pagePath="/"
+        fallbackTitle={t('home.hero.title')}
+        fallbackSubtitle={t('home.hero.subtitle')}
+        fallbackImageSrc="https://images.unsplash.com/photo-1506929562872-bb421503ef21?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
       
-      {/* Intro Section */}
-      <IntroSection />
+      {/* Intro Section - now uses CMS */}
+      <CMSIntroSection />
       
       {/* Card Section */}
       <HomeCardSection />
@@ -60,8 +61,8 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Featured Sections */}
-      <FeaturedSections />
+      {/* Featured Sections - now uses CMS */}
+      <CMSFeaturedSections />
       
       {/* Newsletter */}
       <Newsletter />

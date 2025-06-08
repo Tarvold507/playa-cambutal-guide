@@ -11,6 +11,8 @@ import HeroFields from './content-fields/HeroFields';
 import TextFields from './content-fields/TextFields';
 import ImageFields from './content-fields/ImageFields';
 import CardFields from './content-fields/CardFields';
+import SectionFields from './content-fields/SectionFields';
+import FeaturedFields from './content-fields/FeaturedFields';
 
 interface ContentEditDialogProps {
   isOpen: boolean;
@@ -30,6 +32,9 @@ interface ContentData {
   caption?: string;
   description?: string;
   link?: string;
+  linkText?: string;
+  imageAlt?: string;
+  imageOnRight?: boolean;
   [key: string]: any;
 }
 
@@ -114,6 +119,10 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
         return <ImageFields {...commonProps} />;
       case 'card':
         return <CardFields {...commonProps} />;
+      case 'section':
+        return <SectionFields contentData={formData.content_data} updateContentData={updateContentData} />;
+      case 'featured':
+        return <FeaturedFields {...commonProps} />;
       default:
         return (
           <div>
@@ -159,6 +168,7 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
                   <SelectItem value="text">Text Block</SelectItem>
                   <SelectItem value="image">Image</SelectItem>
                   <SelectItem value="card">Card</SelectItem>
+                  <SelectItem value="section">Section</SelectItem>
                   <SelectItem value="featured">Featured Section</SelectItem>
                 </SelectContent>
               </Select>
