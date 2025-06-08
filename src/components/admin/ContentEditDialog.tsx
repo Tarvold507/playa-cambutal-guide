@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PageContent } from '@/hooks/usePageContent';
 import { useCMSImages } from '@/hooks/useCMSImages';
-import { Upload, X } from 'lucide-react';
+import { Upload } from 'lucide-react';
 
 interface ContentEditDialogProps {
   isOpen: boolean;
@@ -18,12 +18,26 @@ interface ContentEditDialogProps {
   onSave: (content: Omit<PageContent, 'id' | 'created_at' | 'updated_at'>) => void;
 }
 
+// Type for content data based on content type
+interface ContentData {
+  title?: string;
+  subtitle?: string;
+  text?: string;
+  imageSrc?: string;
+  url?: string;
+  alt?: string;
+  caption?: string;
+  description?: string;
+  link?: string;
+  [key: string]: any;
+}
+
 const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: ContentEditDialogProps) => {
   const { uploadImage, uploading } = useCMSImages();
   const [formData, setFormData] = useState({
     section_name: '',
     content_type: 'text' as PageContent['content_type'],
-    content_data: {},
+    content_data: {} as ContentData,
     is_visible: true,
     display_order: 0,
   });
@@ -33,7 +47,7 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
       setFormData({
         section_name: content.section_name,
         content_type: content.content_type,
-        content_data: content.content_data,
+        content_data: content.content_data as ContentData,
         is_visible: content.is_visible,
         display_order: content.display_order,
       });
