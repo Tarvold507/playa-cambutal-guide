@@ -95,86 +95,93 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold mb-8">{t('admin.title')}</h1>
         
         <Tabs defaultValue="events" className="w-full">
-          <TabsList className="grid w-full grid-cols-9">
-            <TabsTrigger value="events">{t('admin.pendingEvents')} ({pendingEvents.length})</TabsTrigger>
-            <TabsTrigger value="businesses">{t('admin.pendingBusinesses')} ({pendingBusinesses.length})</TabsTrigger>
-            <TabsTrigger value="restaurants">Restaurants ({pendingRestaurants.length})</TabsTrigger>
-            <TabsTrigger value="hotels">Hotels ({pendingHotels.length})</TabsTrigger>
-            <TabsTrigger value="blog">Blog ({pendingBlogPosts.length})</TabsTrigger>
-            <TabsTrigger value="live-hotels">Live Hotels ({liveHotels.length})</TabsTrigger>
-            <TabsTrigger value="seo">SEO ({pageSEO.length})</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="import">Import</TabsTrigger>
-          </TabsList>
+          <div className="space-y-2">
+            <TabsList className="grid w-full grid-cols-5 h-auto">
+              <TabsTrigger value="events" className="text-sm">{t('admin.pendingEvents')} ({pendingEvents.length})</TabsTrigger>
+              <TabsTrigger value="businesses" className="text-sm">{t('admin.pendingBusinesses')} ({pendingBusinesses.length})</TabsTrigger>
+              <TabsTrigger value="restaurants" className="text-sm">Restaurants ({pendingRestaurants.length})</TabsTrigger>
+              <TabsTrigger value="hotels" className="text-sm">Hotels ({pendingHotels.length})</TabsTrigger>
+              <TabsTrigger value="blog" className="text-sm">Blog ({pendingBlogPosts.length})</TabsTrigger>
+            </TabsList>
+            
+            <TabsList className="grid w-full grid-cols-4 h-auto">
+              <TabsTrigger value="live-hotels" className="text-sm">Live Hotels ({liveHotels.length})</TabsTrigger>
+              <TabsTrigger value="seo" className="text-sm">SEO ({pageSEO.length})</TabsTrigger>
+              <TabsTrigger value="content" className="text-sm">Content</TabsTrigger>
+              <TabsTrigger value="import" className="text-sm">Import</TabsTrigger>
+            </TabsList>
+          </div>
           
-          <TabsContent value="events">
-            <PendingEventsTab
-              pendingEvents={pendingEvents}
-              onApprove={(id) => handleApprove('events', id)}
-              onEdit={(item) => handleEdit(item, 'event')}
-              onReject={(id) => handleReject('events', id)}
-            />
-          </TabsContent>
-          
-          <TabsContent value="businesses">
-            <PendingBusinessesTab
-              pendingBusinesses={pendingBusinesses}
-              onApprove={(id) => handleApprove('business_listings', id)}
-              onEdit={(item) => handleEdit(item, 'business')}
-              onReject={(id) => handleReject('business_listings', id)}
-            />
-          </TabsContent>
+          <div className="mt-6">
+            <TabsContent value="events">
+              <PendingEventsTab
+                pendingEvents={pendingEvents}
+                onApprove={(id) => handleApprove('events', id)}
+                onEdit={(item) => handleEdit(item, 'event')}
+                onReject={(id) => handleReject('events', id)}
+              />
+            </TabsContent>
+            
+            <TabsContent value="businesses">
+              <PendingBusinessesTab
+                pendingBusinesses={pendingBusinesses}
+                onApprove={(id) => handleApprove('business_listings', id)}
+                onEdit={(item) => handleEdit(item, 'business')}
+                onReject={(id) => handleReject('business_listings', id)}
+              />
+            </TabsContent>
 
-          <TabsContent value="restaurants">
-            <PendingRestaurantsTab
-              pendingRestaurants={pendingRestaurants}
-              onApprove={(id) => handleApprove('restaurant_listings', id)}
-              onEdit={(item) => handleEdit(item, 'restaurant')}
-              onReject={(id) => handleReject('restaurant_listings', id)}
-            />
-          </TabsContent>
+            <TabsContent value="restaurants">
+              <PendingRestaurantsTab
+                pendingRestaurants={pendingRestaurants}
+                onApprove={(id) => handleApprove('restaurant_listings', id)}
+                onEdit={(item) => handleEdit(item, 'restaurant')}
+                onReject={(id) => handleReject('restaurant_listings', id)}
+              />
+            </TabsContent>
 
-          <TabsContent value="hotels">
-            <PendingHotelsTab
-              pendingHotels={pendingHotels}
-              onApprove={(id) => handleApprove('hotel_listings', id)}
-              onEdit={(item) => handleEdit(item, 'hotel')}
-              onReject={(id) => handleReject('hotel_listings', id)}
-            />
-          </TabsContent>
+            <TabsContent value="hotels">
+              <PendingHotelsTab
+                pendingHotels={pendingHotels}
+                onApprove={(id) => handleApprove('hotel_listings', id)}
+                onEdit={(item) => handleEdit(item, 'hotel')}
+                onReject={(id) => handleReject('hotel_listings', id)}
+              />
+            </TabsContent>
 
-          <TabsContent value="blog">
-            <PendingBlogPostsTab
-              pendingBlogPosts={pendingBlogPosts}
-              onApprove={handleBlogApprove}
-              onEdit={(item) => handleEdit(item, 'blog')}
-              onReject={handleBlogReject}
-            />
-          </TabsContent>
+            <TabsContent value="blog">
+              <PendingBlogPostsTab
+                pendingBlogPosts={pendingBlogPosts}
+                onApprove={handleBlogApprove}
+                onEdit={(item) => handleEdit(item, 'blog')}
+                onReject={handleBlogReject}
+              />
+            </TabsContent>
 
-          <TabsContent value="live-hotels">
-            <LiveHotelsTab
-              liveHotels={liveHotels}
-              onEdit={(item) => handleEdit(item, 'hotel')}
-            />
-          </TabsContent>
+            <TabsContent value="live-hotels">
+              <LiveHotelsTab
+                liveHotels={liveHotels}
+                onEdit={(item) => handleEdit(item, 'hotel')}
+              />
+            </TabsContent>
 
-          <TabsContent value="seo">
-            <SEOManagementTab
-              pageSEO={pageSEO}
-              onRefresh={refreshSEOData}
-            />
-          </TabsContent>
+            <TabsContent value="seo">
+              <SEOManagementTab
+                pageSEO={pageSEO}
+                onRefresh={refreshSEOData}
+              />
+            </TabsContent>
 
-          <TabsContent value="content">
-            <ContentManagementTab />
-          </TabsContent>
+            <TabsContent value="content">
+              <ContentManagementTab />
+            </TabsContent>
 
-          <TabsContent value="import">
-            <div className="space-y-6">
-              <GooglePlacesImport />
-            </div>
-          </TabsContent>
+            <TabsContent value="import">
+              <div className="space-y-6">
+                <GooglePlacesImport />
+              </div>
+            </TabsContent>
+          </div>
         </Tabs>
 
         <AdminEditDialog
