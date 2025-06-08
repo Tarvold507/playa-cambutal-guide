@@ -7,6 +7,7 @@ import Hero from '../components/Hero';
 import { useBlogPosts } from '../hooks/useBlogPosts';
 import { usePageSEO } from '../hooks/usePageSEO';
 import { updatePageHead } from '../utils/seoUtils';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, User } from 'lucide-react';
@@ -14,6 +15,7 @@ import { Calendar, User } from 'lucide-react';
 const Blog = () => {
   const { blogPosts, loading } = useBlogPosts();
   const { fetchSEOByPath } = usePageSEO();
+  const { t } = useLanguage();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -31,7 +33,7 @@ const Blog = () => {
       <div className="min-h-screen bg-white">
         <Navbar />
         <div className="container mx-auto px-4 py-16">
-          <div className="text-center">Loading blog posts...</div>
+          <div className="text-center">{t('common.loading')}</div>
         </div>
         <Footer />
       </div>
@@ -43,19 +45,19 @@ const Blog = () => {
       <Navbar />
       
       <Hero 
-        title="Playa Cambutal Blog"
-        subtitle="Discover stories, tips, and insights about Panama's hidden paradise"
+        title={t('blog.title')}
+        subtitle={t('blog.subtitle')}
         imageSrc="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80"
       />
       
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Latest Stories from Cambutal</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">{t('blog.latestStories')}</h1>
             
             {blogPosts.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-600 text-lg">No blog posts published yet. Check back soon for exciting stories about Playa Cambutal!</p>
+                <p className="text-gray-600 text-lg">{t('blog.noPostsYet')}</p>
               </div>
             ) : (
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -100,7 +102,7 @@ const Blog = () => {
                           to={`/blog/${post.slug}`}
                           className="text-blue-600 hover:text-blue-800 font-medium"
                         >
-                          Read More →
+                          {t('blog.readMore')} →
                         </Link>
                       </div>
                     </CardContent>

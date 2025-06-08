@@ -5,6 +5,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Event {
   id: string;
@@ -22,6 +23,8 @@ interface EventModalHeaderProps {
 }
 
 const EventModalHeader = ({ event }: EventModalHeaderProps) => {
+  const { t } = useLanguage();
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -37,7 +40,7 @@ const EventModalHeader = ({ event }: EventModalHeaderProps) => {
       <DialogHeader>
         <DialogTitle className="text-2xl">{event.title}</DialogTitle>
         <DialogDescription>
-          {event.description || "View event details and set reminders"}
+          {event.description || t('events.viewDetails')}
         </DialogDescription>
       </DialogHeader>
       
@@ -64,7 +67,7 @@ const EventModalHeader = ({ event }: EventModalHeaderProps) => {
         
         <div className="flex items-center gap-3 text-gray-600">
           <User className="h-5 w-5" />
-          <span>Hosted by {event.host}</span>
+          <span>{t('events.hostedBy')} {event.host}</span>
         </div>
       </div>
     </>

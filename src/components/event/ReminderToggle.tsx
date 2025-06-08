@@ -1,5 +1,6 @@
 
 import { Checkbox } from '@/components/ui/checkbox';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ReminderToggleProps {
   reminderChecked: boolean;
@@ -8,6 +9,8 @@ interface ReminderToggleProps {
 }
 
 const ReminderToggle = ({ reminderChecked, settingReminder, onToggle }: ReminderToggleProps) => {
+  const { t } = useLanguage();
+
   return (
     <div className="flex items-center space-x-2">
       <Checkbox
@@ -17,7 +20,7 @@ const ReminderToggle = ({ reminderChecked, settingReminder, onToggle }: Reminder
         disabled={settingReminder}
       />
       <label htmlFor="reminder" className="text-sm cursor-pointer">
-        Remind me 12 hours before this event
+        {t('events.remindMe')}
       </label>
     </div>
   );

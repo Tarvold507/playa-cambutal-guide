@@ -1,4 +1,6 @@
 
+import { useLanguage } from '@/contexts/LanguageContext';
+
 interface Event {
   id: string;
   title: string;
@@ -15,18 +17,20 @@ interface EventDetailsProps {
 }
 
 const EventDetails = ({ event }: EventDetailsProps) => {
+  const { t } = useLanguage();
+
   return (
     <>
       {event.description && (
         <div>
-          <h3 className="font-semibold mb-2">About this event</h3>
+          <h3 className="font-semibold mb-2">{t('events.aboutEvent')}</h3>
           <p className="text-gray-600">{event.description}</p>
         </div>
       )}
 
       {event.full_description && (
         <div>
-          <h3 className="font-semibold mb-2">Details</h3>
+          <h3 className="font-semibold mb-2">{t('events.details')}</h3>
           <p className="text-gray-600 whitespace-pre-wrap">{event.full_description}</p>
         </div>
       )}

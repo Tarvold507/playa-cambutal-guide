@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { Button } from '@/components/ui/button';
 import { Menu, X, User, Plus } from 'lucide-react';
@@ -11,15 +12,16 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
+  const { t } = useLanguage();
   const location = useLocation();
 
   const navigation = [
-    { name: 'Eat', href: '/eat' },
-    { name: 'Stay', href: '/stay' },
-    { name: 'Adventure', href: '/adventure' },
-    { name: 'Events', href: '/events' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Info', href: '/info' },
+    { name: t('nav.eat'), href: '/eat' },
+    { name: t('nav.stay'), href: '/stay' },
+    { name: t('nav.adventure'), href: '/adventure' },
+    { name: t('nav.events'), href: '/events' },
+    { name: t('nav.blog'), href: '/blog' },
+    { name: t('nav.info'), href: '/info' },
   ];
 
   const isActive = (href: string) => {
@@ -65,14 +67,14 @@ const Navbar = () => {
                 {isAdmin && (
                   <Link to="/admin">
                     <Button variant="outline" size="sm">
-                      Admin
+                      {t('nav.admin')}
                     </Button>
                   </Link>
                 )}
                 <div className="relative group">
                   <Button variant="ghost" size="sm" className="flex items-center space-x-2">
                     <User className="w-4 h-4" />
-                    <span>Account</span>
+                    <span>{t('nav.account')}</span>
                   </Button>
                   
                   {/* Dropdown menu */}
@@ -81,13 +83,13 @@ const Navbar = () => {
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Profile
+                      {t('nav.profile')}
                     </Link>
                     <Link
                       to="/profile/my-listings"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      My Listings
+                      {t('nav.myListings')}
                     </Link>
                     {isAdmin && (
                       <Link
@@ -95,21 +97,21 @@ const Navbar = () => {
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         <Plus className="w-4 h-4 mr-2" />
-                        Write Blog Post
+                        {t('nav.writeBlog')}
                       </Link>
                     )}
                     <button
                       onClick={signOut}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Sign Out
+                      {t('nav.signOut')}
                     </button>
                   </div>
                 </div>
               </>
             ) : (
               <Link to="/auth">
-                <Button size="sm">Sign In</Button>
+                <Button size="sm">{t('nav.signIn')}</Button>
               </Link>
             )}
           </div>
@@ -153,14 +155,14 @@ const Navbar = () => {
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                   onClick={() => setIsOpen(false)}
                 >
-                  Profile
+                  {t('nav.profile')}
                 </Link>
                 <Link
                   to="/profile/my-listings"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                   onClick={() => setIsOpen(false)}
                 >
-                  My Listings
+                  {t('nav.myListings')}
                 </Link>
                 {isAdmin && (
                   <>
@@ -169,14 +171,14 @@ const Navbar = () => {
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                       onClick={() => setIsOpen(false)}
                     >
-                      Write Blog Post
+                      {t('nav.writeBlog')}
                     </Link>
                     <Link
                       to="/admin"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                       onClick={() => setIsOpen(false)}
                     >
-                      Admin Dashboard
+                      {t('nav.adminDashboard')}
                     </Link>
                   </>
                 )}
@@ -187,7 +189,7 @@ const Navbar = () => {
                   }}
                   className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                 >
-                  Sign Out
+                  {t('nav.signOut')}
                 </button>
               </>
             ) : (
@@ -196,7 +198,7 @@ const Navbar = () => {
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                 onClick={() => setIsOpen(false)}
               >
-                Sign In
+                {t('nav.signIn')}
               </Link>
             )}
           </div>
