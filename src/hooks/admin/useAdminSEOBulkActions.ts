@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export const useAdminSEOBulkActions = () => {
   const { hotels } = useHotelListings();
-  const { restaurants } = useRestaurantListings();
+  const { userRestaurants } = useRestaurantListings();
   const { updatePageSEO } = usePageSEO();
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -49,8 +49,8 @@ export const useAdminSEOBulkActions = () => {
   const generateSEOForAllRestaurants = async () => {
     setIsGenerating(true);
     try {
-      for (const restaurant of restaurants) {
-        const pagePath = `/eat/${restaurant.slug}`;
+      for (const restaurant of userRestaurants) {
+        const pagePath = `/eat/${restaurant.name.toLowerCase().replace(/\s+/g, '_')}`;
         const seoData = {
           page_title: `${restaurant.name} - Playa Cambutal Restaurants`,
           meta_description: `${restaurant.name} in Playa Cambutal: ${restaurant.description || 'Delicious local cuisine and international dishes.'} Visit us today.`,
@@ -58,7 +58,7 @@ export const useAdminSEOBulkActions = () => {
           og_title: `${restaurant.name} - Playa Cambutal`,
           og_description: restaurant.description || `Enjoy delicious meals at ${restaurant.name} in beautiful Playa Cambutal, Panama.`,
           og_image: restaurant.image_url || '',
-          canonical_url: `${window.location.origin}/eat/${restaurant.slug}`,
+          canonical_url: `${window.location.origin}/eat/${restaurant.name.toLowerCase().replace(/\s+/g, '_')}`,
           robots: 'index, follow',
         };
 
@@ -67,7 +67,7 @@ export const useAdminSEOBulkActions = () => {
 
       toast({
         title: 'Success',
-        description: `Generated SEO data for ${restaurants.length} restaurants`,
+        description: `Generated SEO data for ${userRestaurants.length} restaurants`,
       });
     } catch (error) {
       toast({
