@@ -38,6 +38,7 @@ export const updatePageHead = (seoData: PageSEO | null, fallbackTitle?: string) 
   updateMetaTag('og:description', seoData?.og_description || seoData?.meta_description, 'og:description');
   updateMetaTag('og:image', seoData?.og_image, 'og:image');
   updateMetaTag('og:type', 'website', 'og:type');
+  updateMetaTag('og:url', seoData?.canonical_url || window.location.href, 'og:url');
 
   // Twitter tags
   updateMetaTag('twitter:card', 'summary_large_image');
@@ -97,4 +98,26 @@ export const generateBlogSchema = (post: any) => {
       "@id": `${window.location.origin}/blog/${post.slug}`
     }
   };
+};
+
+// Generate breadcrumb schema
+export const generateBreadcrumbSchema = (breadcrumbs: Array<{name: string, url: string}>) => {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": breadcrumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": crumb.name,
+      "item": crumb.url
+    }))
+  };
+};
+
+// Clean up old schema when navigating
+export const cleanupPreviousSchema = () => {
+  const oldSchema = document.querySelector('script[type="application/ld+json"]#page-schema');
+  if (oldSchema) {
+    oldSchema.remove();
+  }
 };

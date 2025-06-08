@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ArrowLeft, Star, ExternalLink } from 'lucide-react';
@@ -10,12 +9,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useHotelDetails } from '@/hooks/useHotelListings';
+import { useHotelSEO } from '@/hooks/useDynamicSEO';
 import { getAmenityIcon } from '@/utils/amenityIcons';
 
 const HotelDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { hotel, loading } = useHotelDetails(slug || '');
+
+  // Apply SEO data for this hotel
+  useHotelSEO(hotel);
 
   useEffect(() => {
     window.scrollTo(0, 0);

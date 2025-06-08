@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Search, Filter } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHotelListings } from '@/hooks/useHotelListings';
+import { updatePageHead } from '@/utils/seoUtils';
 import { Link } from 'react-router-dom';
 
 const staticStayItems = [
@@ -80,6 +80,29 @@ const Stay = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // Set SEO for the Stay page
+    updatePageHead({
+      id: 'stay-page',
+      page_path: '/stay',
+      page_title: 'Hotels & Accommodations in Playa Cambutal - Playa Cambutal Guide',
+      meta_description: 'Find the perfect place to stay in Playa Cambutal, Panama. From luxury resorts to budget hostels, discover accommodations for every traveler.',
+      meta_keywords: 'Playa Cambutal hotels, Panama accommodation, beach hotels, surf hotels, eco lodges, hostels, vacation rentals',
+      og_title: 'Hotels & Accommodations in Playa Cambutal',
+      og_description: 'Discover the best places to stay in Playa Cambutal, from luxury beachfront resorts to cozy eco-lodges.',
+      og_image: 'https://images.unsplash.com/photo-1600210492493-0946911123ea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+      canonical_url: `${window.location.origin}/stay`,
+      robots: 'index, follow',
+      schema_markup: {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Hotels & Accommodations in Playa Cambutal",
+        "description": "Find the perfect place to stay in Playa Cambutal, Panama. From luxury resorts to budget hostels, discover accommodations for every traveler.",
+        "url": `${window.location.origin}/stay`
+      },
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
   }, []);
 
   // Combine static items with dynamic hotels
