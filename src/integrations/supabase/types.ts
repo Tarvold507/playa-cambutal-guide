@@ -390,6 +390,48 @@ export type Database = {
         }
         Relationships: []
       }
+      page_content: {
+        Row: {
+          content_data: Json
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_visible: boolean
+          page_path: string
+          section_name: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content_data?: Json
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_visible?: boolean
+          page_path: string
+          section_name: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content_data?: Json
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_visible?: boolean
+          page_path?: string
+          section_name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       page_seo: {
         Row: {
           canonical_url: string | null
@@ -652,6 +694,7 @@ export type Database = {
       }
     }
     Enums: {
+      content_type: "hero" | "text" | "image" | "card" | "featured" | "section"
       user_role: "admin" | "user"
     }
     CompositeTypes: {
@@ -768,6 +811,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      content_type: ["hero", "text", "image", "card", "featured", "section"],
       user_role: ["admin", "user"],
     },
   },
