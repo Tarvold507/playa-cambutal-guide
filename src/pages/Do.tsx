@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -19,7 +18,7 @@ const doItems = [
     id: '2',
     title: 'Wildlife Tours',
     description: 'Explore the rich biodiversity of Panama with guided tours to see monkeys, birds, and other wildlife.',
-    imageSrc: 'https://images.unsplash.com/photo-1552083974-186346191183?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    imageSrc: '/lovable-uploads/ae1b8699-6773-40f6-83b9-634042a4d035.png',
     link: '/do/wildlife-tours',
     category: 'Nature'
   },
