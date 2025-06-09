@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -9,57 +10,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useHotelListings } from '@/hooks/useHotelListings';
 import { updatePageHead } from '@/utils/seoUtils';
 import { Link } from 'react-router-dom';
-
-const staticStayItems = [
-  {
-    id: '1',
-    title: 'Luxury Beachfront Resort',
-    description: 'Experience the ultimate beachfront luxury with stunning views, infinity pools, and world-class amenities.',
-    imageSrc: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/stay/luxury-resort',
-    category: 'Resort'
-  },
-  {
-    id: '2',
-    title: 'Eco Lodge',
-    description: 'Immerse yourself in nature at this sustainable eco-lodge with private cabins nestled in the jungle.',
-    imageSrc: 'https://images.unsplash.com/photo-1604624483037-15e7e9301a0f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/stay/eco-lodge',
-    category: 'Eco'
-  },
-  {
-    id: '3',
-    title: 'Boutique Surf Hotel',
-    description: 'Modern and stylish accommodations designed specifically for surfers, with board storage and surf-focused amenities.',
-    imageSrc: 'https://images.unsplash.com/photo-1601912995198-58c32fed2d3b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/stay/surf-hotel',
-    category: 'Boutique'
-  },
-  {
-    id: '4',
-    title: 'Budget Surf Hostel',
-    description: 'Affordable dorm and private rooms with a social atmosphere, perfect for travelers on a budget.',
-    imageSrc: 'https://images.unsplash.com/photo-1555854877-b3d5425b6b0d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/stay/hostel',
-    category: 'Hostel'
-  },
-  {
-    id: '5',
-    title: 'Beachfront Cabanas',
-    description: 'Simple but comfortable private cabanas located right on the beach, fall asleep to the sound of waves.',
-    imageSrc: 'https://images.unsplash.com/photo-1583596561917-37adcf601194?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/stay/cabanas',
-    category: 'Cabanas'
-  },
-  {
-    id: '6',
-    title: 'Vacation Rentals',
-    description: 'Fully equipped apartments and houses perfect for families or groups wanting more space and privacy.',
-    imageSrc: 'https://images.unsplash.com/photo-1545158361-2f785653e2f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/stay/vacation-rentals',
-    category: 'Rentals'
-  }
-];
 
 interface StayItem {
   id: string;
@@ -105,7 +55,7 @@ const Stay = () => {
     });
   }, []);
 
-  // Combine static items with dynamic hotels
+  // Transform dynamic hotels to StayItem format
   const dynamicItems: StayItem[] = hotels.map(hotel => ({
     id: hotel.id,
     title: hotel.name,
@@ -117,23 +67,15 @@ const Stay = () => {
     rating: hotel.rating
   }));
 
-  const staticItems: StayItem[] = staticStayItems.map(item => ({
-    ...item,
-    price: null,
-    rating: null
-  }));
-
-  const allItems = [...staticItems, ...dynamicItems];
-
   // Filter items based on search and category
-  const filteredItems = allItems.filter(item => {
+  const filteredItems = dynamicItems.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const categories = [...new Set(allItems.map(item => item.category))];
+  const categories = [...new Set(dynamicItems.map(item => item.category))];
 
   if (loading) {
     return (
