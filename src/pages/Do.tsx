@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
@@ -7,6 +7,7 @@ import CardSection from '../components/CardSection';
 import Featured from '../components/Featured';
 import Newsletter from '../components/Newsletter';
 import AdventureBusinessSubmissionForm from '../components/AdventureBusinessSubmissionForm';
+import BusinessFilter from '../components/BusinessFilter';
 import { useAdventureBusinessListings } from '@/hooks/useAdventureBusinessListings';
 
 const staticDoItems = [
@@ -62,6 +63,7 @@ const staticDoItems = [
 
 const Do = () => {
   const { businesses, isLoading, error } = useAdventureBusinessListings();
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -108,13 +110,29 @@ const Do = () => {
     id: business.id,
     title: business.business_name,
     description: business.description,
-    imageSrc: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80', // Default image
+    imageSrc: business.image_url || 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     link: `/do/${business.category}`,
     category: business.business_type
   }));
 
   // Combine static items with business listings
   const allDoItems = [...staticDoItems, ...businessCards];
+
+  // Filter items based on selected category
+  const filteredItems = selectedCategory === 'all' 
+    ? allDoItems 
+    : allDoItems.filter(item => {
+        // Map categories for filtering
+        const categoryMap: { [key: string]: string[] } = {
+          'surf': ['Surf'],
+          'fitness': ['Wellness', 'Yoga Classes', 'Personal Training', 'Group Fitness', 'Wellness Retreats'],
+          'tours': ['Nature', 'Wildlife Tours', 'Hiking Tours', 'Cultural Tours', 'Photography Tours'],
+          'fishing': ['Water', 'Fishing Charters', 'Fishing Guides', 'Equipment Rental', 'Fishing Tours']
+        };
+        
+        const allowedCategories = categoryMap[selectedCategory] || [];
+        return allowedCategories.includes(item.category || '');
+      });
 
   if (error) {
     console.error('Error loading adventure businesses:', error);
@@ -142,20 +160,54 @@ const Do = () => {
         </div>
       </section>
       
-      <CardSection 
-        title="Activities & Adventures"
-        description="Discover the diverse range of experiences available in and around Playa Cambutal."
-        items={allDoItems}
-        bgColor="bg-gray-50"
-      />
+      <section className="bg-gray-50 py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Activities & Adventures</h2>
+            <p className="text-gray-600 mb-8">
+              Discover the diverse range of experiences available in and around Playa Cambutal.
+            </p>
+          </div>
+          
+          <BusinessFilter 
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredItems.map(item => (
+              <div key={item.id} className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                <div className="relative h-64 overflow-hidden">
+                  <img 
+                    src={item.imageSrc} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  {item.category && (
+                    <div className="absolute top-4 left-4 bg-venao-dark/90 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {item.category}
+                    </div>
+                  )}
+                </div>
+                <div className="p-5 bg-white">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-venao transition-colors duration-300">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-600 line-clamp-3">{item.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="bg-white py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Share Your Adventure Business</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Share Your Business</h2>
           <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Are you offering adventure services in Cambutal? Join our directory and connect with 
+            Are you offering fun activities in Cambutal? Join our directory and connect with 
             visitors looking for authentic local experiences. Whether you offer surf lessons, 
-            nature tours, fitness classes, or fishing charters, showcase your business to our community.
+            nature tours, fishing charters, art or fitness classes, showcase your business to our community.
           </p>
           <AdventureBusinessSubmissionForm />
         </div>

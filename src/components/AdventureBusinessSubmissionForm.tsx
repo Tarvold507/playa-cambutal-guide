@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useCMSImages } from '@/hooks/useCMSImages';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,7 +33,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Plus } from 'lucide-react';
+import { Plus, Upload, X } from 'lucide-react';
 
 const formSchema = z.object({
   business_name: z.string().min(1, 'Business name is required'),
@@ -44,6 +45,7 @@ const formSchema = z.object({
   hours: z.string().min(1, 'Hours of operation are required'),
   whatsapp: z.string().min(1, 'WhatsApp contact is required'),
   location: z.string().min(1, 'Location is required'),
+  image_url: z.string().optional(),
 });
 
 const businessTypeOptions = {
@@ -56,8 +58,11 @@ const businessTypeOptions = {
 const AdventureBusinessSubmissionForm = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { uploadImage, uploading } = useCMSImages();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,10 +74,29 @@ const AdventureBusinessSubmissionForm = () => {
       hours: '',
       whatsapp: '',
       location: '',
+      image_url: '',
     },
   });
 
   const selectedCategory = form.watch('category');
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    form.setValue('image_url', '');
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user) {
@@ -87,6 +111,16 @@ const AdventureBusinessSubmissionForm = () => {
     setIsSubmitting(true);
 
     try {
+      let imageUrl = '';
+      
+      // Upload image if selected
+      if (selectedImage) {
+        const uploadedUrl = await uploadImage(selectedImage, 'business-images');
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+
       const { error } = await supabase
         .from('adventure_business_listings')
         .insert({
@@ -98,6 +132,7 @@ const AdventureBusinessSubmissionForm = () => {
           hours: values.hours,
           whatsapp: values.whatsapp,
           location: values.location,
+          image_url: imageUrl,
         });
 
       if (error) throw error;
@@ -108,6 +143,8 @@ const AdventureBusinessSubmissionForm = () => {
       });
 
       form.reset();
+      setSelectedImage(null);
+      setImagePreview(null);
       setIsOpen(false);
     } catch (error) {
       console.error('Error submitting business listing:', error);
@@ -135,14 +172,14 @@ const AdventureBusinessSubmissionForm = () => {
       <DialogTrigger asChild>
         <Button className="bg-venao-dark hover:bg-venao-dark/90">
           <Plus className="w-4 h-4 mr-2" />
-          Submit Adventure Business
+          Submit Your Business
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Submit Your Adventure Business</DialogTitle>
+          <DialogTitle>Submit Your Business</DialogTitle>
           <DialogDescription>
-            Share your adventure business with visitors to Playa Cambutal. All submissions require admin approval.
+            Share your business with visitors to Playa Cambutal. All submissions require admin approval.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -166,11 +203,11 @@ const AdventureBusinessSubmissionForm = () => {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adventure Category</FormLabel>
+                  <FormLabel>Category</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select adventure category" />
+                        <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -213,6 +250,50 @@ const AdventureBusinessSubmissionForm = () => {
                 </FormItem>
               )}
             />
+
+            <div className="space-y-2">
+              <FormLabel>Business Image</FormLabel>
+              <div className="flex flex-col space-y-2">
+                {imagePreview ? (
+                  <div className="relative">
+                    <img 
+                      src={imagePreview} 
+                      alt="Business preview" 
+                      className="w-full h-48 object-cover rounded-md"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={removeImage}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm text-gray-600 mb-2">Upload a photo of your business</p>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById('image-upload')?.click()}
+                      disabled={uploading}
+                    >
+                      {uploading ? 'Uploading...' : 'Choose Image'}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
 
             <FormField
               control={form.control}
@@ -283,7 +364,7 @@ const AdventureBusinessSubmissionForm = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || uploading}>
                 {isSubmitting ? 'Submitting...' : 'Submit for Review'}
               </Button>
             </div>
