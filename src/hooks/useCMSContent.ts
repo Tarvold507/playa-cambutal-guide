@@ -3,14 +3,20 @@ import { useState, useEffect } from 'react';
 import { usePageContent, PageContent } from '@/hooks/usePageContent';
 
 export const useCMSContent = (pagePath: string, sectionName: string, fallbackContent?: any) => {
-  const { pageContent, fetchPageContent } = usePageContent();
-  const [content, setContent] = useState(fallbackContent);
+  const { pageContent, fetchPageContent, loading } = usePageContent();
+  const [content, setContent] = useState(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     fetchPageContent(pagePath);
   }, [pagePath]);
 
   useEffect(() => {
+    if (loading) {
+      setIsReady(false);
+      return;
+    }
+
     const cmsContent = pageContent.find(
       item => item.page_path === pagePath && 
               item.section_name === sectionName && 
@@ -22,9 +28,11 @@ export const useCMSContent = (pagePath: string, sectionName: string, fallbackCon
     } else if (fallbackContent) {
       setContent(fallbackContent);
     }
-  }, [pageContent, pagePath, sectionName, fallbackContent]);
+    
+    setIsReady(true);
+  }, [pageContent, pagePath, sectionName, fallbackContent, loading]);
 
-  return content;
+  return { content, isReady, loading };
 };
 
 // Hook to get all visible content for a page

@@ -11,7 +11,7 @@ interface CMSHeroProps {
 
 const CMSHero = ({ pagePath, fallbackTitle, fallbackSubtitle, fallbackImageSrc }: CMSHeroProps) => {
   // Use CMS content with fallback to provided props
-  const cmsContent = useCMSContent(pagePath, 'hero', {
+  const { content: cmsContent, isReady, loading } = useCMSContent(pagePath, 'hero', {
     title: fallbackTitle,
     subtitle: fallbackSubtitle,
     imageSrc: fallbackImageSrc
@@ -23,6 +23,19 @@ const CMSHero = ({ pagePath, fallbackTitle, fallbackSubtitle, fallbackImageSrc }
       contentElement.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  // Show loading skeleton while content is being fetched
+  if (!isReady || loading) {
+    return (
+      <div className="relative h-screen w-full bg-gray-200 animate-pulse">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/60"></div>
+        <div className="relative h-full flex flex-col items-center justify-center text-center px-4 z-10">
+          <div className="w-96 h-12 bg-gray-300 rounded mb-4"></div>
+          <div className="w-80 h-8 bg-gray-300 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   const title = cmsContent?.title || fallbackTitle;
   const subtitle = cmsContent?.subtitle || fallbackSubtitle;

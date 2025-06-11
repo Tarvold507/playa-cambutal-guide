@@ -6,10 +6,26 @@ const CMSIntroSection = () => {
   const { t } = useLanguage();
   
   // Use CMS content with fallback to translations
-  const cmsContent = useCMSContent('/', 'intro', {
+  const { content: cmsContent, isReady } = useCMSContent('/', 'intro', {
     title: t('home.intro.title'),
     text: `${t('home.intro.paragraph1')}\n\n${t('home.intro.paragraph2')}\n\n${t('home.intro.paragraph3')}`
   });
+
+  // Show loading skeleton while content is being fetched
+  if (!isReady) {
+    return (
+      <section className="bg-white py-16 md:py-24" id="content">
+        <div className="container mx-auto px-4 text-center max-w-3xl">
+          <div className="w-96 h-10 bg-gray-200 rounded mb-6 mx-auto animate-pulse"></div>
+          <div className="space-y-4">
+            <div className="w-full h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="w-full h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="w-3/4 h-4 bg-gray-200 rounded animate-pulse mx-auto"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-white py-16 md:py-24" id="content">

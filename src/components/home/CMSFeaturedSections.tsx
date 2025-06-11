@@ -7,7 +7,7 @@ const CMSFeaturedSections = () => {
   const { t } = useLanguage();
 
   // Use CMS content with fallback to translations
-  const surfContent = useCMSContent('/', 'surf-featured', {
+  const { content: surfContent, isReady: surfReady } = useCMSContent('/', 'surf-featured', {
     title: t('home.featured.surf.title'),
     description: t('home.featured.surf.description'),
     imageSrc: "https://images.unsplash.com/photo-1509914398892-963f53e6e2f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
@@ -17,7 +17,7 @@ const CMSFeaturedSections = () => {
     imageOnRight: true
   });
 
-  const cuisineContent = useCMSContent('/', 'cuisine-featured', {
+  const { content: cuisineContent, isReady: cuisineReady } = useCMSContent('/', 'cuisine-featured', {
     title: t('home.featured.cuisine.title'),
     description: t('home.featured.cuisine.description'),
     imageSrc: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
@@ -26,6 +26,44 @@ const CMSFeaturedSections = () => {
     linkText: t('home.featured.cuisine.linkText'),
     imageOnRight: false
   });
+
+  // Show loading skeleton while content is being fetched
+  if (!surfReady || !cuisineReady) {
+    return (
+      <div className="space-y-16">
+        <div className="bg-white py-16">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="w-full h-64 bg-gray-200 rounded animate-pulse"></div>
+              <div className="space-y-4">
+                <div className="w-3/4 h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="space-y-2">
+                  <div className="w-full h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="w-full h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="w-2/3 h-4 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-gray-50 py-16">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-4">
+                <div className="w-3/4 h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="space-y-2">
+                  <div className="w-full h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="w-full h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="w-2/3 h-4 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+              <div className="w-full h-64 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
