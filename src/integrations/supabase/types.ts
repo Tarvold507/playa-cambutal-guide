@@ -21,6 +21,7 @@ export type Database = {
           description: string
           hours: string
           id: string
+          image_url: string | null
           location: string
           updated_at: string | null
           user_id: string
@@ -37,6 +38,7 @@ export type Database = {
           description: string
           hours: string
           id?: string
+          image_url?: string | null
           location: string
           updated_at?: string | null
           user_id: string
@@ -53,6 +55,7 @@ export type Database = {
           description?: string
           hours?: string
           id?: string
+          image_url?: string | null
           location?: string
           updated_at?: string | null
           user_id?: string

@@ -11,6 +11,7 @@ interface AdventureBusiness {
   location: string;
   hours: string;
   whatsapp: string;
+  image_url: string | null;
   created_at: string;
   approved: boolean;
 }
