@@ -697,7 +697,14 @@ export type Database = {
       }
     }
     Enums: {
-      content_type: "hero" | "text" | "image" | "card" | "featured" | "section"
+      content_type:
+        | "hero"
+        | "text"
+        | "image"
+        | "card"
+        | "featured"
+        | "section"
+        | "services"
       user_role: "admin" | "user"
     }
     CompositeTypes: {
@@ -814,7 +821,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      content_type: ["hero", "text", "image", "card", "featured", "section"],
+      content_type: [
+        "hero",
+        "text",
+        "image",
+        "card",
+        "featured",
+        "section",
+        "services",
+      ],
       user_role: ["admin", "user"],
     },
   },

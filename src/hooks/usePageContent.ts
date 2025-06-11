@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -52,7 +53,7 @@ export const usePageContent = () => {
     try {
       const { data, error } = await supabase
         .from('page_content')
-        .insert([contentData])
+        .insert([contentData as any])
         .select()
         .single();
 
@@ -80,7 +81,7 @@ export const usePageContent = () => {
     try {
       const { data, error } = await supabase
         .from('page_content')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id)
         .select()
         .single();
