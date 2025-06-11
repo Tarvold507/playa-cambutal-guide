@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,8 +17,8 @@ const Navbar = () => {
   const navigation = [
     { name: t('nav.eat'), href: '/eat' },
     { name: t('nav.stay'), href: '/stay' },
-    { name: t('nav.adventure'), href: '/adventure' },
-    { name: t('nav.events'), href: '/events' },
+    { name: 'Do', href: '/do' },
+    { name: 'Calendar', href: '/calendar' },
     { name: t('nav.blog'), href: '/blog' },
     { name: t('nav.info'), href: '/info' },
   ];

@@ -10,8 +10,8 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import Eat from "./pages/Eat";
 import Stay from "./pages/Stay";
-import Events from "./pages/Events";
-import Adventure from "./pages/Adventure";
+import Calendar from "./pages/Calendar";
+import Do from "./pages/Do";
 import Surf from "./pages/Surf";
 import Info from "./pages/Info";
 import Auth from "./pages/Auth";
@@ -51,9 +51,9 @@ const App: React.FC = () => {
                 <Route path="/stay" element={<Stay />} />
                 <Route path="/stay/:slug" element={<HotelDetail />} />
                 <Route path="/add-hotel" element={<AddHotel />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/adventure" element={<Adventure />} />
-                <Route path="/adventure/surf" element={<Surf />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/do" element={<Do />} />
+                <Route path="/do/surf" element={<Surf />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/add-blog" element={<AddBlog />} />
