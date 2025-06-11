@@ -13,6 +13,7 @@ import ImageFields from './content-fields/ImageFields';
 import CardFields from './content-fields/CardFields';
 import SectionFields from './content-fields/SectionFields';
 import FeaturedFields from './content-fields/FeaturedFields';
+import ServicesFields from './content-fields/ServicesFields';
 
 interface ContentEditDialogProps {
   isOpen: boolean;
@@ -35,6 +36,11 @@ interface ContentData {
   linkText?: string;
   imageAlt?: string;
   imageOnRight?: boolean;
+  services?: Array<{
+    name: string;
+    icon: string;
+    details: string;
+  }>;
   [key: string]: any;
 }
 
@@ -123,6 +129,8 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
         return <SectionFields contentData={formData.content_data} updateContentData={updateContentData} />;
       case 'featured':
         return <FeaturedFields {...commonProps} />;
+      case 'services':
+        return <ServicesFields contentData={formData.content_data} updateContentData={updateContentData} />;
       default:
         return (
           <div>
@@ -170,6 +178,7 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
                   <SelectItem value="card">Card</SelectItem>
                   <SelectItem value="section">Section</SelectItem>
                   <SelectItem value="featured">Featured Section</SelectItem>
+                  <SelectItem value="services">Services</SelectItem>
                 </SelectContent>
               </Select>
             </div>

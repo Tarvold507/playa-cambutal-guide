@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -7,7 +6,7 @@ export interface PageContent {
   id: string;
   page_path: string;
   section_name: string;
-  content_type: 'hero' | 'text' | 'image' | 'card' | 'featured' | 'section';
+  content_type: 'hero' | 'text' | 'image' | 'card' | 'featured' | 'section' | 'services';
   content_data: any;
   is_visible: boolean;
   display_order: number;
