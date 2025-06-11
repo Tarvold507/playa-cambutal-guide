@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -7,6 +6,7 @@ export const useAdminData = () => {
   const [pendingBusinesses, setPendingBusinesses] = useState<any[]>([]);
   const [pendingRestaurants, setPendingRestaurants] = useState<any[]>([]);
   const [pendingHotels, setPendingHotels] = useState<any[]>([]);
+  const [pendingAdventureBusinesses, setPendingAdventureBusinesses] = useState<any[]>([]);
 
   const fetchPendingItems = async () => {
     try {
@@ -142,12 +142,61 @@ export const useAdminData = () => {
           setPendingHotels([]);
         }
       }
+
+      // Fetch pending adventure businesses
+      console.log('Fetching pending adventure businesses...');
+      const { data: adventureBusinesses, error: adventureError } = await supabase
+        .from('adventure_business_listings')
+        .select('*')
+        .eq('approved', false)
+        .order('created_at', { ascending: false });
+
+      console.log('Adventure businesses query result:', { adventureBusinesses, adventureError });
+
+      if (adventureError) {
+        console.error('Adventure business error:', adventureError);
+        setPendingAdventureBusinesses([]);
+      } else {
+        const adventureArray = adventureBusinesses || [];
+        console.log(`Processing ${adventureArray.length} pending adventure businesses`);
+        
+        if (adventureArray.length > 0) {
+          // Manually fetch profiles for each adventure business
+          const adventureWithProfiles = await Promise.all(
+            adventureArray.map(async (business) => {
+              console.log(`Fetching profile for adventure business ${business.id} with user_id ${business.user_id}`);
+              
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('name, email')
+                .eq('id', business.user_id)
+                .single();
+
+              if (profileError) {
+                console.warn(`Failed to fetch profile for adventure business ${business.id}:`, profileError);
+              }
+
+              return {
+                ...business,
+                profiles: profile || null
+              };
+            })
+          );
+          
+          console.log('Final adventure businesses with profiles:', adventureWithProfiles);
+          setPendingAdventureBusinesses(adventureWithProfiles);
+        } else {
+          console.log('No pending adventure businesses found');
+          setPendingAdventureBusinesses([]);
+        }
+      }
     } catch (error) {
       console.error('Error fetching pending items:', error);
       setPendingEvents([]);
       setPendingBusinesses([]);
       setPendingRestaurants([]);
       setPendingHotels([]);
+      setPendingAdventureBusinesses([]);
     }
   };
 
@@ -156,6 +205,7 @@ export const useAdminData = () => {
     pendingBusinesses,
     pendingRestaurants,
     pendingHotels,
+    pendingAdventureBusinesses,
     fetchPendingItems,
   };
 };

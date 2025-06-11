@@ -11,6 +11,7 @@ import PendingBusinessesTab from '@/components/admin/PendingBusinessesTab';
 import PendingRestaurantsTab from '@/components/admin/PendingRestaurantsTab';
 import PendingHotelsTab from '@/components/admin/PendingHotelsTab';
 import PendingBlogPostsTab from '@/components/admin/PendingBlogPostsTab';
+import PendingAdventureBusinessesTab from '@/components/admin/PendingAdventureBusinessesTab';
 import LiveHotelsTab from '@/components/admin/LiveHotelsTab';
 import SEOManagementTab from '@/components/admin/SEOManagementTab';
 import ContentManagementTab from '@/components/admin/ContentManagementTab';
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
     pendingBusinesses,
     pendingRestaurants,
     pendingHotels,
+    pendingAdventureBusinesses,
     liveHotels,
     isEditing,
     editForm,
@@ -96,11 +98,12 @@ const AdminDashboard = () => {
         
         <Tabs defaultValue="events" className="w-full">
           <div className="space-y-2">
-            <TabsList className="grid w-full grid-cols-5 h-auto">
+            <TabsList className="grid w-full grid-cols-6 h-auto">
               <TabsTrigger value="events" className="text-sm">{t('admin.pendingEvents')} ({pendingEvents.length})</TabsTrigger>
               <TabsTrigger value="businesses" className="text-sm">{t('admin.pendingBusinesses')} ({pendingBusinesses.length})</TabsTrigger>
               <TabsTrigger value="restaurants" className="text-sm">Restaurants ({pendingRestaurants.length})</TabsTrigger>
               <TabsTrigger value="hotels" className="text-sm">Hotels ({pendingHotels.length})</TabsTrigger>
+              <TabsTrigger value="adventure" className="text-sm">Adventure ({pendingAdventureBusinesses.length})</TabsTrigger>
               <TabsTrigger value="blog" className="text-sm">Blog ({pendingBlogPosts.length})</TabsTrigger>
             </TabsList>
             
@@ -146,6 +149,15 @@ const AdminDashboard = () => {
                 onApprove={(id) => handleApprove('hotel_listings', id)}
                 onEdit={(item) => handleEdit(item, 'hotel')}
                 onReject={(id) => handleReject('hotel_listings', id)}
+              />
+            </TabsContent>
+
+            <TabsContent value="adventure">
+              <PendingAdventureBusinessesTab
+                pendingAdventureBusinesses={pendingAdventureBusinesses}
+                onApprove={(id) => handleApprove('adventure_business_listings', id)}
+                onEdit={(item) => handleEdit(item, 'adventure')}
+                onReject={(id) => handleReject('adventure_business_listings', id)}
               />
             </TabsContent>
 

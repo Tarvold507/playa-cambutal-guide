@@ -1,6 +1,6 @@
 
 export interface EditFormData {
-  type?: 'event' | 'business' | 'restaurant' | 'hotel' | 'blog';
+  type?: 'event' | 'business' | 'restaurant' | 'hotel' | 'blog' | 'adventure';
   id?: string;
   title?: string;
   location?: string;
@@ -14,7 +14,7 @@ export interface EditFormData {
   website?: string;
   email?: string;
   image_url?: string;
-  hours?: Record<string, string>;
+  hours?: Record<string, string> | string;
   gallery_images?: string[];
   menu_images?: string[];
   amenities?: string[];
@@ -34,8 +34,11 @@ export interface EditFormData {
   seo_description?: string;
   seo_keywords?: string;
   published_at?: string;
+  // Adventure business specific fields
+  business_name?: string;
+  business_type?: string;
   [key: string]: any;
 }
 
-export type TableType = 'events' | 'business_listings' | 'restaurant_listings' | 'hotel_listings' | 'blog_posts';
-export type ItemType = 'event' | 'business' | 'restaurant' | 'hotel' | 'blog';
+export type TableType = 'events' | 'business_listings' | 'restaurant_listings' | 'hotel_listings' | 'blog_posts' | 'adventure_business_listings';
+export type ItemType = 'event' | 'business' | 'restaurant' | 'hotel' | 'blog' | 'adventure';

@@ -23,9 +23,11 @@ export const useAdminItemActions = () => {
 
       if (error) throw error;
 
+      const itemTypeName = type === 'adventure_business_listings' ? 'adventure business' : type.slice(0, -1);
+      
       toast({
         title: t('admin.approved'),
-        description: `The ${type.slice(0, -1)} has been approved successfully.`,
+        description: `The ${itemTypeName} has been approved successfully.`,
       });
 
       onRefresh();
@@ -48,9 +50,11 @@ export const useAdminItemActions = () => {
 
       if (error) throw error;
 
+      const itemTypeName = type === 'adventure_business_listings' ? 'adventure business' : type.slice(0, -1);
+
       toast({
         title: "Item rejected",
-        description: `The ${type.slice(0, -1)} has been rejected and removed.`,
+        description: `The ${itemTypeName} has been rejected and removed.`,
       });
 
       onRefresh();

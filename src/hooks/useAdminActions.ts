@@ -1,3 +1,4 @@
+
 import { useAdminStatus } from './admin/useAdminStatus';
 import { useAdminData } from './admin/useAdminData';
 import { useAdminLiveData } from './admin/useAdminLiveData';
@@ -12,6 +13,7 @@ export const useAdminActions = () => {
     pendingBusinesses,
     pendingRestaurants,
     pendingHotels,
+    pendingAdventureBusinesses,
     fetchPendingItems,
   } = useAdminData();
   const {
@@ -57,6 +59,7 @@ export const useAdminActions = () => {
     pendingBusinesses,
     pendingRestaurants,
     pendingHotels,
+    pendingAdventureBusinesses,
     // Live data
     liveEvents,
     liveBusinesses,

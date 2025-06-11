@@ -39,6 +39,7 @@ export const useAdminEdit = () => {
                       type === 'business' ? 'business_listings' : 
                       type === 'restaurant' ? 'restaurant_listings' :
                       type === 'hotel' ? 'hotel_listings' :
+                      type === 'adventure' ? 'adventure_business_listings' :
                       'blog_posts';
 
       const { error } = await supabase
