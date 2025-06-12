@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -7,6 +6,7 @@ export const useAdminLiveData = () => {
   const [liveBusinesses, setLiveBusinesses] = useState<any[]>([]);
   const [liveRestaurants, setLiveRestaurants] = useState<any[]>([]);
   const [liveHotels, setLiveHotels] = useState<any[]>([]);
+  const [liveAdventureBusinesses, setLiveAdventureBusinesses] = useState<any[]>([]);
 
   const fetchLiveItems = async () => {
     try {
@@ -128,12 +128,52 @@ export const useAdminLiveData = () => {
           setLiveHotels([]);
         }
       }
+
+      // Fetch approved adventure businesses
+      const { data: adventureBusinesses, error: adventureError } = await supabase
+        .from('adventure_business_listings')
+        .select('*')
+        .eq('approved', true)
+        .order('created_at', { ascending: false });
+
+      if (adventureError) {
+        console.error('Adventure business error:', adventureError);
+        setLiveAdventureBusinesses([]);
+      } else {
+        const adventureArray = adventureBusinesses || [];
+        
+        if (adventureArray.length > 0) {
+          const adventureBusinessesWithProfiles = await Promise.all(
+            adventureArray.map(async (business) => {
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('name, email')
+                .eq('id', business.user_id)
+                .single();
+
+              if (profileError) {
+                console.warn(`Failed to fetch profile for adventure business ${business.id}:`, profileError);
+              }
+
+              return {
+                ...business,
+                profiles: profile || null
+              };
+            })
+          );
+          
+          setLiveAdventureBusinesses(adventureBusinessesWithProfiles);
+        } else {
+          setLiveAdventureBusinesses([]);
+        }
+      }
     } catch (error) {
       console.error('Error fetching live items:', error);
       setLiveEvents([]);
       setLiveBusinesses([]);
       setLiveRestaurants([]);
       setLiveHotels([]);
+      setLiveAdventureBusinesses([]);
     }
   };
 
@@ -142,6 +182,7 @@ export const useAdminLiveData = () => {
     liveBusinesses,
     liveRestaurants,
     liveHotels,
+    liveAdventureBusinesses,
     fetchLiveItems,
   };
 };

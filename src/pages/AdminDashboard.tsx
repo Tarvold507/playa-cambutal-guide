@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ import PendingBlogPostsTab from '@/components/admin/PendingBlogPostsTab';
 import PendingAdventureBusinessesTab from '@/components/admin/PendingAdventureBusinessesTab';
 import LiveHotelsTab from '@/components/admin/LiveHotelsTab';
 import LiveRestaurantsTab from '@/components/admin/LiveRestaurantsTab';
+import LiveAdventureBusinessesTab from '@/components/admin/LiveAdventureBusinessesTab';
 import SEOManagementTab from '@/components/admin/SEOManagementTab';
 import ContentManagementTab from '@/components/admin/ContentManagementTab';
 import GooglePlacesImport from '@/components/admin/GooglePlacesImport';
@@ -34,6 +36,7 @@ const AdminDashboard = () => {
     pendingAdventureBusinesses,
     liveHotels,
     liveRestaurants,
+    liveAdventureBusinesses,
     isEditing,
     editForm,
     checkAdminStatus,
@@ -108,9 +111,10 @@ const AdminDashboard = () => {
               <TabsTrigger value="blog" className="text-sm">Blog ({pendingBlogPosts.length})</TabsTrigger>
             </TabsList>
             
-            <TabsList className="grid w-full grid-cols-5 h-auto">
+            <TabsList className="grid w-full grid-cols-6 h-auto">
               <TabsTrigger value="live-hotels" className="text-sm">Live Hotels ({liveHotels.length})</TabsTrigger>
               <TabsTrigger value="live-restaurants" className="text-sm">Live Restaurants ({liveRestaurants.length})</TabsTrigger>
+              <TabsTrigger value="live-adventure" className="text-sm">Live Adventure ({liveAdventureBusinesses.length})</TabsTrigger>
               <TabsTrigger value="seo" className="text-sm">SEO ({pageSEO.length})</TabsTrigger>
               <TabsTrigger value="content" className="text-sm">Content</TabsTrigger>
               <TabsTrigger value="import" className="text-sm">Import</TabsTrigger>
@@ -183,6 +187,13 @@ const AdminDashboard = () => {
               <LiveRestaurantsTab
                 liveRestaurants={liveRestaurants}
                 onEdit={(item) => handleEdit(item, 'restaurant')}
+              />
+            </TabsContent>
+
+            <TabsContent value="live-adventure">
+              <LiveAdventureBusinessesTab
+                liveAdventureBusinesses={liveAdventureBusinesses}
+                onEdit={(item) => handleEdit(item, 'adventure')}
               />
             </TabsContent>
 

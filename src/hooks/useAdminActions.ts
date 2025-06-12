@@ -1,4 +1,3 @@
-
 import { useAdminStatus } from './admin/useAdminStatus';
 import { useAdminData } from './admin/useAdminData';
 import { useAdminLiveData } from './admin/useAdminLiveData';
@@ -21,6 +20,7 @@ export const useAdminActions = () => {
     liveBusinesses,
     liveRestaurants,
     liveHotels,
+    liveAdventureBusinesses,
     fetchLiveItems,
   } = useAdminLiveData();
   const { handleApprove: baseHandleApprove, handleReject: baseHandleReject } = useAdminItemActions();
@@ -65,6 +65,7 @@ export const useAdminActions = () => {
     liveBusinesses,
     liveRestaurants,
     liveHotels,
+    liveAdventureBusinesses,
     // Other state
     selectedItem,
     isEditing,
