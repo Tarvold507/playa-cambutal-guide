@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -26,6 +25,7 @@ interface RestaurantItem {
   hours?: Record<string, string>;
   latitude?: number;
   longitude?: number;
+  closedForSeason?: boolean;
 }
 
 const Eat = () => {
@@ -67,6 +67,9 @@ const Eat = () => {
         // Normalize the hours keys to be capitalized for consistency
         const normalizedHours = normalizeHoursKeys(rawHours);
         
+        // Check if restaurant is open: must not be closed for season AND within operating hours
+        const isOpen = !restaurant.closed_for_season && isRestaurantOpen(normalizedHours);
+        
         return {
           id: restaurant.id,
           title: restaurant.name,
@@ -74,10 +77,11 @@ const Eat = () => {
           imageSrc: restaurant.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
           link: `/eat/${generateSlug(restaurant.name)}`,
           category: restaurant.category,
-          openNow: isRestaurantOpen(normalizedHours),
+          openNow: isOpen,
           hours: normalizedHours,
           latitude: (restaurant as any).latitude ? Number((restaurant as any).latitude) : undefined,
-          longitude: (restaurant as any).longitude ? Number((restaurant as any).longitude) : undefined
+          longitude: (restaurant as any).longitude ? Number((restaurant as any).longitude) : undefined,
+          closedForSeason: restaurant.closed_for_season
         };
       }) || [];
 
