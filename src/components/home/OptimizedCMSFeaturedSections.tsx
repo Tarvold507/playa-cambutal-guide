@@ -7,43 +7,22 @@ const OptimizedCMSFeaturedSections = () => {
   const { t } = useLanguage();
   const { getContentBySection, isLoading } = useOptimizedPageContent('/');
 
-  const surfContent = getContentBySection('surf-featured', {
-    title: t('home.featured.surf.title'),
-    description: t('home.featured.surf.description'),
-    imageSrc: "https://images.unsplash.com/photo-1509914398892-963f53e6e2f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-    imageAlt: "Surfer riding a wave at Playa Cambutal, Panama",
-    link: "/surf",
-    linkText: t('home.featured.surf.linkText'),
-    imageOnRight: true
-  });
-
-  const cuisineContent = getContentBySection('cuisine-featured', {
-    title: t('home.featured.cuisine.title'),
-    description: t('home.featured.cuisine.description'),
-    imageSrc: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-    imageAlt: "Delicious Panamanian food at a beachfront restaurant in Cambutal",
-    link: "/eat",
-    linkText: t('home.featured.cuisine.linkText'),
-    imageOnRight: false
-  });
+  // Get CMS content for each section - don't provide fallback content
+  const surfContent = getContentBySection('surf-featured');
+  const cuisineContent = getContentBySection('cuisine-featured');
 
   if (isLoading) {
     return (
       <div className="space-y-16">
-        <div className="bg-white py-16">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="w-full h-64 bg-gray-200 rounded animate-pulse"></div>
-              <div className="space-y-4">
-                <div className="w-3/4 h-8 bg-gray-200 rounded animate-pulse"></div>
-                <div className="space-y-2">
-                  <div className="w-full h-4 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="w-full h-4 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="w-2/3 h-4 bg-gray-200 rounded animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 rounded mb-4"></div>
+          <div className="h-8 bg-gray-200 rounded mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded"></div>
+        </div>
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 rounded mb-4"></div>
+          <div className="h-8 bg-gray-200 rounded mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
@@ -51,25 +30,31 @@ const OptimizedCMSFeaturedSections = () => {
 
   return (
     <>
-      <Featured 
-        title={surfContent?.title || t('home.featured.surf.title')}
-        description={surfContent?.description || t('home.featured.surf.description')}
-        imageSrc={surfContent?.imageSrc || "https://images.unsplash.com/photo-1509914398892-963f53e6e2f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"}
-        imageAlt={surfContent?.imageAlt || "Surfer riding a wave at Playa Cambutal, Panama"}
-        link={surfContent?.link || "/surf"}
-        linkText={surfContent?.linkText || t('home.featured.surf.linkText')}
-        imageOnRight={surfContent?.imageOnRight ?? true}
-      />
+      {/* Only render surf section if it has visible CMS content */}
+      {surfContent && (
+        <Featured 
+          title={surfContent.title || t('home.featured.surf.title')}
+          description={surfContent.description || t('home.featured.surf.description')}
+          imageSrc={surfContent.imageSrc || "https://images.unsplash.com/photo-1509914398892-963f53e6e2f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"}
+          imageAlt="Surfer riding a wave at Playa Cambutal, Panama"
+          link={surfContent.link || "/surf"}
+          linkText={surfContent.linkText || t('home.featured.surf.linkText')}
+          imageOnRight={surfContent.imageOnRight !== undefined ? surfContent.imageOnRight : true}
+        />
+      )}
       
-      <Featured 
-        title={cuisineContent?.title || t('home.featured.cuisine.title')}
-        description={cuisineContent?.description || t('home.featured.cuisine.description')}
-        imageSrc={cuisineContent?.imageSrc || "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"}
-        imageAlt={cuisineContent?.imageAlt || "Delicious Panamanian food at a beachfront restaurant in Cambutal"}
-        link={cuisineContent?.link || "/eat"}
-        linkText={cuisineContent?.linkText || t('home.featured.cuisine.linkText')}
-        imageOnRight={cuisineContent?.imageOnRight ?? false}
-      />
+      {/* Only render cuisine section if it has visible CMS content */}
+      {cuisineContent && (
+        <Featured 
+          title={cuisineContent.title || t('home.featured.cuisine.title')}
+          description={cuisineContent.description || t('home.featured.cuisine.description')}
+          imageSrc={cuisineContent.imageSrc || "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"}
+          imageAlt="Delicious Panamanian food at a beachfront restaurant in Cambutal"
+          link={cuisineContent.link || "/eat"}
+          linkText={cuisineContent.linkText || t('home.featured.cuisine.linkText')}
+          imageOnRight={cuisineContent.imageOnRight !== undefined ? cuisineContent.imageOnRight : false}
+        />
+      )}
     </>
   );
 };
