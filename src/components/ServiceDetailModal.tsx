@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -260,7 +259,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="rentals" className="space-y-4">
                   <h3 className="text-lg font-semibold">Vehicle Rentals</h3>
                   <div className="grid gap-4">
-                    {rentalsData.map((facility: Facility, index: number) => renderFacilityCard(facility, index))}
+                    {(rentalsData as Facility[]).map((facility: Facility, index: number) => renderFacilityCard(facility, index))}
                   </div>
                 </TabsContent>
               )}

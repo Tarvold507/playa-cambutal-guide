@@ -27,7 +27,7 @@ const HomeCardSection = () => {
       title: t('home.cards.surf.title'),
       description: t('home.cards.surf.description'),
       imageSrc: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-      link: '/surf',
+      link: '/do',
       category: 'Surf'
     },
     {
@@ -51,7 +51,7 @@ const HomeCardSection = () => {
       title: t('home.cards.transport.title'),
       description: t('home.cards.transport.description'),
       imageSrc: 'https://images.unsplash.com/photo-1494515843206-f3117d3f51b7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-      link: '/transportation',
+      link: '/info#transportation',
       category: 'Transport'
     }
   ];
