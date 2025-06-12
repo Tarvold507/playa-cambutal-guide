@@ -3,6 +3,7 @@ import EventEditForm from './EventEditForm';
 import BusinessEditForm from './BusinessEditForm';
 import RestaurantEditForm from './RestaurantEditForm';
 import HotelEditForm from './HotelEditForm';
+import AdventureEditForm from './AdventureEditForm';
 import type { EditFormData } from '@/hooks/admin/types';
 
 interface EditFormRendererProps {
@@ -20,6 +21,8 @@ const EditFormRenderer = ({ editForm, onFormChange }: EditFormRendererProps) => 
       return <RestaurantEditForm editForm={editForm} onFormChange={onFormChange} />;
     case 'hotel':
       return <HotelEditForm editForm={editForm} onFormChange={onFormChange} />;
+    case 'adventure':
+      return <AdventureEditForm editForm={editForm} onFormChange={onFormChange} />;
     default:
       return null;
   }
