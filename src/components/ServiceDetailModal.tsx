@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -179,7 +178,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
           <div>
             <h5 className="font-medium mb-2">Services:</h5>
             <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-              {facility.services.map((service: string, serviceIndex: number) => (
+              {facility.services.map((service: string, serviceIndex: number): JSX.Element => (
                 <li key={serviceIndex}>{service}</li>
               ))}
             </ul>
@@ -251,7 +250,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="sales" className="space-y-4">
                   <h3 className="text-lg font-semibold">Sales & Dealerships</h3>
                   <div className="grid gap-3 md:grid-cols-2">
-                    {salesData.map((contact: Contact | EmergencyNumber, index: number) => renderContactCard(contact, index))}
+                    {salesData.map((contact: Contact | EmergencyNumber, index: number): JSX.Element => renderContactCard(contact, index))}
                   </div>
                 </TabsContent>
               )}
@@ -260,7 +259,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="rentals" className="space-y-4">
                   <h3 className="text-lg font-semibold">Vehicle Rentals</h3>
                   <div className="grid gap-4">
-                    {(rentalsData as Facility[]).map((facility: Facility, index: number) => renderFacilityCard(facility, index))}
+                    {(rentalsData as Facility[]).map((facility: Facility, index: number): JSX.Element => renderFacilityCard(facility, index))}
                   </div>
                 </TabsContent>
               )}
@@ -269,7 +268,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="repair" className="space-y-4">
                   <h3 className="text-lg font-semibold">Repair Services</h3>
                   <div className="grid gap-3 md:grid-cols-2">
-                    {repairData.map((contact: Contact | EmergencyNumber, index: number) => renderContactCard(contact, index))}
+                    {repairData.map((contact: Contact | EmergencyNumber, index: number): JSX.Element => renderContactCard(contact, index))}
                   </div>
                 </TabsContent>
               )}
@@ -281,7 +280,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Contact Information</h3>
               <div className="grid gap-4 md:grid-cols-2">
-                {service.contacts?.map((contact: Contact, index: number) => renderContactCard(contact, index))}
+                {service.contacts?.map((contact: Contact, index: number): JSX.Element => renderContactCard(contact, index))}
               </div>
             </div>
           )}
@@ -299,7 +298,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="emergency" className="space-y-4">
                   <h3 className="text-lg font-semibold">Emergency Contact Numbers</h3>
                   <div className="grid gap-3 md:grid-cols-2">
-                    {service.emergencyNumbers?.map((emergency: EmergencyNumber, index: number) => renderContactCard(emergency, index, true))}
+                    {service.emergencyNumbers?.map((emergency: EmergencyNumber, index: number): JSX.Element => renderContactCard(emergency, index, true))}
                   </div>
                 </TabsContent>
               )}
@@ -308,7 +307,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="facilities" className="space-y-4">
                   <h3 className="text-lg font-semibold">Local Facilities</h3>
                   <div className="grid gap-4">
-                    {service.facilities?.map((facility: Facility, index: number) => renderFacilityCard(facility, index))}
+                    {service.facilities?.map((facility: Facility, index: number): JSX.Element => renderFacilityCard(facility, index))}
                   </div>
                 </TabsContent>
               )}
@@ -317,7 +316,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="contacts" className="space-y-4">
                   <h3 className="text-lg font-semibold">Contact Information</h3>
                   <div className="grid gap-4 md:grid-cols-2">
-                    {service.contacts?.map((contact: Contact, index: number) => renderContactCard(contact, index))}
+                    {service.contacts?.map((contact: Contact, index: number): JSX.Element => renderContactCard(contact, index))}
                   </div>
                 </TabsContent>
               )}
