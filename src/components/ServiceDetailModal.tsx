@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -76,19 +77,19 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
   const hasRentals = rentalsData.length > 0;
   const hasRepair = repairData.length > 0;
 
-  const handlePhoneCall = (phone: string) => {
+  const handlePhoneCall = (phone: string): void => {
     window.open(`tel:${phone}`, '_self');
   };
 
-  const handleWhatsApp = (whatsapp: string) => {
+  const handleWhatsApp = (whatsapp: string): void => {
     window.open(`https://wa.me/${whatsapp.replace(/[^\d]/g, '')}`, '_blank');
   };
 
-  const handleWebsite = (website: string) => {
+  const handleWebsite = (website: string): void => {
     window.open(website, '_blank');
   };
 
-  const renderContactCard = (contact: Contact | EmergencyNumber, index: number, isEmergency = false): JSX.Element => (
+  const renderContactCard = (contact: Contact | EmergencyNumber, index: number, isEmergency: boolean = false): JSX.Element => (
     <Card key={index} className={isEmergency ? "bg-red-50 border-red-200" : ""}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
