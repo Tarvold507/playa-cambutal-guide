@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Clock, MapPin, Phone, Globe } from 'lucide-react';
 import { restaurantData, Restaurant as StaticRestaurant } from '../data/restaurants';
-import { findRestaurantBySlug } from '../utils/slugUtils';
+import { findRestaurantBySlug, generateSlug } from '../utils/slugUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { isRestaurantOpen, formatHoursForDisplay, getCurrentPanamaTime } from '../utils/timeUtils';
@@ -86,14 +86,9 @@ const RestaurantDetail = () => {
 
         if (error) throw error;
 
-        // Find restaurant by slug in database results
+        // Find restaurant by slug in database results using the same generateSlug function
         const dbRestaurant = data?.find(r => {
-          const generatedSlug = r.name.toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '_')
-            .replace(/-+/g, '_')
-            .replace(/_+/g, '_')
-            .replace(/^_|_$/g, '');
+          const generatedSlug = generateSlug(r.name);
           return generatedSlug === slug;
         });
 
