@@ -251,7 +251,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="sales" className="space-y-4">
                   <h3 className="text-lg font-semibold">Sales & Dealerships</h3>
                   <div className="grid gap-3 md:grid-cols-2">
-                    {salesData.map((contact, index) => renderContactCard(contact, index))}
+                    {salesData.map((contact: Contact | EmergencyNumber, index: number) => renderContactCard(contact, index))}
                   </div>
                 </TabsContent>
               )}
@@ -260,7 +260,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="rentals" className="space-y-4">
                   <h3 className="text-lg font-semibold">Vehicle Rentals</h3>
                   <div className="grid gap-4">
-                    {rentalsData.map((facility, index) => renderFacilityCard(facility, index))}
+                    {rentalsData.map((facility: Facility, index: number) => renderFacilityCard(facility, index))}
                   </div>
                 </TabsContent>
               )}
@@ -269,7 +269,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="repair" className="space-y-4">
                   <h3 className="text-lg font-semibold">Repair Services</h3>
                   <div className="grid gap-3 md:grid-cols-2">
-                    {repairData.map((contact, index) => renderContactCard(contact, index))}
+                    {repairData.map((contact: Contact | EmergencyNumber, index: number) => renderContactCard(contact, index))}
                   </div>
                 </TabsContent>
               )}
@@ -281,7 +281,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Contact Information</h3>
               <div className="grid gap-4 md:grid-cols-2">
-                {service.contacts?.map((contact, index) => renderContactCard(contact, index))}
+                {service.contacts?.map((contact: Contact, index: number) => renderContactCard(contact, index))}
               </div>
             </div>
           )}
@@ -299,7 +299,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="emergency" className="space-y-4">
                   <h3 className="text-lg font-semibold">Emergency Contact Numbers</h3>
                   <div className="grid gap-3 md:grid-cols-2">
-                    {service.emergencyNumbers?.map((emergency, index) => renderContactCard(emergency, index, true))}
+                    {service.emergencyNumbers?.map((emergency: EmergencyNumber, index: number) => renderContactCard(emergency, index, true))}
                   </div>
                 </TabsContent>
               )}
@@ -308,7 +308,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="facilities" className="space-y-4">
                   <h3 className="text-lg font-semibold">Local Facilities</h3>
                   <div className="grid gap-4">
-                    {service.facilities?.map((facility, index) => renderFacilityCard(facility, index))}
+                    {service.facilities?.map((facility: Facility, index: number) => renderFacilityCard(facility, index))}
                   </div>
                 </TabsContent>
               )}
@@ -317,7 +317,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
                 <TabsContent value="contacts" className="space-y-4">
                   <h3 className="text-lg font-semibold">Contact Information</h3>
                   <div className="grid gap-4 md:grid-cols-2">
-                    {service.contacts?.map((contact, index) => renderContactCard(contact, index))}
+                    {service.contacts?.map((contact: Contact, index: number) => renderContactCard(contact, index))}
                   </div>
                 </TabsContent>
               )}
