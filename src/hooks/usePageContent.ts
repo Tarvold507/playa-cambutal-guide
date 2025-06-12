@@ -46,7 +46,7 @@ export const usePageContent = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   const createPageContent = async (contentData: Omit<PageContent, 'id' | 'created_at' | 'updated_at'>) => {
     try {
