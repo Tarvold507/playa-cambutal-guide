@@ -1,10 +1,11 @@
-
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import PendingEventsTab from '@/components/admin/PendingEventsTab';
 import PendingBusinessesTab from '@/components/admin/PendingBusinessesTab';
@@ -91,6 +92,12 @@ const AdminDashboard = () => {
     refreshBlogData();
   };
 
+  const handleManualRefresh = () => {
+    console.log('Manual refresh triggered');
+    refreshAllData();
+    refreshBlogData();
+  };
+
   if (!user) return null;
 
   return (
@@ -98,7 +105,13 @@ const AdminDashboard = () => {
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">{t('admin.title')}</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">{t('admin.title')}</h1>
+          <Button onClick={handleManualRefresh} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh Data
+          </Button>
+        </div>
         
         <Tabs defaultValue="events" className="w-full">
           <div className="space-y-2">

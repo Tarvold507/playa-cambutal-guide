@@ -14,6 +14,8 @@ export const useAdminEdit = () => {
   const [editForm, setEditForm] = useState<EditFormData>({});
 
   const handleEdit = (item: any, type: ItemType) => {
+    console.log('handleEdit called with item:', item);
+    console.log('handleEdit called with type:', type);
     setSelectedItem(item);
     setEditForm({ ...item, type });
     setIsEditing(true);
@@ -23,6 +25,9 @@ export const useAdminEdit = () => {
     if (!selectedItem || !editForm.type) return;
 
     try {
+      console.log('Saving edit for item:', selectedItem.id);
+      console.log('Edit form data:', editForm);
+
       const { type, profiles, ...updateData } = editForm;
       
       const fieldsToExclude = ['profiles', 'id', 'created_at', 'updated_at', 'approved_by', 'approved_at'];
@@ -49,6 +54,8 @@ export const useAdminEdit = () => {
 
       if (error) throw error;
 
+      console.log('Successfully updated item, refreshing data...');
+
       toast({
         title: "Item updated",
         description: "The item has been updated successfully.",
@@ -57,6 +64,9 @@ export const useAdminEdit = () => {
       setIsEditing(false);
       setSelectedItem(null);
       setEditForm({});
+      
+      // Force refresh the data immediately
+      console.log('Calling onRefresh to update the UI...');
       onRefresh();
     } catch (error) {
       console.error('Error updating item:', error);
@@ -69,6 +79,7 @@ export const useAdminEdit = () => {
   };
 
   const handleFormChange = (updates: Partial<EditFormData>) => {
+    console.log('Form change:', updates);
     setEditForm(prev => ({ ...prev, ...updates }));
   };
 
