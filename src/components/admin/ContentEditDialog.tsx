@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { PageContent } from '@/hooks/usePageContent';
+import { useCMSImages } from '@/hooks/useCMSImages';
 import HeroFields from './content-fields/HeroFields';
 import TextFields from './content-fields/TextFields';
 import ImageFields from './content-fields/ImageFields';
@@ -45,6 +46,7 @@ const PAGE_SECTIONS = {
 };
 
 const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: ContentEditDialogProps) => {
+  const { uploadImage, uploading } = useCMSImages();
   const [formData, setFormData] = useState({
     page_path: pagePath,
     section_name: '',
@@ -86,6 +88,13 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
     }));
   };
 
+  const handleImageUpload = async (file: File, field: string) => {
+    const imageUrl = await uploadImage(file, 'content');
+    if (imageUrl) {
+      updateContentData(field, imageUrl);
+    }
+  };
+
   const handleSave = () => {
     onSave(formData);
   };
@@ -97,15 +106,15 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
   const renderContentFields = () => {
     switch (formData.content_type) {
       case 'hero':
-        return <HeroFields contentData={formData.content_data} updateContentData={updateContentData} />;
+        return <HeroFields contentData={formData.content_data} updateContentData={updateContentData} onImageUpload={handleImageUpload} uploading={uploading} />;
       case 'text':
         return <TextFields contentData={formData.content_data} updateContentData={updateContentData} />;
       case 'image':
-        return <ImageFields contentData={formData.content_data} updateContentData={updateContentData} />;
+        return <ImageFields contentData={formData.content_data} updateContentData={updateContentData} onImageUpload={handleImageUpload} uploading={uploading} />;
       case 'card':
-        return <CardFields contentData={formData.content_data} updateContentData={updateContentData} />;
+        return <CardFields contentData={formData.content_data} updateContentData={updateContentData} onImageUpload={handleImageUpload} uploading={uploading} />;
       case 'featured':
-        return <FeaturedFields contentData={formData.content_data} updateContentData={updateContentData} />;
+        return <FeaturedFields contentData={formData.content_data} updateContentData={updateContentData} onImageUpload={handleImageUpload} uploading={uploading} />;
       case 'section':
         return <SectionFields contentData={formData.content_data} updateContentData={updateContentData} />;
       case 'services':
