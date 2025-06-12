@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -59,6 +60,8 @@ const Do = () => {
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, '_');
+    
+    console.log(`Business: ${business.business_name} -> Slug: ${slug}`);
     
     return {
       id: business.id,

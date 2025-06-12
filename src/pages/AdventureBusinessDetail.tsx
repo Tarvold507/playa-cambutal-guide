@@ -35,8 +35,23 @@ const AdventureBusinessDetail = () => {
       try {
         setIsLoading(true);
         
+        console.log('Looking for business with slug:', businessSlug);
+        
         // Convert slug back to business name for lookup
         const businessName = businessSlug.replace(/_/g, ' ');
+        console.log('Converted slug to business name:', businessName);
+        
+        // First, let's get all approved businesses to see what's available
+        const { data: allBusinesses, error: allError } = await supabase
+          .from('adventure_business_listings')
+          .select('business_name, approved')
+          .eq('approved', true);
+          
+        if (allError) {
+          console.error('Error fetching all businesses:', allError);
+        } else {
+          console.log('All approved businesses:', allBusinesses);
+        }
         
         const { data, error } = await supabase
           .from('adventure_business_listings')
@@ -47,10 +62,23 @@ const AdventureBusinessDetail = () => {
 
         if (error) {
           console.error('Error fetching business:', error);
+          
+          // Try a broader search to see if the business exists with a different name
+          const { data: searchData, error: searchError } = await supabase
+            .from('adventure_business_listings')
+            .select('business_name')
+            .eq('approved', true)
+            .ilike('business_name', `%${businessName}%`);
+            
+          if (!searchError && searchData) {
+            console.log('Similar business names found:', searchData);
+          }
+          
           setError('Business not found');
           return;
         }
 
+        console.log('Found business:', data);
         setBusiness(data);
       } catch (err) {
         console.error('Error fetching business:', err);
