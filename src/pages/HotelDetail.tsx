@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ArrowLeft, Star, ExternalLink } from 'lucide-react';
@@ -13,9 +14,9 @@ import { useHotelSEO } from '@/hooks/useDynamicSEO';
 import { getAmenityIcon } from '@/utils/amenityIcons';
 
 const HotelDetail = () => {
-  const { slug } = useParams();
+  const { hotelSlug } = useParams();
   const navigate = useNavigate();
-  const { hotel, loading } = useHotelDetails(slug || '');
+  const { hotel, loading } = useHotelDetails(hotelSlug || '');
 
   // Apply SEO data for this hotel
   useHotelSEO(hotel);
