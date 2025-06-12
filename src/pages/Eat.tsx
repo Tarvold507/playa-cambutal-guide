@@ -1,8 +1,9 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import Hero from '../components/Hero';
+import CMSHero from '../components/CMSHero';
 import CardSection from '../components/CardSection';
 import Newsletter from '../components/Newsletter';
 import RestaurantFilter from '../components/RestaurantFilter';
@@ -126,10 +127,11 @@ const Eat = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <Hero 
-        title="Eat & Drink"
-        subtitle="Discover the best culinary experiences in Playa Cambutal"
-        imageSrc="https://images.unsplash.com/photo-1579631542761-3f43399f7fe8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
+      <CMSHero 
+        pagePath="/eat"
+        fallbackTitle="Eat & Drink"
+        fallbackSubtitle="Discover the best culinary experiences in Playa Cambutal"
+        fallbackImageSrc="https://images.unsplash.com/photo-1579631542761-3f43399f7fe8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
       
       {/* Intro Section */}
