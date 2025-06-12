@@ -65,9 +65,11 @@ export const useAdminEdit = () => {
       setSelectedItem(null);
       setEditForm({});
       
-      // Force refresh the data immediately
+      // Force refresh the data immediately with a small delay to ensure DB update is processed
       console.log('Calling onRefresh to update the UI...');
-      onRefresh();
+      setTimeout(() => {
+        onRefresh();
+      }, 500);
     } catch (error) {
       console.error('Error updating item:', error);
       toast({

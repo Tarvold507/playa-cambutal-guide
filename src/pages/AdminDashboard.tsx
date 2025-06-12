@@ -93,9 +93,15 @@ const AdminDashboard = () => {
   };
 
   const handleManualRefresh = () => {
-    console.log('Manual refresh triggered');
+    console.log('🔄 Manual refresh triggered');
     refreshAllData();
     refreshBlogData();
+  };
+
+  // Enhanced save handler that ensures refresh
+  const handleSaveEditWithRefresh = () => {
+    console.log('💾 Saving edit with refresh...');
+    handleSaveEdit(refreshAllData);
   };
 
   if (!user) return null;
@@ -234,7 +240,7 @@ const AdminDashboard = () => {
           onClose={closeEditDialog}
           editForm={editForm}
           onFormChange={handleFormChange}
-          onSave={handleSaveEdit}
+          onSave={handleSaveEditWithRefresh}
         />
       </div>
       

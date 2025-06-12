@@ -14,11 +14,26 @@ const LiveAdventureBusinessesTab = ({ liveAdventureBusinesses, onEdit }: LiveAdv
   console.log('LiveAdventureBusinessesTab - businesses:', liveAdventureBusinesses);
   
   const handleImageError = (businessName: string, imageUrl: string) => {
-    console.error(`Failed to load image for ${businessName}:`, imageUrl);
+    console.error(`❌ Failed to load image for ${businessName}:`, imageUrl);
   };
 
   const handleImageLoad = (businessName: string, imageUrl: string) => {
-    console.log(`Successfully loaded image for ${businessName}:`, imageUrl);
+    console.log(`✅ Successfully loaded image for ${businessName}:`, imageUrl);
+  };
+
+  const getImageSrc = (imageUrl: string) => {
+    if (!imageUrl) return null;
+    
+    // Try different formats for Lovable uploads
+    const formats = [
+      imageUrl, // Original
+      imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`, // Add leading slash
+      imageUrl.startsWith('public/') ? imageUrl : `public/${imageUrl}`, // Add public prefix
+      imageUrl.startsWith('/public/') ? imageUrl : `/public/${imageUrl}` // Add /public prefix
+    ];
+    
+    console.log('Trying image formats:', formats);
+    return formats[1]; // Start with the format that adds leading slash
   };
 
   if (liveAdventureBusinesses.length === 0) {
@@ -32,7 +47,12 @@ const LiveAdventureBusinessesTab = ({ liveAdventureBusinesses, onEdit }: LiveAdv
   return (
     <div className="grid gap-6">
       {liveAdventureBusinesses.map((business) => {
-        console.log(`Business ${business.business_name} image_url:`, business.image_url);
+        console.log(`🏢 Business ${business.business_name}:`);
+        console.log('  - ID:', business.id);
+        console.log('  - Image URL:', business.image_url);
+        console.log('  - Updated at:', business.updated_at);
+        
+        const imageSrc = getImageSrc(business.image_url);
         
         return (
           <Card key={business.id}>
@@ -119,19 +139,27 @@ const LiveAdventureBusinessesTab = ({ liveAdventureBusinesses, onEdit }: LiveAdv
                 </div>
                 
                 <div>
-                  {business.image_url ? (
-                    <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                  {imageSrc ? (
+                    <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden relative">
                       <img 
-                        src={business.image_url.startsWith('/') ? business.image_url : `/${business.image_url}`}
+                        src={imageSrc}
                         alt={business.business_name}
                         className="w-full h-full object-cover"
-                        onError={() => handleImageError(business.business_name, business.image_url)}
-                        onLoad={() => handleImageLoad(business.business_name, business.image_url)}
+                        onError={() => handleImageError(business.business_name, imageSrc)}
+                        onLoad={() => handleImageLoad(business.business_name, imageSrc)}
                       />
+                      <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                        {business.image_url ? '🖼️' : '📷'}
+                      </div>
                     </div>
                   ) : (
                     <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-400 text-sm">No image</span>
+                      <div className="text-center">
+                        <span className="text-gray-400 text-sm block">No image</span>
+                        <span className="text-gray-300 text-xs">
+                          {business.image_url ? 'Invalid URL' : 'Not set'}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
