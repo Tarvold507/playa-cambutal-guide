@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -178,7 +179,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
           <div>
             <h5 className="font-medium mb-2">Services:</h5>
             <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-              {facility.services.map((service, serviceIndex) => (
+              {facility.services.map((service: string, serviceIndex: number) => (
                 <li key={serviceIndex}>{service}</li>
               ))}
             </ul>
