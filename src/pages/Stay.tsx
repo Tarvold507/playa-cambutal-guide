@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -55,7 +54,7 @@ const Stay = () => {
     });
   }, []);
 
-  // Transform dynamic hotels to StayItem format
+  // Transform dynamic hotels to StayItem format - now using the slug from the hook
   const dynamicItems: StayItem[] = hotels.map(hotel => ({
     id: hotel.id,
     title: hotel.name,

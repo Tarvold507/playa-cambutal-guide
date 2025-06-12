@@ -2,17 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-// Helper function to create URL-friendly slugs
-const createSlug = (name: string): string => {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '_') // Replace spaces with underscores
-    .replace(/-+/g, '_') // Replace hyphens with underscores
-    .replace(/_+/g, '_') // Replace multiple underscores with single
-    .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
-};
+import { generateSlug } from '@/utils/slugUtils';
 
 export interface HotelListing {
   id: string;
@@ -55,7 +45,7 @@ export const useHotelListings = () => {
 
       const transformedHotels: HotelListing[] = data?.map(hotel => ({
         ...hotel,
-        slug: createSlug(hotel.name),
+        slug: generateSlug(hotel.name),
         gallery_images: Array.isArray(hotel.gallery_images) 
           ? hotel.gallery_images.filter((img): img is string => typeof img === 'string')
           : [],
@@ -103,12 +93,12 @@ export const useHotelDetails = (slug: string) => {
 
         if (data) {
           // Find hotel by slug
-          const matchingHotel = data.find(hotel => createSlug(hotel.name) === slug);
+          const matchingHotel = data.find(hotel => generateSlug(hotel.name) === slug);
           
           if (matchingHotel) {
             setHotel({
               ...matchingHotel,
-              slug: createSlug(matchingHotel.name),
+              slug: generateSlug(matchingHotel.name),
               gallery_images: Array.isArray(matchingHotel.gallery_images) 
                 ? matchingHotel.gallery_images.filter((img): img is string => typeof img === 'string')
                 : [],
