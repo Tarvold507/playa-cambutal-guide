@@ -393,6 +393,36 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscriptions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          status: string
+          subscribed_at: string
+          unsubscribe_token: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          status?: string
+          subscribed_at?: string
+          unsubscribe_token?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          status?: string
+          subscribed_at?: string
+          unsubscribe_token?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       page_content: {
         Row: {
           content_data: Json
