@@ -3,63 +3,11 @@ import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
-import CardSection from '../components/CardSection';
 import Featured from '../components/Featured';
 import Newsletter from '../components/Newsletter';
 import AdventureBusinessSubmissionForm from '../components/AdventureBusinessSubmissionForm';
 import BusinessFilter from '../components/BusinessFilter';
 import { useAdventureBusinessListings } from '@/hooks/useAdventureBusinessListings';
-
-const staticDoItems = [
-  {
-    id: 'static-1',
-    title: 'Surf Lessons',
-    description: 'Learn to surf with professional instructors in the perfect learning environment of Playa Cambutal.',
-    imageSrc: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/do/surf',
-    category: 'Surf'
-  },
-  {
-    id: 'static-2',
-    title: 'Yoga Classes',
-    description: 'Find your zen with beachfront yoga classes offering stunning views and rejuvenating practice.',
-    imageSrc: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/do/yoga',
-    category: 'Wellness'
-  },
-  {
-    id: 'static-3',
-    title: 'Wildlife Tours',
-    description: 'Explore the rich biodiversity of Panama with guided tours to see monkeys, birds, and marine life.',
-    imageSrc: 'https://images.unsplash.com/photo-1552083974-186346191183?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/do/wildlife',
-    category: 'Nature'
-  },
-  {
-    id: 'static-4',
-    title: 'Snorkeling & Diving',
-    description: 'Discover the underwater world with snorkeling and diving trips to nearby reefs and islands.',
-    imageSrc: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/do/water',
-    category: 'Water'
-  },
-  {
-    id: 'static-5',
-    title: 'Hiking & Waterfalls',
-    description: 'Explore stunning waterfalls and hiking trails in the nearby mountains.',
-    imageSrc: 'https://images.unsplash.com/photo-1563106628-2ecfa840037d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/do/hiking',
-    category: 'Nature'
-  },
-  {
-    id: 'static-6',
-    title: 'Fishing Trips',
-    description: 'Join local fishermen or charter a boat for fishing in the productive waters of the Pacific.',
-    imageSrc: 'https://images.unsplash.com/photo-1516741247836-f66a30241b0e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: '/do/fishing',
-    category: 'Water'
-  }
-];
 
 const Do = () => {
   const { businesses, isLoading, error } = useAdventureBusinessListings();
@@ -115,13 +63,10 @@ const Do = () => {
     category: business.business_type
   }));
 
-  // Combine static items with business listings
-  const allDoItems = [...staticDoItems, ...businessCards];
-
   // Filter items based on selected category
   const filteredItems = selectedCategory === 'all' 
-    ? allDoItems 
-    : allDoItems.filter(item => {
+    ? businessCards 
+    : businessCards.filter(item => {
         // Map categories for filtering
         const categoryMap: { [key: string]: string[] } = {
           'surf': ['Surf'],
@@ -174,30 +119,40 @@ const Do = () => {
             onCategoryChange={setSelectedCategory}
           />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredItems.map(item => (
-              <div key={item.id} className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src={item.imageSrc} 
-                    alt={item.title} 
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  {item.category && (
-                    <div className="absolute top-4 left-4 bg-venao-dark/90 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      {item.category}
-                    </div>
-                  )}
+          {isLoading ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Loading activities...</p>
+            </div>
+          ) : filteredItems.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredItems.map(item => (
+                <div key={item.id} className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                  <div className="relative h-64 overflow-hidden">
+                    <img 
+                      src={item.imageSrc} 
+                      alt={item.title} 
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {item.category && (
+                      <div className="absolute top-4 left-4 bg-venao-dark/90 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        {item.category}
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-5 bg-white">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-venao transition-colors duration-300">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-600 line-clamp-3">{item.description}</p>
+                  </div>
                 </div>
-                <div className="p-5 bg-white">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-venao transition-colors duration-300">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-600 line-clamp-3">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No activities found for this category.</p>
+            </div>
+          )}
         </div>
       </section>
 
