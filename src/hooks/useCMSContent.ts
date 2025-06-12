@@ -9,7 +9,7 @@ export const useCMSContent = (pagePath: string, sectionName: string, fallbackCon
 
   useEffect(() => {
     fetchPageContent(pagePath);
-  }, [pagePath]);
+  }, [pagePath, fetchPageContent]);
 
   useEffect(() => {
     if (loading) {
@@ -42,7 +42,7 @@ export const usePageCMSContent = (pagePath: string) => {
 
   useEffect(() => {
     fetchPageContent(pagePath);
-  }, [pagePath]);
+  }, [pagePath, fetchPageContent]);
 
   useEffect(() => {
     const filtered = pageContent

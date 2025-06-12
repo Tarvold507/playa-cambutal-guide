@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,7 +21,7 @@ export const usePageContent = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchPageContent = async (pagePath?: string) => {
+  const fetchPageContent = useCallback(async (pagePath?: string) => {
     try {
       let query = supabase
         .from('page_content')
@@ -47,7 +46,7 @@ export const usePageContent = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const createPageContent = async (contentData: Omit<PageContent, 'id' | 'created_at' | 'updated_at'>) => {
     try {
@@ -172,7 +171,7 @@ export const usePageContent = () => {
 
   useEffect(() => {
     fetchPageContent();
-  }, []);
+  }, [fetchPageContent]);
 
   return {
     pageContent,
