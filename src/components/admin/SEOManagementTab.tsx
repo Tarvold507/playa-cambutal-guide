@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,7 +24,7 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
 
   const getPageType = (pagePath: string) => {
     if (pagePath.startsWith('/stay/')) return 'hotel';
-    if (pagePath.startsWith('/eat/')) return 'restaurant';
+    if (pagePath.startsWith('/eat/') && pagePath !== '/eat') return 'restaurant';
     if (pagePath.startsWith('/events/')) return 'event';
     if (pagePath.startsWith('/blog/')) return 'blog';
     return 'static';
