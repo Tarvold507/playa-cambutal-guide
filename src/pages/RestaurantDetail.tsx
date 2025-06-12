@@ -31,14 +31,14 @@ interface Restaurant {
 }
 
 const RestaurantDetail = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   // Add SEO hook with restaurant data including slug
-  const restaurantWithSlug = restaurant ? { ...restaurant, slug: slug || '' } : null;
+  const restaurantWithSlug = restaurant ? { ...restaurant, slug: restaurantSlug || '' } : null;
   useRestaurantSEO(restaurantWithSlug);
 
   // Helper function to normalize hours keys from lowercase to capitalized
@@ -61,13 +61,13 @@ const RestaurantDetail = () => {
     window.scrollTo(0, 0);
     
     const fetchRestaurant = async () => {
-      if (!slug) {
+      if (!restaurantSlug) {
         setLoading(false);
         return;
       }
 
       // First check static restaurant data
-      const staticRestaurant = findRestaurantBySlug(slug, restaurantData);
+      const staticRestaurant = findRestaurantBySlug(restaurantSlug, restaurantData);
       if (staticRestaurant) {
         console.log('Found static restaurant:', staticRestaurant.name);
         console.log('Static restaurant hours:', staticRestaurant.hours);
@@ -89,7 +89,7 @@ const RestaurantDetail = () => {
         // Find restaurant by slug in database results using the same generateSlug function
         const dbRestaurant = data?.find(r => {
           const generatedSlug = generateSlug(r.name);
-          return generatedSlug === slug;
+          return generatedSlug === restaurantSlug;
         });
 
         if (dbRestaurant) {
@@ -137,7 +137,7 @@ const RestaurantDetail = () => {
             todayHours: normalizedHours[panamaTime.currentDay]
           });
         } else {
-          console.log('Restaurant not found for slug:', slug);
+          console.log('Restaurant not found for slug:', restaurantSlug);
         }
       } catch (error) {
         console.error('Error fetching restaurant:', error);
@@ -152,7 +152,7 @@ const RestaurantDetail = () => {
     };
 
     fetchRestaurant();
-  }, [slug, toast]);
+  }, [restaurantSlug, toast]);
 
   const handleWhatsAppClick = () => {
     if (restaurant?.whatsapp) {
