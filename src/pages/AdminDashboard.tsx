@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -101,7 +102,11 @@ const AdminDashboard = () => {
   // Enhanced save handler that ensures refresh
   const handleSaveEditWithRefresh = () => {
     console.log('💾 Saving edit with refresh...');
-    handleSaveEdit(refreshAllData);
+    handleSaveEdit(() => {
+      console.log('🔄 Refreshing all data after save...');
+      refreshAllData();
+      refreshBlogData();
+    });
   };
 
   if (!user) return null;
