@@ -10,6 +10,24 @@ interface AdventureEditFormProps {
 }
 
 const AdventureEditForm = ({ editForm, onFormChange }: AdventureEditFormProps) => {
+  // Handle hours field which can be string or object
+  const getHoursValue = () => {
+    if (typeof editForm.hours === 'string') {
+      return editForm.hours;
+    }
+    if (typeof editForm.hours === 'object' && editForm.hours !== null) {
+      // Convert object to string representation
+      return Object.entries(editForm.hours)
+        .map(([day, time]) => `${day}: ${time}`)
+        .join(', ');
+    }
+    return '';
+  };
+
+  const handleHoursChange = (value: string) => {
+    onFormChange({ hours: value });
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -77,8 +95,8 @@ const AdventureEditForm = ({ editForm, onFormChange }: AdventureEditFormProps) =
           <Label htmlFor="hours">Hours</Label>
           <Input
             id="hours"
-            value={editForm.hours || ''}
-            onChange={(e) => onFormChange({ hours: e.target.value })}
+            value={getHoursValue()}
+            onChange={(e) => handleHoursChange(e.target.value)}
             placeholder="Mon-Fri 9AM-5PM"
           />
         </div>
