@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
@@ -136,9 +137,9 @@ const Do = () => {
           ) : filteredItems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredItems.map(item => (
-                <a 
+                <Link 
                   key={item.id} 
-                  href={item.link}
+                  to={item.link}
                   className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
                 >
                   <div className="relative h-64 overflow-hidden">
@@ -159,7 +160,7 @@ const Do = () => {
                     </h3>
                     <p className="text-gray-600 line-clamp-3">{item.description}</p>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           ) : (
