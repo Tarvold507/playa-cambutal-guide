@@ -6,12 +6,44 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash2 } from 'lucide-react';
+
+interface Contact {
+  name: string;
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  website?: string;
+  type: string;
+  description?: string;
+}
+
+interface EmergencyNumber {
+  name: string;
+  number: string;
+  description?: string;
+}
+
+interface Facility {
+  name: string;
+  address?: string;
+  phone?: string;
+  whatsapp?: string;
+  hours?: string;
+  services?: string[];
+  description?: string;
+}
 
 interface Service {
   name: string;
   icon: string;
   details: string;
+  fullDescription?: string;
+  contacts?: Contact[];
+  emergencyNumbers?: EmergencyNumber[];
+  facilities?: Facility[];
+  hours?: string;
 }
 
 interface ServicesFieldsProps {
@@ -31,12 +63,18 @@ const AVAILABLE_ICONS = [
 const ServicesFields = ({ contentData, updateContentData }: ServicesFieldsProps) => {
   const services: Service[] = contentData.services || [];
   const title = contentData.title || '';
+  const [selectedServiceIndex, setSelectedServiceIndex] = useState(0);
 
   const addService = () => {
     const newService: Service = {
       name: '',
       icon: 'Wrench',
-      details: ''
+      details: '',
+      fullDescription: '',
+      contacts: [],
+      emergencyNumbers: [],
+      facilities: [],
+      hours: ''
     };
     updateContentData('services', [...services, newService]);
   };
@@ -44,14 +82,94 @@ const ServicesFields = ({ contentData, updateContentData }: ServicesFieldsProps)
   const removeService = (index: number) => {
     const updatedServices = services.filter((_, i) => i !== index);
     updateContentData('services', updatedServices);
+    if (selectedServiceIndex >= updatedServices.length) {
+      setSelectedServiceIndex(Math.max(0, updatedServices.length - 1));
+    }
   };
 
-  const updateService = (index: number, field: keyof Service, value: string) => {
+  const updateService = (index: number, field: keyof Service, value: any) => {
     const updatedServices = services.map((service, i) => 
       i === index ? { ...service, [field]: value } : service
     );
     updateContentData('services', updatedServices);
   };
+
+  const addContact = (serviceIndex: number) => {
+    const service = services[serviceIndex];
+    const newContact: Contact = {
+      name: '',
+      type: '',
+      description: ''
+    };
+    const updatedContacts = [...(service.contacts || []), newContact];
+    updateService(serviceIndex, 'contacts', updatedContacts);
+  };
+
+  const removeContact = (serviceIndex: number, contactIndex: number) => {
+    const service = services[serviceIndex];
+    const updatedContacts = (service.contacts || []).filter((_, i) => i !== contactIndex);
+    updateService(serviceIndex, 'contacts', updatedContacts);
+  };
+
+  const updateContact = (serviceIndex: number, contactIndex: number, field: keyof Contact, value: string) => {
+    const service = services[serviceIndex];
+    const updatedContacts = (service.contacts || []).map((contact, i) =>
+      i === contactIndex ? { ...contact, [field]: value } : contact
+    );
+    updateService(serviceIndex, 'contacts', updatedContacts);
+  };
+
+  const addEmergencyNumber = (serviceIndex: number) => {
+    const service = services[serviceIndex];
+    const newEmergency: EmergencyNumber = {
+      name: '',
+      number: '',
+      description: ''
+    };
+    const updatedNumbers = [...(service.emergencyNumbers || []), newEmergency];
+    updateService(serviceIndex, 'emergencyNumbers', updatedNumbers);
+  };
+
+  const removeEmergencyNumber = (serviceIndex: number, emergencyIndex: number) => {
+    const service = services[serviceIndex];
+    const updatedNumbers = (service.emergencyNumbers || []).filter((_, i) => i !== emergencyIndex);
+    updateService(serviceIndex, 'emergencyNumbers', updatedNumbers);
+  };
+
+  const updateEmergencyNumber = (serviceIndex: number, emergencyIndex: number, field: keyof EmergencyNumber, value: string) => {
+    const service = services[serviceIndex];
+    const updatedNumbers = (service.emergencyNumbers || []).map((emergency, i) =>
+      i === emergencyIndex ? { ...emergency, [field]: value } : emergency
+    );
+    updateService(serviceIndex, 'emergencyNumbers', updatedNumbers);
+  };
+
+  const addFacility = (serviceIndex: number) => {
+    const service = services[serviceIndex];
+    const newFacility: Facility = {
+      name: '',
+      description: '',
+      services: []
+    };
+    const updatedFacilities = [...(service.facilities || []), newFacility];
+    updateService(serviceIndex, 'facilities', updatedFacilities);
+  };
+
+  const removeFacility = (serviceIndex: number, facilityIndex: number) => {
+    const service = services[serviceIndex];
+    const updatedFacilities = (service.facilities || []).filter((_, i) => i !== facilityIndex);
+    updateService(serviceIndex, 'facilities', updatedFacilities);
+  };
+
+  const updateFacility = (serviceIndex: number, facilityIndex: number, field: keyof Facility, value: any) => {
+    const service = services[serviceIndex];
+    const updatedFacilities = (service.facilities || []).map((facility, i) =>
+      i === facilityIndex ? { ...facility, [field]: value } : facility
+    );
+    updateService(serviceIndex, 'facilities', updatedFacilities);
+  };
+
+  const selectedService = services[selectedServiceIndex];
 
   return (
     <div className="space-y-6">
@@ -74,73 +192,311 @@ const ServicesFields = ({ contentData, updateContentData }: ServicesFieldsProps)
           </Button>
         </div>
 
-        <div className="space-y-4">
-          {services.map((service, index) => (
-            <Card key={index}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Service {index + 1}</CardTitle>
+        {services.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>No services added yet.</p>
+            <p className="text-sm">Click "Add Service" to create your first service.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Service List */}
+            <div className="lg:col-span-1">
+              <h3 className="font-semibold mb-3">Select Service</h3>
+              <div className="space-y-2">
+                {services.map((service, index) => (
                   <Button
-                    type="button"
-                    variant="outline"
+                    key={index}
+                    variant={selectedServiceIndex === index ? "default" : "outline"}
                     size="sm"
-                    onClick={() => removeService(index)}
+                    className="w-full justify-start"
+                    onClick={() => setSelectedServiceIndex(index)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    {service.name || `Service ${index + 1}`}
                   </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <Label htmlFor={`service-name-${index}`}>Service Name</Label>
-                  <Input
-                    id={`service-name-${index}`}
-                    value={service.name}
-                    onChange={(e) => updateService(index, 'name', e.target.value)}
-                    placeholder="Emergency Services"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor={`service-icon-${index}`}>Icon</Label>
-                  <Select
-                    value={service.icon}
-                    onValueChange={(value) => updateService(index, 'icon', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {AVAILABLE_ICONS.map((icon) => (
-                        <SelectItem key={icon} value={icon}>
-                          {icon}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor={`service-details-${index}`}>Details</Label>
-                  <Textarea
-                    id={`service-details-${index}`}
-                    value={service.details}
-                    onChange={(e) => updateService(index, 'details', e.target.value)}
-                    placeholder="Description of the service..."
-                    rows={3}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {services.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <p>No services added yet.</p>
-              <p className="text-sm">Click "Add Service" to create your first service.</p>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* Service Details */}
+            <div className="lg:col-span-3">
+              {selectedService && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">Edit Service</CardTitle>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeService(selectedServiceIndex)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Basic Service Info */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Service Name</Label>
+                        <Input
+                          value={selectedService.name}
+                          onChange={(e) => updateService(selectedServiceIndex, 'name', e.target.value)}
+                          placeholder="Emergency Services"
+                        />
+                      </div>
+                      <div>
+                        <Label>Icon</Label>
+                        <Select
+                          value={selectedService.icon}
+                          onValueChange={(value) => updateService(selectedServiceIndex, 'icon', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {AVAILABLE_ICONS.map((icon) => (
+                              <SelectItem key={icon} value={icon}>
+                                {icon}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Brief Description</Label>
+                      <Textarea
+                        value={selectedService.details}
+                        onChange={(e) => updateService(selectedServiceIndex, 'details', e.target.value)}
+                        placeholder="Short description for the card..."
+                        rows={2}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Full Description</Label>
+                      <Textarea
+                        value={selectedService.fullDescription || ''}
+                        onChange={(e) => updateService(selectedServiceIndex, 'fullDescription', e.target.value)}
+                        placeholder="Detailed description for the modal..."
+                        rows={3}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Hours</Label>
+                      <Input
+                        value={selectedService.hours || ''}
+                        onChange={(e) => updateService(selectedServiceIndex, 'hours', e.target.value)}
+                        placeholder="Monday-Friday 9:00 AM - 5:00 PM"
+                      />
+                    </div>
+
+                    {/* Tabs for detailed sections */}
+                    <Tabs defaultValue="contacts" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="contacts">Contacts</TabsTrigger>
+                        <TabsTrigger value="emergency">Emergency Numbers</TabsTrigger>
+                        <TabsTrigger value="facilities">Facilities</TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="contacts" className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Contact Information</h4>
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => addContact(selectedServiceIndex)}
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add Contact
+                          </Button>
+                        </div>
+                        
+                        {selectedService.contacts?.map((contact, contactIndex) => (
+                          <Card key={contactIndex} className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h5 className="font-medium">Contact {contactIndex + 1}</h5>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeContact(selectedServiceIndex, contactIndex)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <Input
+                                placeholder="Contact Name"
+                                value={contact.name}
+                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'name', e.target.value)}
+                              />
+                              <Input
+                                placeholder="Type (e.g., Hospital, Clinic)"
+                                value={contact.type}
+                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'type', e.target.value)}
+                              />
+                              <Input
+                                placeholder="Phone"
+                                value={contact.phone || ''}
+                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'phone', e.target.value)}
+                              />
+                              <Input
+                                placeholder="WhatsApp"
+                                value={contact.whatsapp || ''}
+                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'whatsapp', e.target.value)}
+                              />
+                              <Input
+                                placeholder="Email"
+                                value={contact.email || ''}
+                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'email', e.target.value)}
+                              />
+                              <Input
+                                placeholder="Website"
+                                value={contact.website || ''}
+                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'website', e.target.value)}
+                              />
+                            </div>
+                            <Textarea
+                              placeholder="Description"
+                              value={contact.description || ''}
+                              onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'description', e.target.value)}
+                              rows={2}
+                              className="mt-3"
+                            />
+                          </Card>
+                        ))}
+                      </TabsContent>
+
+                      <TabsContent value="emergency" className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Emergency Numbers</h4>
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => addEmergencyNumber(selectedServiceIndex)}
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add Number
+                          </Button>
+                        </div>
+                        
+                        {selectedService.emergencyNumbers?.map((emergency, emergencyIndex) => (
+                          <Card key={emergencyIndex} className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h5 className="font-medium">Emergency {emergencyIndex + 1}</h5>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeEmergencyNumber(selectedServiceIndex, emergencyIndex)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <Input
+                                placeholder="Emergency Service Name"
+                                value={emergency.name}
+                                onChange={(e) => updateEmergencyNumber(selectedServiceIndex, emergencyIndex, 'name', e.target.value)}
+                              />
+                              <Input
+                                placeholder="Phone Number"
+                                value={emergency.number}
+                                onChange={(e) => updateEmergencyNumber(selectedServiceIndex, emergencyIndex, 'number', e.target.value)}
+                              />
+                            </div>
+                            <Textarea
+                              placeholder="Description"
+                              value={emergency.description || ''}
+                              onChange={(e) => updateEmergencyNumber(selectedServiceIndex, emergencyIndex, 'description', e.target.value)}
+                              rows={2}
+                              className="mt-3"
+                            />
+                          </Card>
+                        ))}
+                      </TabsContent>
+
+                      <TabsContent value="facilities" className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Facilities</h4>
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => addFacility(selectedServiceIndex)}
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add Facility
+                          </Button>
+                        </div>
+                        
+                        {selectedService.facilities?.map((facility, facilityIndex) => (
+                          <Card key={facilityIndex} className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h5 className="font-medium">Facility {facilityIndex + 1}</h5>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeFacility(selectedServiceIndex, facilityIndex)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div className="space-y-3">
+                              <Input
+                                placeholder="Facility Name"
+                                value={facility.name}
+                                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'name', e.target.value)}
+                              />
+                              <div className="grid grid-cols-2 gap-3">
+                                <Input
+                                  placeholder="Address"
+                                  value={facility.address || ''}
+                                  onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'address', e.target.value)}
+                                />
+                                <Input
+                                  placeholder="Phone"
+                                  value={facility.phone || ''}
+                                  onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'phone', e.target.value)}
+                                />
+                                <Input
+                                  placeholder="WhatsApp"
+                                  value={facility.whatsapp || ''}
+                                  onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'whatsapp', e.target.value)}
+                                />
+                                <Input
+                                  placeholder="Hours"
+                                  value={facility.hours || ''}
+                                  onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'hours', e.target.value)}
+                                />
+                              </div>
+                              <Textarea
+                                placeholder="Description"
+                                value={facility.description || ''}
+                                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'description', e.target.value)}
+                                rows={2}
+                              />
+                              <Textarea
+                                placeholder="Services offered (one per line)"
+                                value={facility.services?.join('\n') || ''}
+                                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'services', e.target.value.split('\n').filter(s => s.trim()))}
+                                rows={3}
+                              />
+                            </div>
+                          </Card>
+                        ))}
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
