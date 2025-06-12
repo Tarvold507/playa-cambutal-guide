@@ -23,6 +23,7 @@ export interface EditFormData {
   price_from?: number;
   commission_rate?: number;
   policies?: Record<string, any>;
+  closed_for_season?: boolean;
   // Blog specific fields
   slug?: string;
   content?: string;

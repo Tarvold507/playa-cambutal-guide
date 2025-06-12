@@ -73,6 +73,7 @@ export const useAdminLiveData = () => {
                 restaurant.gallery_images as string[] : [],
               menu_images: Array.isArray(restaurant.menu_images) ? 
                 restaurant.menu_images as string[] : [],
+              closed_for_season: restaurant.closed_for_season || false,
               profiles: profile
             };
           })

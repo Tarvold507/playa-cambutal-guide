@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -26,6 +27,7 @@ interface Restaurant {
   menuImages?: string[];
   latitude?: number;
   longitude?: number;
+  closedForSeason?: boolean;
 }
 
 const RestaurantDetail = () => {
@@ -117,7 +119,8 @@ const RestaurantDetail = () => {
             menuImages: Array.isArray(dbRestaurant.menu_images) ? 
               dbRestaurant.menu_images as string[] : [],
             latitude: (dbRestaurant as any).latitude ? Number((dbRestaurant as any).latitude) : undefined,
-            longitude: (dbRestaurant as any).longitude ? Number((dbRestaurant as any).longitude) : undefined
+            longitude: (dbRestaurant as any).longitude ? Number((dbRestaurant as any).longitude) : undefined,
+            closedForSeason: dbRestaurant.closed_for_season || false
           };
           
           console.log('Transformed restaurant hours:', transformedRestaurant.hours);
@@ -205,9 +208,11 @@ const RestaurantDetail = () => {
                 <div className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    restaurant.closedForSeason ? 'bg-red-500' : 
                     isOpen ? 'bg-green-500' : 'bg-red-500'
                   }`}>
-                    {isOpen ? 'Open Now' : 'Closed'}
+                    {restaurant.closedForSeason ? 'Closed for Season' : 
+                     isOpen ? 'Open Now' : 'Closed'}
                   </span>
                 </div>
                 {restaurant.address && (
@@ -226,12 +231,20 @@ const RestaurantDetail = () => {
       <div className="bg-gray-50 border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex gap-3">
-            <Button onClick={handleWhatsAppClick} className="bg-green-500 hover:bg-green-600">
+            <Button 
+              onClick={handleWhatsAppClick} 
+              className="bg-green-500 hover:bg-green-600"
+              disabled={restaurant.closedForSeason}
+            >
               <MessageCircle className="w-4 h-4 mr-2" />
               WhatsApp
             </Button>
             {restaurant.phone && (
-              <Button variant="outline" onClick={() => window.open(`tel:${restaurant.phone}`)}>
+              <Button 
+                variant="outline" 
+                onClick={() => window.open(`tel:${restaurant.phone}`)}
+                disabled={restaurant.closedForSeason}
+              >
                 <Phone className="w-4 h-4 mr-2" />
                 Call
               </Button>
@@ -267,13 +280,24 @@ const RestaurantDetail = () => {
                 {Object.keys(restaurant.hours).length > 0 && (
                   <>
                     <h3 className="text-xl font-semibold mb-4">Hours of Operation</h3>
-                    <div className="space-y-2">
-                      {formatHoursForDisplay(restaurant.hours).map(({ day, hours }) => (
-                        <div key={day} className="flex justify-between">
-                          <span className="font-medium">{day}</span>
-                          <span className="text-gray-600">{hours}</span>
+                    <div className="relative">
+                      <div className="space-y-2">
+                        {formatHoursForDisplay(restaurant.hours).map(({ day, hours }) => (
+                          <div key={day} className="flex justify-between">
+                            <span className="font-medium">{day}</span>
+                            <span className="text-gray-600">{hours}</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Closed for Season Stamp */}
+                      {restaurant.closedForSeason && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="bg-red-600/90 text-white px-4 py-2 font-bold text-lg transform rotate-12 shadow-lg border-2 border-red-700">
+                            CLOSED FOR SEASON
+                          </div>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </>
                 )}

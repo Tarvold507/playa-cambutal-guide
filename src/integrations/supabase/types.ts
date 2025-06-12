@@ -562,6 +562,7 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           category: string
+          closed_for_season: boolean
           created_at: string | null
           description: string | null
           email: string | null
@@ -585,6 +586,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           category: string
+          closed_for_season?: boolean
           created_at?: string | null
           description?: string | null
           email?: string | null
@@ -608,6 +610,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           category?: string
+          closed_for_season?: boolean
           created_at?: string | null
           description?: string | null
           email?: string | null
