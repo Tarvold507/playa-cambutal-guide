@@ -59,7 +59,7 @@ const ContactCard = ({ contact, isEmergency = false }: ContactCardProps) => {
                 onClick={() => handlePhoneCall(contact.phone!)}
               >
                 <Phone className="w-4 h-4 mr-1" />
-                {'number' in contact ? contact.number : 'Call'}
+                Call
               </Button>
             )}
             {('number' in contact && contact.number) && (
