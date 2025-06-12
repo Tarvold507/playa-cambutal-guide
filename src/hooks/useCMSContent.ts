@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { usePageContent, PageContent } from '@/hooks/usePageContent';
 
 export const useCMSContent = (pagePath: string, sectionName: string, fallbackContent?: any) => {
@@ -7,14 +7,15 @@ export const useCMSContent = (pagePath: string, sectionName: string, fallbackCon
   const [content, setContent] = useState(null);
   const [isReady, setIsReady] = useState(false);
 
+  // Only fetch once when pagePath changes
   useEffect(() => {
     fetchPageContent(pagePath);
-  }, [pagePath, fetchPageContent]);
+  }, [pagePath]); // Remove fetchPageContent from dependencies to prevent infinite loop
 
-  useEffect(() => {
+  // Use useMemo to compute content and isReady based on pageContent
+  const { computedContent, computedIsReady } = useMemo(() => {
     if (loading) {
-      setIsReady(false);
-      return;
+      return { computedContent: null, computedIsReady: false };
     }
 
     const cmsContent = pageContent.find(
@@ -23,14 +24,16 @@ export const useCMSContent = (pagePath: string, sectionName: string, fallbackCon
               item.is_visible
     );
 
-    if (cmsContent) {
-      setContent(cmsContent.content_data);
-    } else if (fallbackContent) {
-      setContent(fallbackContent);
-    }
+    const finalContent = cmsContent ? cmsContent.content_data : fallbackContent;
     
-    setIsReady(true);
+    return { computedContent: finalContent, computedIsReady: true };
   }, [pageContent, pagePath, sectionName, fallbackContent, loading]);
+
+  // Update state only when computed values change
+  useEffect(() => {
+    setContent(computedContent);
+    setIsReady(computedIsReady);
+  }, [computedContent, computedIsReady]);
 
   return { content, isReady, loading };
 };
@@ -42,7 +45,7 @@ export const usePageCMSContent = (pagePath: string) => {
 
   useEffect(() => {
     fetchPageContent(pagePath);
-  }, [pagePath, fetchPageContent]);
+  }, [pagePath]); // Remove fetchPageContent from dependencies
 
   useEffect(() => {
     const filtered = pageContent
