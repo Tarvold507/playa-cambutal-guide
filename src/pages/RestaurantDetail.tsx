@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -12,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { isRestaurantOpen, formatHoursForDisplay, getCurrentPanamaTime } from '../utils/timeUtils';
 import RestaurantMap from '../components/RestaurantMap';
+import { useRestaurantSEO } from '@/hooks/useDynamicSEO';
 
 interface Restaurant {
   name: string;
@@ -36,6 +36,10 @@ const RestaurantDetail = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  // Add SEO hook with restaurant data including slug
+  const restaurantWithSlug = restaurant ? { ...restaurant, slug: slug || '' } : null;
+  useRestaurantSEO(restaurantWithSlug);
 
   // Helper function to normalize hours keys from lowercase to capitalized
   const normalizeHoursKeys = (hours: Record<string, string>): Record<string, string> => {
