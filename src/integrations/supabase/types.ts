@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       adventure_business_listings: {
         Row: {
+          address: string | null
           approved: boolean | null
           approved_at: string | null
           approved_by: string | null
@@ -22,12 +23,14 @@ export type Database = {
           hours: string
           id: string
           image_url: string | null
-          location: string
+          location: string | null
           updated_at: string | null
           user_id: string
+          website: string | null
           whatsapp: string
         }
         Insert: {
+          address?: string | null
           approved?: boolean | null
           approved_at?: string | null
           approved_by?: string | null
@@ -39,12 +42,14 @@ export type Database = {
           hours: string
           id?: string
           image_url?: string | null
-          location: string
+          location?: string | null
           updated_at?: string | null
           user_id: string
+          website?: string | null
           whatsapp: string
         }
         Update: {
+          address?: string | null
           approved?: boolean | null
           approved_at?: string | null
           approved_by?: string | null
@@ -56,9 +61,10 @@ export type Database = {
           hours?: string
           id?: string
           image_url?: string | null
-          location?: string
+          location?: string | null
           updated_at?: string | null
           user_id?: string
+          website?: string | null
           whatsapp?: string
         }
         Relationships: []

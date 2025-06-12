@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -54,14 +53,22 @@ const Do = () => {
   }, []);
 
   // Convert adventure businesses to card format
-  const businessCards = businesses.map(business => ({
-    id: business.id,
-    title: business.business_name,
-    description: business.description,
-    imageSrc: business.image_url || 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-    link: `/do/${business.category}`,
-    category: business.business_type
-  }));
+  const businessCards = businesses.map(business => {
+    // Create slug from business name
+    const slug = business.business_name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '_');
+    
+    return {
+      id: business.id,
+      title: business.business_name,
+      description: business.description,
+      imageSrc: business.image_url || 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+      link: `/do/${slug}`,
+      category: business.business_type
+    };
+  });
 
   // Filter items based on selected category
   const filteredItems = selectedCategory === 'all' 
@@ -126,7 +133,11 @@ const Do = () => {
           ) : filteredItems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredItems.map(item => (
-                <div key={item.id} className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                <a 
+                  key={item.id} 
+                  href={item.link}
+                  className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                >
                   <div className="relative h-64 overflow-hidden">
                     <img 
                       src={item.imageSrc} 
@@ -145,7 +156,7 @@ const Do = () => {
                     </h3>
                     <p className="text-gray-600 line-clamp-3">{item.description}</p>
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           ) : (

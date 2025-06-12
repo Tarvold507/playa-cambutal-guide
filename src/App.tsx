@@ -1,74 +1,60 @@
+import React, { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { QueryClient } from 'react-query';
+import { Toaster } from 'react-hot-toast';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Events from './pages/Events';
+import Restaurants from './pages/Restaurants';
+import Hotels from './pages/Hotels';
+import Do from './pages/Do';
+import Blog from './pages/Blog';
+import Admin from './pages/Admin';
+import Profile from './pages/Profile';
+import { LazyLoading } from './components/LazyComponents';
 
-import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import Index from "./pages/Index";
-import Eat from "./pages/Eat";
-import Stay from "./pages/Stay";
-import Calendar from "./pages/Calendar";
-import Do from "./pages/Do";
-import Surf from "./pages/Surf";
-import Info from "./pages/Info";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
-import Profile from "./pages/Profile";
-import AdminDashboard from "./pages/AdminDashboard";
-import RestaurantDetail from "./pages/RestaurantDetail";
-import AddRestaurant from "./pages/AddRestaurant";
-import HotelDetail from "./pages/HotelDetail";
-import AddHotel from "./pages/AddHotel";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import AddBlog from "./pages/AddBlog";
+const LazyHome = lazy(() => import('./pages/Home'));
+const LazyAbout = lazy(() => import('./pages/About'));
+const LazyContact = lazy(() => import('./pages/Contact'));
+const LazyEvents = lazy(() => import('./pages/Events'));
+const LazyRestaurants = lazy(() => import('./pages/Restaurants'));
+const LazyHotels = lazy(() => import('./pages/Hotels'));
+const LazyDo = lazy(() => import('./pages/Do'));
+const LazyBlog = lazy(() => import('./pages/Blog'));
+const LazyAdmin = lazy(() => import('./pages/Admin'));
+const LazyProfile = lazy(() => import('./pages/Profile'));
+export const LazyAdventureBusinessDetail = lazy(() => import('./pages/AdventureBusinessDetail'));
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000,
-    },
-  },
-});
-
-const App: React.FC = () => {
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <AuthProvider>
-          <TooltipProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <LanguageProvider>
+          <QueryClient>
             <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/eat" element={<Eat />} />
-                <Route path="/eat/:slug" element={<RestaurantDetail />} />
-                <Route path="/add-restaurant" element={<AddRestaurant />} />
-                <Route path="/stay" element={<Stay />} />
-                <Route path="/stay/:slug" element={<HotelDetail />} />
-                <Route path="/add-hotel" element={<AddHotel />} />
-                <Route path="/calendar" element={<Calendar />} />
-                <Route path="/do" element={<Do />} />
-                <Route path="/do/surf" element={<Surf />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/add-blog" element={<AddBlog />} />
-                <Route path="/info" element={<Info />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </QueryClientProvider>
+            <Routes>
+              <Route path="/" element={<Suspense fallback={<LazyLoading />}><LazyHome /></Suspense>} />
+              <Route path="/about" element={<Suspense fallback={<LazyLoading />}><LazyAbout /></Suspense>} />
+              <Route path="/contact" element={<Suspense fallback={<LazyLoading />}><LazyContact /></Suspense>} />
+              <Route path="/events" element={<Suspense fallback={<LazyLoading />}><LazyEvents /></Suspense>} />
+              <Route path="/restaurants" element={<Suspense fallback={<LazyLoading />}><LazyRestaurants /></Suspense>} />
+              <Route path="/hotels" element={<Suspense fallback={<LazyLoading />}><LazyHotels /></Suspense>} />
+              <Route path="/do" element={<Suspense fallback={<LazyLoading />}><LazyDo /></Suspense>} />
+              <Route path="/blog" element={<Suspense fallback={<LazyLoading />}><LazyBlog /></Suspense>} />
+              <Route path="/admin" element={<Suspense fallback={<LazyLoading />}><LazyAdmin /></Suspense>} />
+              <Route path="/profile" element={<Suspense fallback={<LazyLoading />}><LazyProfile /></Suspense>} />
+              <Route path="/do/:businessSlug" element={<LazyAdventureBusinessDetail />} />
+            </Routes>
+          </QueryClient>
+        </LanguageProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
-};
+}
 
 export default App;

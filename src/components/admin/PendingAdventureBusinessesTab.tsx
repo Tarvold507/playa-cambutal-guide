@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -45,9 +44,15 @@ const PendingAdventureBusinessesTab = ({
               <div className="space-y-2 mb-4">
                 <p><strong>Category:</strong> {business.category}</p>
                 <p><strong>Business Type:</strong> {business.business_type}</p>
-                <p><strong>Location:</strong> {business.location}</p>
+                <p><strong>Address:</strong> {business.address || 'N/A'}</p>
+                <p><strong>Location Details:</strong> {business.location || 'N/A'}</p>
                 <p><strong>Hours:</strong> {business.hours || 'N/A'}</p>
                 <p><strong>WhatsApp:</strong> {business.whatsapp || 'N/A'}</p>
+                <p><strong>Website:</strong> {business.website ? (
+                  <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    {business.website}
+                  </a>
+                ) : 'N/A'}</p>
                 <p><strong>Description:</strong> {business.description}</p>
                 <p><strong>Created:</strong> {new Date(business.created_at).toLocaleDateString()}</p>
               </div>

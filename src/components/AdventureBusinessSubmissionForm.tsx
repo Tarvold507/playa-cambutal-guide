@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -44,7 +43,9 @@ const formSchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters'),
   hours: z.string().min(1, 'Hours of operation are required'),
   whatsapp: z.string().min(1, 'WhatsApp contact is required'),
-  location: z.string().min(1, 'Location is required'),
+  location: z.string().optional(),
+  address: z.string().min(1, 'Address is required'),
+  website: z.string().url('Please enter a valid website URL').optional().or(z.literal('')),
   image_url: z.string().optional(),
 });
 
@@ -74,6 +75,8 @@ const AdventureBusinessSubmissionForm = () => {
       hours: '',
       whatsapp: '',
       location: '',
+      address: '',
+      website: '',
       image_url: '',
     },
   });
@@ -131,7 +134,9 @@ const AdventureBusinessSubmissionForm = () => {
           description: values.description,
           hours: values.hours,
           whatsapp: values.whatsapp,
-          location: values.location,
+          location: values.location || null,
+          address: values.address,
+          website: values.website || null,
           image_url: imageUrl,
         });
 
@@ -315,6 +320,34 @@ const AdventureBusinessSubmissionForm = () => {
 
             <FormField
               control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Main Street, Cambutal Village" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location Details (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Near the beach, behind the market" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="hours"
               render={({ field }) => (
                 <FormItem>
@@ -343,12 +376,12 @@ const AdventureBusinessSubmissionForm = () => {
 
             <FormField
               control={form.control}
-              name="location"
+              name="website"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>Website (Optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Main Beach, Village Center" {...field} />
+                    <Input placeholder="e.g., https://yourwebsite.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,4 +1,3 @@
-
 export interface EditFormData {
   type?: 'event' | 'business' | 'restaurant' | 'hotel' | 'blog' | 'adventure';
   id?: string;
