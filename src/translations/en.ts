@@ -1,10 +1,10 @@
-
 export const enTranslations = {
   // Navigation
   'nav.eat': 'Eat',
   'nav.stay': 'Stay',
   'nav.events': 'Events',
   'nav.adventure': 'Adventure',
+  'nav.do': 'Do',
   'nav.blog': 'Blog',
   'nav.info': 'Info',
   'nav.profile': 'Profile',
@@ -167,6 +167,7 @@ export const enTranslations = {
   'newsletter.success': 'Thank you for subscribing! You\'ll receive updates soon.',
   
   // Events Calendar
+  'calendar': 'Calendar',
   'calendar.title': 'Upcoming Events',
   'calendar.noEvents': 'No upcoming events scheduled.',
   'calendar.todaysEvents': 'Today\'s Events',

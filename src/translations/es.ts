@@ -5,6 +5,7 @@ export const esTranslations = {
   'nav.stay': 'Alojarse',
   'nav.events': 'Eventos',
   'nav.adventure': 'Aventura',
+  'nav.do': 'Hacer',
   'nav.blog': 'Blog',
   'nav.info': 'Información',
   'nav.profile': 'Perfil',
@@ -167,6 +168,7 @@ export const esTranslations = {
   'newsletter.success': '¡Gracias por suscribirte! Recibirás actualizaciones pronto.',
   
   // Events Calendar
+  'calendar': 'Calendario',
   'calendar.title': 'Próximos Eventos',
   'calendar.noEvents': 'No hay eventos próximos programados.',
   'calendar.todaysEvents': 'Eventos de Hoy',
