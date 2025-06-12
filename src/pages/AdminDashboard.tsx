@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -102,11 +101,13 @@ const AdminDashboard = () => {
   // Enhanced save handler that ensures refresh
   const handleSaveEditWithRefresh = () => {
     console.log('💾 Saving edit with refresh...');
-    handleSaveEdit(() => {
-      console.log('🔄 Refreshing all data after save...');
+    handleSaveEdit();
+    // The handleSaveEdit already includes refresh logic, but we can add additional refresh here
+    setTimeout(() => {
+      console.log('🔄 Additional refresh after save...');
       refreshAllData();
       refreshBlogData();
-    });
+    }, 1000);
   };
 
   if (!user) return null;
