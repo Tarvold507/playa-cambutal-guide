@@ -40,6 +40,9 @@ interface ServiceDetail {
   contacts?: Contact[];
   emergencyNumbers?: EmergencyNumber[];
   facilities?: Facility[];
+  sales?: Contact[];
+  rentals?: Facility[];
+  repair?: Contact[];
   hours?: string;
 }
 
@@ -52,9 +55,27 @@ interface ServiceDetailModalProps {
 const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProps) => {
   if (!service) return null;
 
+  // Determine service type based on service name
+  const isVehicleService = service.name.toLowerCase().includes('car') || 
+                          service.name.toLowerCase().includes('vehicle') || 
+                          service.name.toLowerCase().includes('rental') ||
+                          service.name.toLowerCase().includes('transport');
+  
+  const isMaintenanceService = service.name.toLowerCase().includes('maintenance') ||
+                              service.name.toLowerCase().includes('repair') ||
+                              service.name.toLowerCase().includes('handyman');
+
+  // For vehicle services, use new fields or map from old ones
+  const salesData = service.sales || service.emergencyNumbers || [];
+  const rentalsData = service.rentals || service.facilities || [];
+  const repairData = service.repair || [];
+
   const hasEmergencyNumbers = service.emergencyNumbers && service.emergencyNumbers.length > 0;
   const hasFacilities = service.facilities && service.facilities.length > 0;
   const hasContacts = service.contacts && service.contacts.length > 0;
+  const hasSales = salesData.length > 0;
+  const hasRentals = rentalsData.length > 0;
+  const hasRepair = repairData.length > 0;
 
   const handlePhoneCall = (phone: string) => {
     window.open(`tel:${phone}`, '_self');
@@ -67,6 +88,130 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
   const handleWebsite = (website: string) => {
     window.open(website, '_blank');
   };
+
+  const renderContactCard = (contact: Contact | EmergencyNumber, index: number, isEmergency = false) => (
+    <Card key={index} className={isEmergency ? "bg-red-50 border-red-200" : ""}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className={`font-semibold ${isEmergency ? 'text-red-800' : ''}`}>{contact.name}</h4>
+            {'type' in contact && contact.type && (
+              <p className={`text-sm mt-1 ${isEmergency ? 'text-red-600' : 'text-gray-600'}`}>{contact.type}</p>
+            )}
+            {contact.description && (
+              <p className={`text-sm mt-1 ${isEmergency ? 'text-red-600' : 'text-gray-600'}`}>{contact.description}</p>
+            )}
+          </div>
+          <div className="flex gap-2">
+            {('phone' in contact && contact.phone) && (
+              <Button
+                size="sm"
+                className={isEmergency ? "bg-red-600 hover:bg-red-700" : ""}
+                variant={isEmergency ? "default" : "outline"}
+                onClick={() => handlePhoneCall(contact.phone!)}
+              >
+                <Phone className="w-4 h-4 mr-1" />
+                {'number' in contact ? contact.number : 'Call'}
+              </Button>
+            )}
+            {('number' in contact && contact.number) && (
+              <Button
+                size="sm"
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => handlePhoneCall(contact.number)}
+              >
+                <Phone className="w-4 h-4 mr-1" />
+                {contact.number}
+              </Button>
+            )}
+            {'whatsapp' in contact && contact.whatsapp && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-green-600"
+                onClick={() => handleWhatsApp(contact.whatsapp!)}
+              >
+                <MessageCircle className="w-4 h-4 mr-1" />
+                WhatsApp
+              </Button>
+            )}
+            {'website' in contact && contact.website && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleWebsite(contact.website!)}
+              >
+                <ExternalLink className="w-4 h-4 mr-1" />
+                Website
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderFacilityCard = (facility: Facility, index: number) => (
+    <Card key={index}>
+      <CardHeader>
+        <CardTitle className="text-lg">{facility.name}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {facility.description && (
+          <p className="text-gray-600">{facility.description}</p>
+        )}
+        
+        {facility.address && (
+          <div className="flex items-center gap-2 text-sm">
+            <MapPin className="w-4 h-4" />
+            <span>{facility.address}</span>
+          </div>
+        )}
+
+        {facility.hours && (
+          <div className="flex items-center gap-2 text-sm">
+            <Clock className="w-4 h-4" />
+            <span>{facility.hours}</span>
+          </div>
+        )}
+
+        {facility.services && facility.services.length > 0 && (
+          <div>
+            <h5 className="font-medium mb-2">Services:</h5>
+            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+              {facility.services.map((service, serviceIndex) => (
+                <li key={serviceIndex}>{service}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-2">
+          {facility.phone && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handlePhoneCall(facility.phone!)}
+            >
+              <Phone className="w-4 h-4 mr-1" />
+              Call
+            </Button>
+          )}
+          {facility.whatsapp && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-green-600"
+              onClick={() => handleWhatsApp(facility.whatsapp!)}
+            >
+              <MessageCircle className="w-4 h-4 mr-1" />
+              WhatsApp
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -93,167 +238,91 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
             </div>
           )}
 
-          <Tabs defaultValue="emergency" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              {hasEmergencyNumbers && <TabsTrigger value="emergency">Emergency Numbers</TabsTrigger>}
-              {hasFacilities && <TabsTrigger value="facilities">Facilities</TabsTrigger>}
-              {hasContacts && <TabsTrigger value="contacts">Contacts</TabsTrigger>}
-            </TabsList>
+          {/* Vehicle Services Tabs */}
+          {isVehicleService && (
+            <Tabs defaultValue="sales" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                {hasSales && <TabsTrigger value="sales">Sales</TabsTrigger>}
+                {hasRentals && <TabsTrigger value="rentals">Rentals</TabsTrigger>}
+                {hasRepair && <TabsTrigger value="repair">Repair</TabsTrigger>}
+              </TabsList>
 
-            {hasEmergencyNumbers && (
-              <TabsContent value="emergency" className="space-y-4">
-                <h3 className="text-lg font-semibold">Emergency Contact Numbers</h3>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {service.emergencyNumbers?.map((emergency, index) => (
-                    <Card key={index} className="bg-red-50 border-red-200">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-semibold text-red-800">{emergency.name}</h4>
-                            {emergency.description && (
-                              <p className="text-sm text-red-600 mt-1">{emergency.description}</p>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            className="bg-red-600 hover:bg-red-700"
-                            onClick={() => handlePhoneCall(emergency.number)}
-                          >
-                            <Phone className="w-4 h-4 mr-1" />
-                            {emergency.number}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-            )}
+              {hasSales && (
+                <TabsContent value="sales" className="space-y-4">
+                  <h3 className="text-lg font-semibold">Sales & Dealerships</h3>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {salesData.map((contact, index) => renderContactCard(contact, index))}
+                  </div>
+                </TabsContent>
+              )}
 
-            {hasFacilities && (
-              <TabsContent value="facilities" className="space-y-4">
-                <h3 className="text-lg font-semibold">Local Facilities</h3>
-                <div className="grid gap-4">
-                  {service.facilities?.map((facility, index) => (
-                    <Card key={index}>
-                      <CardHeader>
-                        <CardTitle className="text-lg">{facility.name}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        {facility.description && (
-                          <p className="text-gray-600">{facility.description}</p>
-                        )}
-                        
-                        {facility.address && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <MapPin className="w-4 h-4" />
-                            <span>{facility.address}</span>
-                          </div>
-                        )}
+              {hasRentals && (
+                <TabsContent value="rentals" className="space-y-4">
+                  <h3 className="text-lg font-semibold">Vehicle Rentals</h3>
+                  <div className="grid gap-4">
+                    {rentalsData.map((facility, index) => renderFacilityCard(facility, index))}
+                  </div>
+                </TabsContent>
+              )}
 
-                        {facility.hours && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4" />
-                            <span>{facility.hours}</span>
-                          </div>
-                        )}
+              {hasRepair && (
+                <TabsContent value="repair" className="space-y-4">
+                  <h3 className="text-lg font-semibold">Repair Services</h3>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {repairData.map((contact, index) => renderContactCard(contact, index))}
+                  </div>
+                </TabsContent>
+              )}
+            </Tabs>
+          )}
 
-                        {facility.services && facility.services.length > 0 && (
-                          <div>
-                            <h5 className="font-medium mb-2">Services:</h5>
-                            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                              {facility.services.map((service, serviceIndex) => (
-                                <li key={serviceIndex}>{service}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+          {/* Maintenance Services - Contacts Only */}
+          {isMaintenanceService && hasContacts && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Contact Information</h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                {service.contacts?.map((contact, index) => renderContactCard(contact, index))}
+              </div>
+            </div>
+          )}
 
-                        <div className="flex gap-2 pt-2">
-                          {facility.phone && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handlePhoneCall(facility.phone!)}
-                            >
-                              <Phone className="w-4 h-4 mr-1" />
-                              Call
-                            </Button>
-                          )}
-                          {facility.whatsapp && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-green-600"
-                              onClick={() => handleWhatsApp(facility.whatsapp!)}
-                            >
-                              <MessageCircle className="w-4 h-4 mr-1" />
-                              WhatsApp
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-            )}
+          {/* Default Services Tabs */}
+          {!isVehicleService && !isMaintenanceService && (
+            <Tabs defaultValue="emergency" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                {hasEmergencyNumbers && <TabsTrigger value="emergency">Emergency Numbers</TabsTrigger>}
+                {hasFacilities && <TabsTrigger value="facilities">Facilities</TabsTrigger>}
+                {hasContacts && <TabsTrigger value="contacts">Contacts</TabsTrigger>}
+              </TabsList>
 
-            {hasContacts && (
-              <TabsContent value="contacts" className="space-y-4">
-                <h3 className="text-lg font-semibold">Contact Information</h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {service.contacts?.map((contact, index) => (
-                    <Card key={index}>
-                      <CardContent className="p-4">
-                        <div className="space-y-2">
-                          <h4 className="font-semibold">{contact.name}</h4>
-                          <p className="text-sm text-gray-600">{contact.type}</p>
-                          {contact.description && (
-                            <p className="text-sm text-gray-600">{contact.description}</p>
-                          )}
-                          
-                          <div className="flex gap-2 pt-2">
-                            {contact.phone && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handlePhoneCall(contact.phone!)}
-                              >
-                                <Phone className="w-4 h-4 mr-1" />
-                                Call
-                              </Button>
-                            )}
-                            {contact.whatsapp && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-green-600"
-                                onClick={() => handleWhatsApp(contact.whatsapp!)}
-                              >
-                                <MessageCircle className="w-4 h-4 mr-1" />
-                                WhatsApp
-                              </Button>
-                            )}
-                            {contact.website && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleWebsite(contact.website!)}
-                              >
-                                <ExternalLink className="w-4 h-4 mr-1" />
-                                Website
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-            )}
-          </Tabs>
+              {hasEmergencyNumbers && (
+                <TabsContent value="emergency" className="space-y-4">
+                  <h3 className="text-lg font-semibold">Emergency Contact Numbers</h3>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {service.emergencyNumbers?.map((emergency, index) => renderContactCard(emergency, index, true))}
+                  </div>
+                </TabsContent>
+              )}
+
+              {hasFacilities && (
+                <TabsContent value="facilities" className="space-y-4">
+                  <h3 className="text-lg font-semibold">Local Facilities</h3>
+                  <div className="grid gap-4">
+                    {service.facilities?.map((facility, index) => renderFacilityCard(facility, index))}
+                  </div>
+                </TabsContent>
+              )}
+
+              {hasContacts && (
+                <TabsContent value="contacts" className="space-y-4">
+                  <h3 className="text-lg font-semibold">Contact Information</h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {service.contacts?.map((contact, index) => renderContactCard(contact, index))}
+                  </div>
+                </TabsContent>
+              )}
+            </Tabs>
+          )}
 
           <div className="flex justify-end pt-4 border-t">
             <Button onClick={onClose}>Close</Button>

@@ -43,6 +43,9 @@ interface Service {
   contacts?: Contact[];
   emergencyNumbers?: EmergencyNumber[];
   facilities?: Facility[];
+  sales?: Contact[];
+  rentals?: Facility[];
+  repair?: Contact[];
   hours?: string;
 }
 
@@ -74,6 +77,9 @@ const ServicesFields = ({ contentData, updateContentData }: ServicesFieldsProps)
       contacts: [],
       emergencyNumbers: [],
       facilities: [],
+      sales: [],
+      rentals: [],
+      repair: [],
       hours: ''
     };
     updateContentData('services', [...services, newService]);
@@ -94,31 +100,45 @@ const ServicesFields = ({ contentData, updateContentData }: ServicesFieldsProps)
     updateContentData('services', updatedServices);
   };
 
-  const addContact = (serviceIndex: number) => {
+  // Determine service type
+  const getServiceType = (serviceName: string) => {
+    const name = serviceName.toLowerCase();
+    if (name.includes('car') || name.includes('vehicle') || name.includes('rental') || name.includes('transport')) {
+      return 'vehicle';
+    }
+    if (name.includes('maintenance') || name.includes('repair') || name.includes('handyman')) {
+      return 'maintenance';
+    }
+    return 'default';
+  };
+
+  // Contact management functions
+  const addContact = (serviceIndex: number, fieldName: 'contacts' | 'sales' | 'repair') => {
     const service = services[serviceIndex];
     const newContact: Contact = {
       name: '',
       type: '',
       description: ''
     };
-    const updatedContacts = [...(service.contacts || []), newContact];
-    updateService(serviceIndex, 'contacts', updatedContacts);
+    const updatedContacts = [...(service[fieldName] || []), newContact];
+    updateService(serviceIndex, fieldName, updatedContacts);
   };
 
-  const removeContact = (serviceIndex: number, contactIndex: number) => {
+  const removeContact = (serviceIndex: number, contactIndex: number, fieldName: 'contacts' | 'sales' | 'repair') => {
     const service = services[serviceIndex];
-    const updatedContacts = (service.contacts || []).filter((_, i) => i !== contactIndex);
-    updateService(serviceIndex, 'contacts', updatedContacts);
+    const updatedContacts = (service[fieldName] || []).filter((_, i) => i !== contactIndex);
+    updateService(serviceIndex, fieldName, updatedContacts);
   };
 
-  const updateContact = (serviceIndex: number, contactIndex: number, field: keyof Contact, value: string) => {
+  const updateContact = (serviceIndex: number, contactIndex: number, field: keyof Contact, value: string, fieldName: 'contacts' | 'sales' | 'repair') => {
     const service = services[serviceIndex];
-    const updatedContacts = (service.contacts || []).map((contact, i) =>
+    const updatedContacts = (service[fieldName] || []).map((contact, i) =>
       i === contactIndex ? { ...contact, [field]: value } : contact
     );
-    updateService(serviceIndex, 'contacts', updatedContacts);
+    updateService(serviceIndex, fieldName, updatedContacts);
   };
 
+  // Emergency number management functions
   const addEmergencyNumber = (serviceIndex: number) => {
     const service = services[serviceIndex];
     const newEmergency: EmergencyNumber = {
@@ -144,32 +164,178 @@ const ServicesFields = ({ contentData, updateContentData }: ServicesFieldsProps)
     updateService(serviceIndex, 'emergencyNumbers', updatedNumbers);
   };
 
-  const addFacility = (serviceIndex: number) => {
+  // Facility management functions
+  const addFacility = (serviceIndex: number, fieldName: 'facilities' | 'rentals') => {
     const service = services[serviceIndex];
     const newFacility: Facility = {
       name: '',
       description: '',
       services: []
     };
-    const updatedFacilities = [...(service.facilities || []), newFacility];
-    updateService(serviceIndex, 'facilities', updatedFacilities);
+    const updatedFacilities = [...(service[fieldName] || []), newFacility];
+    updateService(serviceIndex, fieldName, updatedFacilities);
   };
 
-  const removeFacility = (serviceIndex: number, facilityIndex: number) => {
+  const removeFacility = (serviceIndex: number, facilityIndex: number, fieldName: 'facilities' | 'rentals') => {
     const service = services[serviceIndex];
-    const updatedFacilities = (service.facilities || []).filter((_, i) => i !== facilityIndex);
-    updateService(serviceIndex, 'facilities', updatedFacilities);
+    const updatedFacilities = (service[fieldName] || []).filter((_, i) => i !== facilityIndex);
+    updateService(serviceIndex, fieldName, updatedFacilities);
   };
 
-  const updateFacility = (serviceIndex: number, facilityIndex: number, field: keyof Facility, value: any) => {
+  const updateFacility = (serviceIndex: number, facilityIndex: number, field: keyof Facility, value: any, fieldName: 'facilities' | 'rentals') => {
     const service = services[serviceIndex];
-    const updatedFacilities = (service.facilities || []).map((facility, i) =>
+    const updatedFacilities = (service[fieldName] || []).map((facility, i) =>
       i === facilityIndex ? { ...facility, [field]: value } : facility
     );
-    updateService(serviceIndex, 'facilities', updatedFacilities);
+    updateService(serviceIndex, fieldName, updatedFacilities);
   };
 
   const selectedService = services[selectedServiceIndex];
+  const serviceType = selectedService ? getServiceType(selectedService.name) : 'default';
+
+  const renderContactSection = (fieldName: 'contacts' | 'sales' | 'repair', title: string) => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h4 className="font-medium">{title}</h4>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => addContact(selectedServiceIndex, fieldName)}
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Add Contact
+        </Button>
+      </div>
+      
+      {selectedService[fieldName]?.map((contact, contactIndex) => (
+        <Card key={contactIndex} className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h5 className="font-medium">Contact {contactIndex + 1}</h5>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => removeContact(selectedServiceIndex, contactIndex, fieldName)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              placeholder="Contact Name"
+              value={contact.name}
+              onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'name', e.target.value, fieldName)}
+            />
+            <Input
+              placeholder="Type (e.g., Dealership, Mechanic)"
+              value={contact.type}
+              onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'type', e.target.value, fieldName)}
+            />
+            <Input
+              placeholder="Phone"
+              value={contact.phone || ''}
+              onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'phone', e.target.value, fieldName)}
+            />
+            <Input
+              placeholder="WhatsApp"
+              value={contact.whatsapp || ''}
+              onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'whatsapp', e.target.value, fieldName)}
+            />
+            <Input
+              placeholder="Email"
+              value={contact.email || ''}
+              onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'email', e.target.value, fieldName)}
+            />
+            <Input
+              placeholder="Website"
+              value={contact.website || ''}
+              onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'website', e.target.value, fieldName)}
+            />
+          </div>
+          <Textarea
+            placeholder="Description"
+            value={contact.description || ''}
+            onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'description', e.target.value, fieldName)}
+            rows={2}
+            className="mt-3"
+          />
+        </Card>
+      ))}
+    </div>
+  );
+
+  const renderFacilitySection = (fieldName: 'facilities' | 'rentals', title: string) => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h4 className="font-medium">{title}</h4>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => addFacility(selectedServiceIndex, fieldName)}
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Add Facility
+        </Button>
+      </div>
+      
+      {selectedService[fieldName]?.map((facility, facilityIndex) => (
+        <Card key={facilityIndex} className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h5 className="font-medium">Facility {facilityIndex + 1}</h5>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => removeFacility(selectedServiceIndex, facilityIndex, fieldName)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="space-y-3">
+            <Input
+              placeholder="Facility Name"
+              value={facility.name}
+              onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'name', e.target.value, fieldName)}
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                placeholder="Address"
+                value={facility.address || ''}
+                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'address', e.target.value, fieldName)}
+              />
+              <Input
+                placeholder="Phone"
+                value={facility.phone || ''}
+                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'phone', e.target.value, fieldName)}
+              />
+              <Input
+                placeholder="WhatsApp"
+                value={facility.whatsapp || ''}
+                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'whatsapp', e.target.value, fieldName)}
+              />
+              <Input
+                placeholder="Hours"
+                value={facility.hours || ''}
+                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'hours', e.target.value, fieldName)}
+              />
+            </div>
+            <Textarea
+              placeholder="Description"
+              value={facility.description || ''}
+              onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'description', e.target.value, fieldName)}
+              rows={2}
+            />
+            <Textarea
+              placeholder="Services offered (one per line)"
+              value={facility.services?.join('\n') || ''}
+              onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'services', e.target.value.split('\n').filter(s => s.trim()), fieldName)}
+              rows={3}
+            />
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -294,203 +460,101 @@ const ServicesFields = ({ contentData, updateContentData }: ServicesFieldsProps)
                       />
                     </div>
 
-                    {/* Tabs for detailed sections */}
-                    <Tabs defaultValue="contacts" className="w-full">
-                      <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="contacts">Contacts</TabsTrigger>
-                        <TabsTrigger value="emergency">Emergency Numbers</TabsTrigger>
-                        <TabsTrigger value="facilities">Facilities</TabsTrigger>
-                      </TabsList>
+                    {/* Dynamic Tabs based on service type */}
+                    {serviceType === 'vehicle' && (
+                      <Tabs defaultValue="sales" className="w-full">
+                        <TabsList className="grid w-full grid-cols-3">
+                          <TabsTrigger value="sales">Sales</TabsTrigger>
+                          <TabsTrigger value="rentals">Rentals</TabsTrigger>
+                          <TabsTrigger value="repair">Repair</TabsTrigger>
+                        </TabsList>
 
-                      <TabsContent value="contacts" className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium">Contact Information</h4>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => addContact(selectedServiceIndex)}
-                          >
-                            <Plus className="w-4 h-4 mr-1" />
-                            Add Contact
-                          </Button>
-                        </div>
-                        
-                        {selectedService.contacts?.map((contact, contactIndex) => (
-                          <Card key={contactIndex} className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <h5 className="font-medium">Contact {contactIndex + 1}</h5>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => removeContact(selectedServiceIndex, contactIndex)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                              <Input
-                                placeholder="Contact Name"
-                                value={contact.name}
-                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'name', e.target.value)}
-                              />
-                              <Input
-                                placeholder="Type (e.g., Hospital, Clinic)"
-                                value={contact.type}
-                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'type', e.target.value)}
-                              />
-                              <Input
-                                placeholder="Phone"
-                                value={contact.phone || ''}
-                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'phone', e.target.value)}
-                              />
-                              <Input
-                                placeholder="WhatsApp"
-                                value={contact.whatsapp || ''}
-                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'whatsapp', e.target.value)}
-                              />
-                              <Input
-                                placeholder="Email"
-                                value={contact.email || ''}
-                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'email', e.target.value)}
-                              />
-                              <Input
-                                placeholder="Website"
-                                value={contact.website || ''}
-                                onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'website', e.target.value)}
-                              />
-                            </div>
-                            <Textarea
-                              placeholder="Description"
-                              value={contact.description || ''}
-                              onChange={(e) => updateContact(selectedServiceIndex, contactIndex, 'description', e.target.value)}
-                              rows={2}
-                              className="mt-3"
-                            />
-                          </Card>
-                        ))}
-                      </TabsContent>
+                        <TabsContent value="sales" className="space-y-4">
+                          {renderContactSection('sales', 'Sales & Dealerships')}
+                        </TabsContent>
 
-                      <TabsContent value="emergency" className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium">Emergency Numbers</h4>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => addEmergencyNumber(selectedServiceIndex)}
-                          >
-                            <Plus className="w-4 h-4 mr-1" />
-                            Add Number
-                          </Button>
-                        </div>
-                        
-                        {selectedService.emergencyNumbers?.map((emergency, emergencyIndex) => (
-                          <Card key={emergencyIndex} className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <h5 className="font-medium">Emergency {emergencyIndex + 1}</h5>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => removeEmergencyNumber(selectedServiceIndex, emergencyIndex)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                              <Input
-                                placeholder="Emergency Service Name"
-                                value={emergency.name}
-                                onChange={(e) => updateEmergencyNumber(selectedServiceIndex, emergencyIndex, 'name', e.target.value)}
-                              />
-                              <Input
-                                placeholder="Phone Number"
-                                value={emergency.number}
-                                onChange={(e) => updateEmergencyNumber(selectedServiceIndex, emergencyIndex, 'number', e.target.value)}
-                              />
-                            </div>
-                            <Textarea
-                              placeholder="Description"
-                              value={emergency.description || ''}
-                              onChange={(e) => updateEmergencyNumber(selectedServiceIndex, emergencyIndex, 'description', e.target.value)}
-                              rows={2}
-                              className="mt-3"
-                            />
-                          </Card>
-                        ))}
-                      </TabsContent>
+                        <TabsContent value="rentals" className="space-y-4">
+                          {renderFacilitySection('rentals', 'Rental Companies')}
+                        </TabsContent>
 
-                      <TabsContent value="facilities" className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium">Facilities</h4>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => addFacility(selectedServiceIndex)}
-                          >
-                            <Plus className="w-4 h-4 mr-1" />
-                            Add Facility
-                          </Button>
-                        </div>
-                        
-                        {selectedService.facilities?.map((facility, facilityIndex) => (
-                          <Card key={facilityIndex} className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <h5 className="font-medium">Facility {facilityIndex + 1}</h5>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => removeFacility(selectedServiceIndex, facilityIndex)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <div className="space-y-3">
-                              <Input
-                                placeholder="Facility Name"
-                                value={facility.name}
-                                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'name', e.target.value)}
-                              />
+                        <TabsContent value="repair" className="space-y-4">
+                          {renderContactSection('repair', 'Repair Services')}
+                        </TabsContent>
+                      </Tabs>
+                    )}
+
+                    {serviceType === 'maintenance' && (
+                      <div className="space-y-4">
+                        {renderContactSection('contacts', 'Contact Information')}
+                      </div>
+                    )}
+
+                    {serviceType === 'default' && (
+                      <Tabs defaultValue="contacts" className="w-full">
+                        <TabsList className="grid w-full grid-cols-3">
+                          <TabsTrigger value="contacts">Contacts</TabsTrigger>
+                          <TabsTrigger value="emergency">Emergency Numbers</TabsTrigger>
+                          <TabsTrigger value="facilities">Facilities</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="contacts" className="space-y-4">
+                          {renderContactSection('contacts', 'Contact Information')}
+                        </TabsContent>
+
+                        <TabsContent value="emergency" className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">Emergency Numbers</h4>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => addEmergencyNumber(selectedServiceIndex)}
+                            >
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Number
+                            </Button>
+                          </div>
+                          
+                          {selectedService.emergencyNumbers?.map((emergency, emergencyIndex) => (
+                            <Card key={emergencyIndex} className="p-4">
+                              <div className="flex items-center justify-between mb-3">
+                                <h5 className="font-medium">Emergency {emergencyIndex + 1}</h5>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => removeEmergencyNumber(selectedServiceIndex, emergencyIndex)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
                               <div className="grid grid-cols-2 gap-3">
                                 <Input
-                                  placeholder="Address"
-                                  value={facility.address || ''}
-                                  onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'address', e.target.value)}
+                                  placeholder="Emergency Service Name"
+                                  value={emergency.name}
+                                  onChange={(e) => updateEmergencyNumber(selectedServiceIndex, emergencyIndex, 'name', e.target.value)}
                                 />
                                 <Input
-                                  placeholder="Phone"
-                                  value={facility.phone || ''}
-                                  onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'phone', e.target.value)}
-                                />
-                                <Input
-                                  placeholder="WhatsApp"
-                                  value={facility.whatsapp || ''}
-                                  onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'whatsapp', e.target.value)}
-                                />
-                                <Input
-                                  placeholder="Hours"
-                                  value={facility.hours || ''}
-                                  onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'hours', e.target.value)}
+                                  placeholder="Phone Number"
+                                  value={emergency.number}
+                                  onChange={(e) => updateEmergencyNumber(selectedServiceIndex, emergencyIndex, 'number', e.target.value)}
                                 />
                               </div>
                               <Textarea
                                 placeholder="Description"
-                                value={facility.description || ''}
-                                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'description', e.target.value)}
+                                value={emergency.description || ''}
+                                onChange={(e) => updateEmergencyNumber(selectedServiceIndex, emergencyIndex, 'description', e.target.value)}
                                 rows={2}
+                                className="mt-3"
                               />
-                              <Textarea
-                                placeholder="Services offered (one per line)"
-                                value={facility.services?.join('\n') || ''}
-                                onChange={(e) => updateFacility(selectedServiceIndex, facilityIndex, 'services', e.target.value.split('\n').filter(s => s.trim()))}
-                                rows={3}
-                              />
-                            </div>
-                          </Card>
-                        ))}
-                      </TabsContent>
-                    </Tabs>
+                            </Card>
+                          ))}
+                        </TabsContent>
+
+                        <TabsContent value="facilities" className="space-y-4">
+                          {renderFacilitySection('facilities', 'Facilities')}
+                        </TabsContent>
+                      </Tabs>
+                    )}
                   </CardContent>
                 </Card>
               )}
