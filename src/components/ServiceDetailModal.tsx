@@ -89,7 +89,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
     window.open(website, '_blank');
   };
 
-  const renderContactCard = (contact: Contact | EmergencyNumber, index: number, isEmergency = false) => (
+  const renderContactCard = (contact: Contact | EmergencyNumber, index: number, isEmergency = false): React.ReactNode => (
     <Card key={index} className={isEmergency ? "bg-red-50 border-red-200" : ""}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
@@ -151,7 +151,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }: ServiceDetailModalProp
     </Card>
   );
 
-  const renderFacilityCard = (facility: Facility, index: number) => (
+  const renderFacilityCard = (facility: Facility, index: number): React.ReactNode => (
     <Card key={index}>
       <CardHeader>
         <CardTitle className="text-lg">{facility.name}</CardTitle>
