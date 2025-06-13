@@ -51,6 +51,32 @@ export const useUserEvents = () => {
     }
   };
 
+  const updateEvent = async (eventId: string, updates: Partial<UserEvent>) => {
+    try {
+      const { error } = await supabase
+        .from('events')
+        .update(updates)
+        .eq('id', eventId)
+        .eq('user_id', user?.id); // Extra safety check
+
+      if (error) throw error;
+
+      toast({
+        title: "Event updated",
+        description: "Your event has been updated successfully.",
+      });
+
+      fetchUserEvents();
+    } catch (error) {
+      console.error('Error updating event:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update event",
+        variant: "destructive",
+      });
+    }
+  };
+
   const deleteEvent = async (eventId: string) => {
     try {
       const { error } = await supabase
@@ -85,6 +111,7 @@ export const useUserEvents = () => {
     userEvents,
     loading,
     fetchUserEvents,
+    updateEvent,
     deleteEvent,
   };
 };
