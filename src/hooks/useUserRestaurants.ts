@@ -47,6 +47,32 @@ export const useUserRestaurants = () => {
     }
   };
 
+  const updateRestaurant = async (restaurantId: string, updates: Partial<RestaurantListing>) => {
+    try {
+      const { error } = await supabase
+        .from('restaurant_listings')
+        .update(updates)
+        .eq('id', restaurantId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Restaurant updated",
+        description: "Your restaurant has been updated successfully.",
+      });
+
+      fetchUserRestaurants();
+    } catch (error) {
+      console.error('Error updating restaurant:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update restaurant",
+        variant: "destructive",
+      });
+    }
+  };
+
   const deleteRestaurant = async (restaurantId: string) => {
     try {
       const { error } = await supabase
@@ -81,6 +107,7 @@ export const useUserRestaurants = () => {
     userRestaurants,
     loading,
     fetchUserRestaurants,
+    updateRestaurant,
     deleteRestaurant,
   };
 };

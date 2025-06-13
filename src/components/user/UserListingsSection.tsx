@@ -1,19 +1,58 @@
 
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import UserListingCard from './UserListingCard';
+import UserRestaurantEditForm from './UserRestaurantEditForm';
+import UserBusinessEditForm from './UserBusinessEditForm';
+import UserHotelEditForm from './UserHotelEditForm';
 import { useUserEvents } from '@/hooks/useUserEvents';
 import { useUserRestaurants } from '@/hooks/useUserRestaurants';
 import { useUserBusinesses } from '@/hooks/useUserBusinesses';
 import { useUserHotels } from '@/hooks/useUserHotels';
+import type { RestaurantListing } from '@/hooks/useRestaurantListings';
+import type { BusinessListing } from '@/hooks/useBusinessListings';
+import type { UserHotel } from '@/hooks/useUserHotels';
 
 const UserListingsSection = () => {
   const { userEvents, loading: eventsLoading, deleteEvent } = useUserEvents();
-  const { userRestaurants, loading: restaurantsLoading, deleteRestaurant } = useUserRestaurants();
-  const { userBusinesses, loading: businessesLoading, deleteBusiness } = useUserBusinesses();
-  const { userHotels, loading: hotelsLoading, deleteHotel } = useUserHotels();
+  const { userRestaurants, loading: restaurantsLoading, updateRestaurant, deleteRestaurant } = useUserRestaurants();
+  const { userBusinesses, loading: businessesLoading, updateBusiness, deleteBusiness } = useUserBusinesses();
+  const { userHotels, loading: hotelsLoading, updateHotel, deleteHotel } = useUserHotels();
+
+  const [editingRestaurant, setEditingRestaurant] = useState<RestaurantListing | null>(null);
+  const [editingBusiness, setEditingBusiness] = useState<BusinessListing | null>(null);
+  const [editingHotel, setEditingHotel] = useState<UserHotel | null>(null);
+
+  const handleEditRestaurant = (restaurant: RestaurantListing) => {
+    setEditingRestaurant(restaurant);
+  };
+
+  const handleEditBusiness = (business: BusinessListing) => {
+    setEditingBusiness(business);
+  };
+
+  const handleEditHotel = (hotel: UserHotel) => {
+    setEditingHotel(hotel);
+  };
+
+  const handleSaveRestaurant = (restaurantId: string, updates: Partial<RestaurantListing>) => {
+    updateRestaurant(restaurantId, updates);
+    setEditingRestaurant(null);
+  };
+
+  const handleSaveBusiness = (businessId: string, updates: Partial<BusinessListing>) => {
+    updateBusiness(businessId, updates);
+    setEditingBusiness(null);
+  };
+
+  const handleSaveHotel = (hotelId: string, updates: Partial<UserHotel>) => {
+    updateHotel(hotelId, updates);
+    setEditingHotel(null);
+  };
 
   const EmptyState = ({ type, addLink }: { type: string; addLink: string }) => (
     <div className="text-center py-12">
@@ -99,6 +138,7 @@ const UserListingsSection = () => {
                   description={restaurant.description || undefined}
                   status={restaurant.approved ? 'approved' : 'pending'}
                   type="restaurant"
+                  onEdit={() => handleEditRestaurant(restaurant)}
                   onDelete={() => deleteRestaurant(restaurant.id)}
                   image={restaurant.image_url || undefined}
                   address={restaurant.address}
@@ -123,6 +163,7 @@ const UserListingsSection = () => {
                   description={business.description || undefined}
                   status={business.approved ? 'approved' : 'pending'}
                   type="business"
+                  onEdit={() => handleEditBusiness(business)}
                   onDelete={() => deleteBusiness(business.id)}
                   image={business.image_url || undefined}
                   address={business.address}
@@ -147,6 +188,7 @@ const UserListingsSection = () => {
                   description={hotel.description || undefined}
                   status={hotel.approved ? 'approved' : 'pending'}
                   type="hotel"
+                  onEdit={() => handleEditHotel(hotel)}
                   onDelete={() => deleteHotel(hotel.id)}
                   image={hotel.image_url || undefined}
                   address={hotel.address}
@@ -157,6 +199,54 @@ const UserListingsSection = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Edit Restaurant Dialog */}
+      <Dialog open={!!editingRestaurant} onOpenChange={() => setEditingRestaurant(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Restaurant</DialogTitle>
+          </DialogHeader>
+          {editingRestaurant && (
+            <UserRestaurantEditForm
+              restaurant={editingRestaurant}
+              onSave={handleSaveRestaurant}
+              onCancel={() => setEditingRestaurant(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Business Dialog */}
+      <Dialog open={!!editingBusiness} onOpenChange={() => setEditingBusiness(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Business</DialogTitle>
+          </DialogHeader>
+          {editingBusiness && (
+            <UserBusinessEditForm
+              business={editingBusiness}
+              onSave={handleSaveBusiness}
+              onCancel={() => setEditingBusiness(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Hotel Dialog */}
+      <Dialog open={!!editingHotel} onOpenChange={() => setEditingHotel(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Hotel</DialogTitle>
+          </DialogHeader>
+          {editingHotel && (
+            <UserHotelEditForm
+              hotel={editingHotel}
+              onSave={handleSaveHotel}
+              onCancel={() => setEditingHotel(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

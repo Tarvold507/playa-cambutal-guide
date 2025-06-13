@@ -36,6 +36,32 @@ export const useUserBusinesses = () => {
     }
   };
 
+  const updateBusiness = async (businessId: string, updates: Partial<BusinessListing>) => {
+    try {
+      const { error } = await supabase
+        .from('business_listings')
+        .update(updates)
+        .eq('id', businessId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Business updated",
+        description: "Your business has been updated successfully.",
+      });
+
+      fetchUserBusinesses();
+    } catch (error) {
+      console.error('Error updating business:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update business",
+        variant: "destructive",
+      });
+    }
+  };
+
   const deleteBusiness = async (businessId: string) => {
     try {
       const { error } = await supabase
@@ -70,6 +96,7 @@ export const useUserBusinesses = () => {
     userBusinesses,
     loading,
     fetchUserBusinesses,
+    updateBusiness,
     deleteBusiness,
   };
 };

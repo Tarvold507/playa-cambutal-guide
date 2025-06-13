@@ -72,6 +72,32 @@ export const useUserHotels = () => {
     }
   };
 
+  const updateHotel = async (hotelId: string, updates: Partial<UserHotel>) => {
+    try {
+      const { error } = await supabase
+        .from('hotel_listings')
+        .update(updates)
+        .eq('id', hotelId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Hotel updated",
+        description: "Your hotel has been updated successfully.",
+      });
+
+      fetchUserHotels();
+    } catch (error) {
+      console.error('Error updating hotel:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update hotel",
+        variant: "destructive",
+      });
+    }
+  };
+
   const deleteHotel = async (hotelId: string) => {
     try {
       const { error } = await supabase
@@ -106,6 +132,7 @@ export const useUserHotels = () => {
     userHotels,
     loading,
     fetchUserHotels,
+    updateHotel,
     deleteHotel,
   };
 };
