@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import UserProfileSection from '../components/user/UserProfileSection';
 import UserListingsSection from '../components/user/UserListingsSection';
-import UserEventsSection from '../components/user/UserEventsSection';
+import EventRemindersSection from '../components/user/EventRemindersSection';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -35,7 +35,7 @@ const Profile = () => {
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="listings">My Listings</TabsTrigger>
-              <TabsTrigger value="events">My Events</TabsTrigger>
+              <TabsTrigger value="reminders">Event Reminders</TabsTrigger>
             </TabsList>
             
             <TabsContent value="profile" className="mt-6">
@@ -46,8 +46,8 @@ const Profile = () => {
               <UserListingsSection />
             </TabsContent>
             
-            <TabsContent value="events" className="mt-6">
-              <UserEventsSection />
+            <TabsContent value="reminders" className="mt-6">
+              <EventRemindersSection />
             </TabsContent>
           </Tabs>
         </div>

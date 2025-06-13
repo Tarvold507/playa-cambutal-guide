@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -6,9 +5,11 @@ import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import UserListingCard from './UserListingCard';
+import UserEventCard from './UserEventCard';
 import UserRestaurantEditForm from './UserRestaurantEditForm';
 import UserBusinessEditForm from './UserBusinessEditForm';
 import UserHotelEditForm from './UserHotelEditForm';
+import UserEventEditForm from './UserEventEditForm';
 import { useUserEvents } from '@/hooks/useUserEvents';
 import { useUserRestaurants } from '@/hooks/useUserRestaurants';
 import { useUserBusinesses } from '@/hooks/useUserBusinesses';
@@ -16,16 +17,22 @@ import { useUserHotels } from '@/hooks/useUserHotels';
 import type { RestaurantListing } from '@/hooks/useRestaurantListings';
 import type { BusinessListing } from '@/hooks/useBusinessListings';
 import type { UserHotel } from '@/hooks/useUserHotels';
+import type { UserEvent } from '@/hooks/useUserEvents';
 
 const UserListingsSection = () => {
-  const { userEvents, loading: eventsLoading, deleteEvent } = useUserEvents();
+  const { userEvents, loading: eventsLoading, updateEvent, deleteEvent } = useUserEvents();
   const { userRestaurants, loading: restaurantsLoading, updateRestaurant, deleteRestaurant } = useUserRestaurants();
   const { userBusinesses, loading: businessesLoading, updateBusiness, deleteBusiness } = useUserBusinesses();
   const { userHotels, loading: hotelsLoading, updateHotel, deleteHotel } = useUserHotels();
 
+  const [editingEvent, setEditingEvent] = useState<UserEvent | null>(null);
   const [editingRestaurant, setEditingRestaurant] = useState<RestaurantListing | null>(null);
   const [editingBusiness, setEditingBusiness] = useState<BusinessListing | null>(null);
   const [editingHotel, setEditingHotel] = useState<UserHotel | null>(null);
+
+  const handleEditEvent = (event: UserEvent) => {
+    setEditingEvent(event);
+  };
 
   const handleEditRestaurant = (restaurant: RestaurantListing) => {
     setEditingRestaurant(restaurant);
@@ -37,6 +44,11 @@ const UserListingsSection = () => {
 
   const handleEditHotel = (hotel: UserHotel) => {
     setEditingHotel(hotel);
+  };
+
+  const handleSaveEvent = (eventId: string, updates: Partial<UserEvent>) => {
+    updateEvent(eventId, updates);
+    setEditingEvent(null);
   };
 
   const handleSaveRestaurant = (restaurantId: string, updates: Partial<RestaurantListing>) => {
@@ -83,6 +95,12 @@ const UserListingsSection = () => {
               Restaurant
             </Button>
           </Link>
+          <Link to="/adventure">
+            <Button variant="outline" size="sm">
+              <Plus className="w-4 h-4 mr-1" />
+              Business
+            </Button>
+          </Link>
           <Link to="/add-hotel">
             <Button variant="outline" size="sm">
               <Plus className="w-4 h-4 mr-1" />
@@ -108,16 +126,11 @@ const UserListingsSection = () => {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {userEvents.map((event) => (
-                <UserListingCard
+                <UserEventCard
                   key={event.id}
-                  title={event.title}
-                  description={event.description}
-                  status={event.approved ? 'approved' : 'pending'}
-                  type="event"
+                  event={event}
+                  onEdit={handleEditEvent}
                   onDelete={() => deleteEvent(event.id)}
-                  image={event.image_url || undefined}
-                  location={event.location}
-                  createdAt={event.created_at}
                 />
               ))}
             </div>
@@ -199,6 +212,22 @@ const UserListingsSection = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Edit Event Dialog */}
+      <Dialog open={!!editingEvent} onOpenChange={() => setEditingEvent(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Event</DialogTitle>
+          </DialogHeader>
+          {editingEvent && (
+            <UserEventEditForm
+              event={editingEvent}
+              onSave={handleSaveEvent}
+              onCancel={() => setEditingEvent(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Restaurant Dialog */}
       <Dialog open={!!editingRestaurant} onOpenChange={() => setEditingRestaurant(null)}>
