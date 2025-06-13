@@ -29,9 +29,15 @@ export const useUserEventReminders = () => {
   const [eventReminders, setEventReminders] = useState<EventReminder[]>([]);
 
   const fetchEventReminders = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('useUserEventReminders - No user, clearing reminders');
+      setEventReminders([]);
+      return;
+    }
     
+    console.log('useUserEventReminders - Fetching reminders for user:', user.id);
     setLoading(true);
+    
     try {
       const { data, error } = await supabase
         .from('user_event_reminders')
@@ -52,41 +58,61 @@ export const useUserEventReminders = () => {
             image_url
           )
         `)
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('useUserEventReminders - Error fetching reminders:', error);
+        throw error;
+      }
+
+      console.log('useUserEventReminders - Fetched reminders:', data?.length || 0);
       setEventReminders(data || []);
-    } catch (error) {
-      console.error('Error fetching event reminders:', error);
+    } catch (error: any) {
+      console.error('useUserEventReminders - Exception fetching reminders:', error);
       toast({
         title: "Error",
         description: "Failed to fetch your event reminders",
         variant: "destructive",
       });
+      setEventReminders([]);
     } finally {
       setLoading(false);
     }
   };
 
   const removeReminder = async (reminderId: string) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to remove reminders",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('useUserEventReminders - Removing reminder:', reminderId);
+    
     try {
       const { error } = await supabase
         .from('user_event_reminders')
         .delete()
-        .eq('id', reminderId)
-        .eq('user_id', user?.id);
+        .eq('id', reminderId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('useUserEventReminders - Error removing reminder:', error);
+        throw error;
+      }
 
+      console.log('useUserEventReminders - Reminder removed successfully');
       toast({
         title: "Reminder removed",
         description: "Event reminder has been removed successfully.",
       });
 
-      fetchEventReminders();
-    } catch (error) {
-      console.error('Error removing reminder:', error);
+      // Refresh the list
+      await fetchEventReminders();
+    } catch (error: any) {
+      console.error('useUserEventReminders - Exception removing reminder:', error);
       toast({
         title: "Error",
         description: "Failed to remove reminder",
@@ -97,7 +123,7 @@ export const useUserEventReminders = () => {
 
   useEffect(() => {
     fetchEventReminders();
-  }, [user]);
+  }, [user?.id]);
 
   return {
     eventReminders,

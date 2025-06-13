@@ -25,6 +25,7 @@ export const useEventReminder = (event: Event) => {
     const checkExistingReminder = async () => {
       if (!user || !event) {
         console.log('EventReminder - No user or event, skipping reminder check');
+        setReminderChecked(false);
         return;
       }
 
@@ -40,6 +41,7 @@ export const useEventReminder = (event: Event) => {
 
         if (error) {
           console.error('EventReminder - Error checking existing reminder:', error);
+          setReminderChecked(false);
           return;
         }
 
@@ -52,7 +54,7 @@ export const useEventReminder = (event: Event) => {
     };
 
     checkExistingReminder();
-  }, [user, event]);
+  }, [user, event.id]);
 
   const handleReminderToggle = async (checked: boolean) => {
     console.log('EventReminder - Toggle called with checked:', checked);
@@ -79,21 +81,18 @@ export const useEventReminder = (event: Event) => {
             user_id: user.id,
             event_id: event.id,
           })
-          .select();
+          .select()
+          .single();
 
         if (error) {
           console.error('EventReminder - Insert error details:', error);
           throw error;
         }
 
-        if (!data || data.length === 0) {
-          console.error('EventReminder - Insert succeeded but no data returned');
-          throw new Error('Failed to create reminder - no data returned');
-        }
-
+        console.log('EventReminder - Insert successful:', data);
         toast({
           title: "Reminder set!",
-          description: "You'll be notified 12 hours before this event starts.",
+          description: "You'll be notified before this event starts.",
         });
         setReminderChecked(true);
       } else {
@@ -110,6 +109,7 @@ export const useEventReminder = (event: Event) => {
           throw error;
         }
 
+        console.log('EventReminder - Delete successful');
         toast({
           title: "Reminder removed",
           description: "You will no longer receive notifications for this event.",
@@ -118,6 +118,9 @@ export const useEventReminder = (event: Event) => {
       }
     } catch (error: any) {
       console.error('EventReminder - Exception in toggle:', error);
+      
+      // Reset the checkbox state on error
+      setReminderChecked(!checked);
       
       toast({
         title: "Error",
