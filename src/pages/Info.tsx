@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
@@ -86,8 +86,23 @@ const TransportationContent = () => (
 );
 
 const Info = () => {
+  const [activeTab, setActiveTab] = useState('services');
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // Check for hash in URL and set active tab accordingly
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'transportation') {
+      setActiveTab('transportation');
+      // Scroll to the tabs section after a brief delay
+      setTimeout(() => {
+        const tabsSection = document.querySelector('section[data-tabs]');
+        if (tabsSection) {
+          tabsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
   }, []);
 
   return (
@@ -100,9 +115,9 @@ const Info = () => {
         imageSrc="https://images.unsplash.com/photo-1596627116790-af6f46dddbae?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
 
-      <section className="bg-white py-16">
+      <section className="bg-white py-16" data-tabs>
         <div className="container mx-auto px-4">
-          <Tabs defaultValue="services" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 mb-8">
               <TabsTrigger value="services">Services</TabsTrigger>
               <TabsTrigger value="businesses">Businesses</TabsTrigger>
