@@ -1,4 +1,3 @@
-
 import { Facebook, Instagram, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -90,6 +89,7 @@ const Footer = () => {
           <div className="mt-2 flex justify-center space-x-6">
             <Link to="/privacy" className="hover:text-primary transition-colors">{t('footer.privacy')}</Link>
             <Link to="/terms" className="hover:text-primary transition-colors">{t('footer.terms')}</Link>
+            <Link to="/disclosure" className="hover:text-primary transition-colors">Affiliate Disclosure</Link>
           </div>
         </div>
       </div>

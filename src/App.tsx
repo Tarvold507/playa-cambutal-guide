@@ -28,6 +28,7 @@ import Info from './pages/Info';
 import Legal from './pages/Legal';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import Disclosure from './pages/Disclosure';
 import NotFound from './pages/NotFound';
 
 // Lazy load heavy components
@@ -68,6 +69,7 @@ function App() {
               <Route path="/legal" element={<Legal />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/disclosure" element={<Disclosure />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/my-listings" element={<MyListings />} />
