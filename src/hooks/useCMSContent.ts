@@ -7,10 +7,10 @@ export const useCMSContent = (pagePath: string, sectionName: string, fallbackCon
   const [content, setContent] = useState(null);
   const [isReady, setIsReady] = useState(false);
 
-  // Only fetch once when pagePath changes
+  // Only fetch once when pagePath changes - remove fetchPageContent from dependencies
   useEffect(() => {
     fetchPageContent(pagePath);
-  }, [pagePath]); // Remove fetchPageContent from dependencies to prevent infinite loop
+  }, [pagePath]);
 
   // Use useMemo to compute content and isReady based on pageContent
   const { computedContent, computedIsReady } = useMemo(() => {
