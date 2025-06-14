@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -40,7 +41,7 @@ export const usePageContent = () => {
       setPageContent(data || []);
     } catch (error) {
       console.error('Error fetching page content:', error);
-      // Use a stable reference to toast to avoid infinite loops
+      // Use setTimeout to avoid the infinite loop issue with toast
       setTimeout(() => {
         toast({
           title: 'Error',
@@ -51,7 +52,7 @@ export const usePageContent = () => {
     } finally {
       setLoading(false);
     }
-  }, []); // Remove toast from dependencies to prevent infinite loop
+  }, []); // Remove all dependencies to make it stable
 
   const createPageContent = async (contentData: Omit<PageContent, 'id' | 'created_at' | 'updated_at'>) => {
     try {
@@ -134,7 +135,6 @@ export const usePageContent = () => {
         description: 'Failed to delete content',
         variant: 'destructive',
       });
-      throw error;
     }
   };
 
@@ -176,7 +176,7 @@ export const usePageContent = () => {
 
   useEffect(() => {
     fetchPageContent();
-  }, [fetchPageContent]);
+  }, []); // Only run once on mount
 
   return {
     pageContent,

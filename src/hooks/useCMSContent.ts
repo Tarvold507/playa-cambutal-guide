@@ -3,14 +3,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { usePageContent, PageContent } from '@/hooks/usePageContent';
 
 export const useCMSContent = (pagePath: string, sectionName: string, fallbackContent?: any) => {
-  const { pageContent, fetchPageContent, loading } = usePageContent();
+  const { pageContent, loading } = usePageContent();
   const [content, setContent] = useState(null);
   const [isReady, setIsReady] = useState(false);
-
-  // Only fetch once when pagePath changes - remove fetchPageContent from dependencies
-  useEffect(() => {
-    fetchPageContent(pagePath);
-  }, [pagePath]);
 
   // Use useMemo to compute content and isReady based on pageContent
   const { computedContent, computedIsReady } = useMemo(() => {
@@ -40,12 +35,8 @@ export const useCMSContent = (pagePath: string, sectionName: string, fallbackCon
 
 // Hook to get all visible content for a page
 export const usePageCMSContent = (pagePath: string) => {
-  const { pageContent, fetchPageContent, loading } = usePageContent();
+  const { pageContent, loading } = usePageContent();
   const [visibleContent, setVisibleContent] = useState<PageContent[]>([]);
-
-  useEffect(() => {
-    fetchPageContent(pagePath);
-  }, [pagePath]); // Remove fetchPageContent from dependencies
 
   useEffect(() => {
     const filtered = pageContent
