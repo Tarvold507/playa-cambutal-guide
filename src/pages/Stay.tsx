@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -9,7 +8,6 @@ import StayHero from '../components/stay/StayHero';
 import StayIntro from '../components/stay/StayIntro';
 import StaySearchFilter from '../components/stay/StaySearchFilter';
 import StayAccommodationGrid from '../components/stay/StayAccommodationGrid';
-import StayExpediaWidget from '../components/stay/StayExpediaWidget';
 import StayTips from '../components/stay/StayTips';
 import StayAddProperty from '../components/stay/StayAddProperty';
 
@@ -103,7 +101,6 @@ const Stay = () => {
         categories={categories}
       />
       <StayAccommodationGrid filteredItems={filteredItems} />
-      <StayExpediaWidget />
       <StayTips />
       <StayAddProperty />
       <Newsletter />
