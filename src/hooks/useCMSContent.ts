@@ -1,11 +1,21 @@
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { usePageContent, PageContent } from '@/hooks/usePageContent';
 
 export const useCMSContent = (pagePath: string, sectionName: string, fallbackContent?: any) => {
   const { pageContent, loading } = usePageContent();
   const [content, setContent] = useState(null);
   const [isReady, setIsReady] = useState(false);
+
+  // Stabilize fallbackContent to prevent infinite loops
+  const stableFallbackContent = useMemo(() => fallbackContent, [
+    fallbackContent?.title,
+    fallbackContent?.subtitle,
+    fallbackContent?.imageSrc,
+    fallbackContent?.description,
+    fallbackContent?.buttonText,
+    fallbackContent?.buttonLink
+  ]);
 
   // Use useMemo to compute content and isReady based on pageContent
   const { computedContent, computedIsReady } = useMemo(() => {
@@ -19,10 +29,10 @@ export const useCMSContent = (pagePath: string, sectionName: string, fallbackCon
               item.is_visible
     );
 
-    const finalContent = cmsContent ? cmsContent.content_data : fallbackContent;
+    const finalContent = cmsContent ? cmsContent.content_data : stableFallbackContent;
     
     return { computedContent: finalContent, computedIsReady: true };
-  }, [pageContent, pagePath, sectionName, fallbackContent, loading]);
+  }, [pageContent, pagePath, sectionName, stableFallbackContent, loading]);
 
   // Update state only when computed values change
   useEffect(() => {

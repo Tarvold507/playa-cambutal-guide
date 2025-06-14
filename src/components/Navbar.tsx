@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -84,12 +85,6 @@ const Navbar = () => {
                     >
                       {t('nav.profile')}
                     </Link>
-                    <Link
-                      to="/profile/my-listings"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      {t('nav.myListings')}
-                    </Link>
                     {isAdmin && (
                       <Link
                         to="/add-blog"
@@ -155,13 +150,6 @@ const Navbar = () => {
                   onClick={() => setIsOpen(false)}
                 >
                   {t('nav.profile')}
-                </Link>
-                <Link
-                  to="/profile/my-listings"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {t('nav.myListings')}
                 </Link>
                 {isAdmin && (
                   <>
