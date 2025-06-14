@@ -1,11 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 
 const StayExpediaWidget = () => {
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const widgetRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Check if script already exists
     const existingScript = document.querySelector('script[src*="eg-widgets.js"]');
     if (existingScript) {
@@ -13,25 +14,43 @@ const StayExpediaWidget = () => {
       return;
     }
 
-    // Load Expedia widget script
-    const script = document.createElement('script');
-    script.src = 'https://affiliates.expediagroup.com/products/widgets/assets/eg-widgets.js';
-    script.async = true;
-    
-    script.onload = () => {
-      console.log('Expedia widget script loaded successfully');
-      setScriptLoaded(true);
-    };
-    
-    script.onerror = () => {
-      console.error('Failed to load Expedia widget script');
+    // Ensure the widget container exists before loading script
+    if (!widgetRef.current) {
+      console.error('Widget container not found');
       setLoadError(true);
-    };
-    
-    document.head.appendChild(script);
+      return;
+    }
 
-    // Cleanup on unmount
+    // Add a small delay to ensure React has completed its render cycle
+    const timeoutId = setTimeout(() => {
+      // Double-check the element exists
+      if (!widgetRef.current) {
+        console.error('Widget container disappeared');
+        setLoadError(true);
+        return;
+      }
+
+      console.log('Loading Expedia widget script...');
+      const script = document.createElement('script');
+      script.src = 'https://affiliates.expediagroup.com/products/widgets/assets/eg-widgets.js';
+      script.async = true;
+      
+      script.onload = () => {
+        console.log('Expedia widget script loaded successfully');
+        setScriptLoaded(true);
+      };
+      
+      script.onerror = () => {
+        console.error('Failed to load Expedia widget script');
+        setLoadError(true);
+      };
+      
+      document.head.appendChild(script);
+    }, 100); // Small delay to ensure DOM is ready
+
+    // Cleanup function
     return () => {
+      clearTimeout(timeoutId);
       const scriptToRemove = document.querySelector('script[src*="eg-widgets.js"]');
       if (scriptToRemove) {
         document.head.removeChild(scriptToRemove);
@@ -66,6 +85,7 @@ const StayExpediaWidget = () => {
             )}
             
             <div 
+              ref={widgetRef}
               className="eg-widget" 
               data-widget="search" 
               data-program="us-expedia" 
@@ -75,6 +95,7 @@ const StayExpediaWidget = () => {
               data-theme="light"
               data-currency="USD"
               data-language="en"
+              data-location="Playa Cambutal, Panama"
               style={{ 
                 minHeight: scriptLoaded ? 'auto' : '400px',
                 display: loadError ? 'none' : 'block'
