@@ -1,12 +1,40 @@
 
-import { useState, useLayoutEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const StayExpediaWidget = () => {
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [elementReady, setElementReady] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
+  // First useEffect: Ensure the DOM element is ready
+  useEffect(() => {
+    const checkElementReady = () => {
+      if (widgetRef.current && document.contains(widgetRef.current)) {
+        const element = widgetRef.current;
+        // Verify all required attributes are present
+        if (element.getAttribute('data-widget') && 
+            element.getAttribute('data-program') && 
+            element.getAttribute('data-lobs')) {
+          console.log('Widget element is ready');
+          setElementReady(true);
+          return;
+        }
+      }
+      // Retry if not ready
+      setTimeout(checkElementReady, 100);
+    };
+
+    // Start checking after a small delay to let React render
+    const timeoutId = setTimeout(checkElementReady, 200);
+    
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  // Second useEffect: Load script only when element is ready
+  useEffect(() => {
+    if (!elementReady) return;
+
     // Check if script already exists
     const existingScript = document.querySelector('script[src*="eg-widgets.js"]');
     if (existingScript) {
@@ -14,53 +42,31 @@ const StayExpediaWidget = () => {
       return;
     }
 
-    // Function to check if element is ready and load script
-    const loadScriptWhenReady = () => {
-      // Ensure the widget container exists and is in the DOM
-      if (!widgetRef.current || !document.contains(widgetRef.current)) {
-        console.log('Widget container not ready, retrying...');
-        setTimeout(loadScriptWhenReady, 50);
-        return;
-      }
-
-      // Additional check to ensure element has required attributes
-      const element = widgetRef.current;
-      if (!element.getAttribute('data-widget')) {
-        console.log('Widget attributes not ready, retrying...');
-        setTimeout(loadScriptWhenReady, 50);
-        return;
-      }
-
-      console.log('Loading Expedia widget script...');
-      const script = document.createElement('script');
-      script.src = 'https://affiliates.expediagroup.com/products/widgets/assets/eg-widgets.js';
-      script.async = true;
-      
-      script.onload = () => {
-        console.log('Expedia widget script loaded successfully');
-        setScriptLoaded(true);
-      };
-      
-      script.onerror = () => {
-        console.error('Failed to load Expedia widget script');
-        setLoadError(true);
-      };
-      
-      document.head.appendChild(script);
+    console.log('Loading Expedia widget script...');
+    const script = document.createElement('script');
+    script.src = 'https://affiliates.expediagroup.com/products/widgets/assets/eg-widgets.js';
+    script.async = true;
+    
+    script.onload = () => {
+      console.log('Expedia widget script loaded successfully');
+      setScriptLoaded(true);
     };
-
-    // Start the loading process with a delay to ensure React has completed rendering
-    const timeoutId = setTimeout(loadScriptWhenReady, 200);
+    
+    script.onerror = () => {
+      console.error('Failed to load Expedia widget script');
+      setLoadError(true);
+    };
+    
+    document.head.appendChild(script);
 
     // Cleanup function
     return () => {
-      clearTimeout(timeoutId);
       const scriptToRemove = document.querySelector('script[src*="eg-widgets.js"]');
       if (scriptToRemove) {
         document.head.removeChild(scriptToRemove);
       }
     };
-  }, []);
+  }, [elementReady]);
 
   return (
     <section className="bg-white py-16">
@@ -74,7 +80,7 @@ const StayExpediaWidget = () => {
         
         <div className="max-w-4xl mx-auto">
           <div className="bg-gray-50 p-6 rounded-lg">
-            {!scriptLoaded && !loadError && (
+            {(!scriptLoaded && !loadError) && (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-venao-dark mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading booking widget...</p>
