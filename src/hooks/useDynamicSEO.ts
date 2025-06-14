@@ -4,6 +4,7 @@ import { updatePageHead } from '@/utils/seoUtils';
 import { HotelListing } from '@/hooks/useHotelListings';
 import { generateBlogSchema } from '@/utils/seoUtils';
 import { usePageSEO } from '@/hooks/usePageSEO';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface HotelSEOData {
   page_title: string;
@@ -21,6 +22,7 @@ interface HotelSEOData {
 
 export const useHotelSEO = (hotel: HotelListing | null) => {
   const { updatePageSEO, fetchSEOByPath } = usePageSEO();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!hotel) return;
@@ -28,62 +30,91 @@ export const useHotelSEO = (hotel: HotelListing | null) => {
     const handleHotelSEO = async () => {
       const pagePath = `/stay/${hotel.slug}`;
       
-      // Check if SEO data already exists
-      const existingSEO = await fetchSEOByPath(pagePath);
-      
-      // Generate fresh SEO data
-      const seoData: HotelSEOData = {
-        page_title: `${hotel.name} - Playa Cambutal Guide`,
-        meta_description: `${hotel.name} in Playa Cambutal: ${hotel.description || 'Comfortable accommodation with modern amenities.'}${hotel.price_from ? ` Starting from $${hotel.price_from}/night.` : ''} Book your stay today.`,
-        meta_keywords: `${hotel.name}, Playa Cambutal hotel, ${hotel.category}, Panama accommodation, beach hotel, ${hotel.amenities.join(', ')}`,
-        og_title: `${hotel.name} - Playa Cambutal`,
-        og_description: hotel.description || `Experience comfort and convenience at ${hotel.name} in beautiful Playa Cambutal, Panama.`,
-        og_image: hotel.image_url || hotel.gallery_images[0] || '',
-        twitter_title: `${hotel.name} - Playa Cambutal`,
-        twitter_description: hotel.description || `Experience comfort and convenience at ${hotel.name} in beautiful Playa Cambutal, Panama.`,
-        twitter_image: hotel.image_url || hotel.gallery_images[0] || '',
-        canonical_url: `${window.location.origin}/stay/${hotel.slug}`,
-        schema_markup: generateHotelSchema(hotel)
-      };
+      try {
+        // Check if SEO data already exists
+        const existingSEO = await fetchSEOByPath(pagePath);
+        
+        // Generate fresh SEO data
+        const seoData: HotelSEOData = {
+          page_title: `${hotel.name} - Playa Cambutal Guide`,
+          meta_description: `${hotel.name} in Playa Cambutal: ${hotel.description || 'Comfortable accommodation with modern amenities.'}${hotel.price_from ? ` Starting from $${hotel.price_from}/night.` : ''} Book your stay today.`,
+          meta_keywords: `${hotel.name}, Playa Cambutal hotel, ${hotel.category}, Panama accommodation, beach hotel, ${hotel.amenities.join(', ')}`,
+          og_title: `${hotel.name} - Playa Cambutal`,
+          og_description: hotel.description || `Experience comfort and convenience at ${hotel.name} in beautiful Playa Cambutal, Panama.`,
+          og_image: hotel.image_url || hotel.gallery_images[0] || '',
+          twitter_title: `${hotel.name} - Playa Cambutal`,
+          twitter_description: hotel.description || `Experience comfort and convenience at ${hotel.name} in beautiful Playa Cambutal, Panama.`,
+          twitter_image: hotel.image_url || hotel.gallery_images[0] || '',
+          canonical_url: `${window.location.origin}/stay/${hotel.slug}`,
+          schema_markup: generateHotelSchema(hotel)
+        };
 
-      // If no existing SEO or if we want to update auto-generated ones, save to database
-      if (!existingSEO || !existingSEO.meta_keywords?.includes('custom')) {
-        try {
-          await updatePageSEO(pagePath, {
-            page_title: seoData.page_title,
-            meta_description: seoData.meta_description,
-            meta_keywords: seoData.meta_keywords,
-            og_title: seoData.og_title,
-            og_description: seoData.og_description,
-            og_image: seoData.og_image,
-            twitter_title: seoData.twitter_title,
-            twitter_description: seoData.twitter_description,
-            twitter_image: seoData.twitter_image,
-            canonical_url: seoData.canonical_url,
-            robots: 'index, follow',
-            schema_markup: seoData.schema_markup,
-          });
-          console.log('SEO data saved to database for:', pagePath);
-        } catch (error) {
-          console.error('Failed to save SEO data:', error);
+        // Try to save/update SEO data in database if user is authenticated
+        let finalSEOData = existingSEO;
+        
+        if (user && (!existingSEO || !existingSEO.meta_keywords?.includes('custom'))) {
+          try {
+            const updatedSEO = await updatePageSEO(pagePath, {
+              page_title: seoData.page_title,
+              meta_description: seoData.meta_description,
+              meta_keywords: seoData.meta_keywords,
+              og_title: seoData.og_title,
+              og_description: seoData.og_description,
+              og_image: seoData.og_image,
+              twitter_title: seoData.twitter_title,
+              twitter_description: seoData.twitter_description,
+              twitter_image: seoData.twitter_image,
+              canonical_url: seoData.canonical_url,
+              robots: 'index, follow',
+              schema_markup: seoData.schema_markup,
+            });
+            
+            if (updatedSEO) {
+              finalSEOData = updatedSEO;
+              console.log('SEO data saved to database for:', pagePath);
+            }
+          } catch (saveError) {
+            console.warn('Could not save SEO data to database:', saveError);
+            // Continue with generated SEO data even if save fails
+          }
         }
+
+        // Use existing SEO data from database if available, otherwise use generated data
+        const seoToApply = finalSEOData || {
+          id: hotel.id,
+          page_path: pagePath,
+          ...seoData,
+          robots: 'index, follow',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        // Always update the page head with SEO data
+        updatePageHead(seoToApply);
+        
+      } catch (error) {
+        console.error('Error handling hotel SEO:', error);
+        
+        // Fallback: Apply basic SEO even if everything else fails
+        const fallbackSEO = {
+          id: hotel.id,
+          page_path: pagePath,
+          page_title: `${hotel.name} - Playa Cambutal Guide`,
+          meta_description: `${hotel.name} in Playa Cambutal, Panama. ${hotel.description || 'Book your stay today.'}`,
+          og_title: `${hotel.name} - Playa Cambutal`,
+          og_description: hotel.description || `Experience ${hotel.name} in Playa Cambutal.`,
+          canonical_url: `${window.location.origin}/stay/${hotel.slug}`,
+          robots: 'index, follow',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        updatePageHead(fallbackSEO);
       }
-
-      // Always update the page head with the current data (from DB if exists, otherwise generated)
-      const finalSEOData = existingSEO || {
-        id: hotel.id,
-        page_path: pagePath,
-        ...seoData,
-        robots: 'index, follow',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      updatePageHead(finalSEOData);
     };
 
     handleHotelSEO();
-  }, [hotel, updatePageSEO, fetchSEOByPath]);
+  }, [hotel, updatePageSEO, fetchSEOByPath, user]);
 };
 
 const generateHotelSchema = (hotel: HotelListing) => {
@@ -123,6 +154,7 @@ const generateHotelSchema = (hotel: HotelListing) => {
 
 export const useRestaurantSEO = (restaurant: any) => {
   const { updatePageSEO, fetchSEOByPath } = usePageSEO();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!restaurant) return;
@@ -130,59 +162,87 @@ export const useRestaurantSEO = (restaurant: any) => {
     const handleRestaurantSEO = async () => {
       const pagePath = `/eat/${restaurant.slug}`;
       
-      // Check if SEO data already exists
-      const existingSEO = await fetchSEOByPath(pagePath);
-      
-      // Generate fresh SEO data
-      const seoData = {
-        page_title: `${restaurant.name} - Playa Cambutal Restaurants`,
-        meta_description: `${restaurant.name} in Playa Cambutal: ${restaurant.description || 'Delicious local cuisine and international dishes.'}${restaurant.cuisine_type ? ` Specializing in ${restaurant.cuisine_type}.` : ''} Visit us today.`,
-        meta_keywords: `${restaurant.name}, Playa Cambutal restaurant, ${restaurant.cuisine_type || 'restaurant'}, Panama dining, beach restaurant`,
-        og_title: `${restaurant.name} - Playa Cambutal`,
-        og_description: restaurant.description || `Enjoy delicious meals at ${restaurant.name} in beautiful Playa Cambutal, Panama.`,
-        og_image: restaurant.image_url || '',
-        canonical_url: `${window.location.origin}/eat/${restaurant.slug}`,
-        schema_markup: generateRestaurantSchema(restaurant)
-      };
+      try {
+        // Check if SEO data already exists
+        const existingSEO = await fetchSEOByPath(pagePath);
+        
+        // Generate fresh SEO data
+        const seoData = {
+          page_title: `${restaurant.name} - Playa Cambutal Restaurants`,
+          meta_description: `${restaurant.name} in Playa Cambutal: ${restaurant.description || 'Delicious local cuisine and international dishes.'}${restaurant.cuisine_type ? ` Specializing in ${restaurant.cuisine_type}.` : ''} Visit us today.`,
+          meta_keywords: `${restaurant.name}, Playa Cambutal restaurant, ${restaurant.cuisine_type || 'restaurant'}, Panama dining, beach restaurant`,
+          og_title: `${restaurant.name} - Playa Cambutal`,
+          og_description: restaurant.description || `Enjoy delicious meals at ${restaurant.name} in beautiful Playa Cambutal, Panama.`,
+          og_image: restaurant.image_url || '',
+          canonical_url: `${window.location.origin}/eat/${restaurant.slug}`,
+          schema_markup: generateRestaurantSchema(restaurant)
+        };
 
-      // If no existing SEO or if we want to update auto-generated ones, save to database
-      if (!existingSEO || !existingSEO.meta_keywords?.includes('custom')) {
-        try {
-          await updatePageSEO(pagePath, {
-            page_title: seoData.page_title,
-            meta_description: seoData.meta_description,
-            meta_keywords: seoData.meta_keywords,
-            og_title: seoData.og_title,
-            og_description: seoData.og_description,
-            og_image: seoData.og_image,
-            twitter_title: seoData.og_title,
-            twitter_description: seoData.og_description,
-            twitter_image: seoData.og_image,
-            canonical_url: seoData.canonical_url,
-            robots: 'index, follow',
-            schema_markup: seoData.schema_markup,
-          });
-          console.log('SEO data saved to database for:', pagePath);
-        } catch (error) {
-          console.error('Failed to save SEO data:', error);
+        // Try to save/update SEO data in database if user is authenticated
+        let finalSEOData = existingSEO;
+        
+        if (user && (!existingSEO || !existingSEO.meta_keywords?.includes('custom'))) {
+          try {
+            const updatedSEO = await updatePageSEO(pagePath, {
+              page_title: seoData.page_title,
+              meta_description: seoData.meta_description,
+              meta_keywords: seoData.meta_keywords,
+              og_title: seoData.og_title,
+              og_description: seoData.og_description,
+              og_image: seoData.og_image,
+              twitter_title: seoData.og_title,
+              twitter_description: seoData.og_description,
+              twitter_image: seoData.og_image,
+              canonical_url: seoData.canonical_url,
+              robots: 'index, follow',
+              schema_markup: seoData.schema_markup,
+            });
+            
+            if (updatedSEO) {
+              finalSEOData = updatedSEO;
+              console.log('SEO data saved to database for:', pagePath);
+            }
+          } catch (saveError) {
+            console.warn('Could not save SEO data to database:', saveError);
+            // Continue with generated SEO data even if save fails
+          }
         }
+
+        // Use existing SEO data from database if available, otherwise use generated data
+        const seoToApply = finalSEOData || {
+          id: restaurant.id,
+          page_path: pagePath,
+          ...seoData,
+          robots: 'index, follow',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        updatePageHead(seoToApply);
+        
+      } catch (error) {
+        console.error('Error handling restaurant SEO:', error);
+        
+        // Fallback: Apply basic SEO even if everything else fails
+        const fallbackSEO = {
+          id: restaurant.id,
+          page_path: pagePath,
+          page_title: `${restaurant.name} - Playa Cambutal Restaurants`,
+          meta_description: `${restaurant.name} in Playa Cambutal, Panama. ${restaurant.description || 'Visit us today.'}`,
+          og_title: `${restaurant.name} - Playa Cambutal`,
+          og_description: restaurant.description || `Experience ${restaurant.name} in Playa Cambutal.`,
+          canonical_url: `${window.location.origin}/eat/${restaurant.slug}`,
+          robots: 'index, follow',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        updatePageHead(fallbackSEO);
       }
-
-      // Always update the page head with the current data
-      const finalSEOData = existingSEO || {
-        id: restaurant.id,
-        page_path: pagePath,
-        ...seoData,
-        robots: 'index, follow',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      updatePageHead(finalSEOData);
     };
 
     handleRestaurantSEO();
-  }, [restaurant, updatePageSEO, fetchSEOByPath]);
+  }, [restaurant, updatePageSEO, fetchSEOByPath, user]);
 };
 
 const generateRestaurantSchema = (restaurant: any) => {

@@ -48,9 +48,13 @@ export const usePageSEO = () => {
         .from('page_seo')
         .select('*')
         .eq('page_path', path)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 is "not found" which is expected, don't log as error
+        console.error('Error fetching SEO for path:', path, error);
+      }
+      
       return data;
     } catch (error) {
       console.error('Error fetching SEO for path:', path, error);
@@ -79,6 +83,7 @@ export const usePageSEO = () => {
 
       // If update succeeded and found a record, return it
       if (!updateError && updateResult) {
+        console.log('Successfully updated SEO for:', path);
         return updateResult;
       }
 
@@ -91,6 +96,7 @@ export const usePageSEO = () => {
           .single();
 
         if (!insertError) {
+          console.log('Successfully created SEO for:', path);
           return insertResult;
         }
 
@@ -102,7 +108,19 @@ export const usePageSEO = () => {
           return updatePageSEO(path, seoData, retryCount + 1);
         }
 
+        // If it's a permission error, log it but don't throw
+        if (insertError.code === '42501') {
+          console.warn('Permission denied when trying to save SEO data for:', path);
+          return null;
+        }
+
         throw insertError;
+      }
+
+      // If it's a permission error, log it but don't throw
+      if (updateError?.code === '42501') {
+        console.warn('Permission denied when trying to update SEO data for:', path);
+        return null;
       }
 
       throw updateError;
@@ -112,6 +130,12 @@ export const usePageSEO = () => {
         console.log(`Duplicate key detected for ${path}, retrying... (${retryCount + 1}/${maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, 100 * (retryCount + 1)));
         return updatePageSEO(path, seoData, retryCount + 1);
+      }
+      
+      // Handle permission errors gracefully
+      if (error.code === '42501') {
+        console.warn('Permission denied when trying to save SEO data for:', path);
+        return null;
       }
       
       console.error('Error updating page SEO:', error);
@@ -129,7 +153,8 @@ export const usePageSEO = () => {
         }
       }
       
-      throw error;
+      // Return null instead of throwing to allow graceful degradation
+      return null;
     }
   };
 
