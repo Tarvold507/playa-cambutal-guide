@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -12,27 +13,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Plus, Upload, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import BusinessBasicFields from './business-form/BusinessBasicFields';
+import BusinessContactFields from './business-form/BusinessContactFields';
+import BusinessImageUpload from './business-form/BusinessImageUpload';
 
 const formSchema = z.object({
   business_name: z.string().min(1, 'Business name is required'),
@@ -48,13 +36,6 @@ const formSchema = z.object({
   website: z.string().url('Please enter a valid website URL').optional().or(z.literal('')),
   image_url: z.string().optional(),
 });
-
-const businessTypeOptions = {
-  surf: ['Lessons', 'Rentals', 'Shop', 'Repair'],
-  fitness: ['Yoga Classes', 'Personal Training', 'Group Fitness', 'Wellness Retreats'],
-  tours: ['Wildlife Tours', 'Hiking Tours', 'Cultural Tours', 'Photography Tours'],
-  fishing: ['Fishing Charters', 'Fishing Guides', 'Equipment Rental', 'Fishing Tours'],
-};
 
 const AdventureBusinessSubmissionForm = () => {
   const { user } = useAuth();
@@ -116,7 +97,6 @@ const AdventureBusinessSubmissionForm = () => {
     try {
       let imageUrl = '';
       
-      // Upload image if selected
       if (selectedImage) {
         const uploadedUrl = await uploadImage(selectedImage, 'business-images');
         if (uploadedUrl) {
@@ -189,204 +169,14 @@ const AdventureBusinessSubmissionForm = () => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="business_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your business name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <BusinessBasicFields control={form.control} selectedCategory={selectedCategory} />
+            <BusinessImageUpload 
+              imagePreview={imagePreview}
+              uploading={uploading}
+              onImageSelect={handleImageSelect}
+              onRemoveImage={removeImage}
             />
-
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="surf">Surf</SelectItem>
-                      <SelectItem value="fitness">Fitness & Wellness</SelectItem>
-                      <SelectItem value="tours">Tours & Nature</SelectItem>
-                      <SelectItem value="fishing">Fishing</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="business_type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Type</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                    disabled={!selectedCategory}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select business type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {selectedCategory && businessTypeOptions[selectedCategory].map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="space-y-2">
-              <FormLabel>Business Image</FormLabel>
-              <div className="flex flex-col space-y-2">
-                {imagePreview ? (
-                  <div className="relative">
-                    <img 
-                      src={imagePreview} 
-                      alt="Business preview" 
-                      className="w-full h-48 object-cover rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={removeImage}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm text-gray-600 mb-2">Upload a photo of your business</p>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageSelect}
-                      className="hidden"
-                      id="image-upload"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => document.getElementById('image-upload')?.click()}
-                      disabled={uploading}
-                    >
-                      {uploading ? 'Uploading...' : 'Choose Image'}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description of Services</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Describe your services and what makes your business unique..."
-                      className="min-h-[100px]"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Main Street, Cambutal Village" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location Details (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Near the beach, behind the market" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="hours"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Hours of Operation</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Daily 8:00 AM - 6:00 PM" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="whatsapp"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>WhatsApp Contact</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., +507-1234-5678" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="website"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Website (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., https://yourwebsite.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <BusinessContactFields control={form.control} />
 
             <div className="flex gap-3 pt-4">
               <Button 
