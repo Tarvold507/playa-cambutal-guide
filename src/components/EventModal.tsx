@@ -5,7 +5,6 @@ import {
 } from '@/components/ui/dialog';
 import EventModalHeader from './EventModalHeader';
 import EventDetails from './EventDetails';
-import EventReminder from './EventReminder';
 
 interface Event {
   id: string;
@@ -33,7 +32,6 @@ const EventModal = ({ event, isOpen, onClose }: EventModalProps) => {
         <div className="space-y-6">
           <EventModalHeader event={event} />
           <EventDetails event={event} />
-          <EventReminder event={event} />
         </div>
       </DialogContent>
     </Dialog>
