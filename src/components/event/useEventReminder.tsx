@@ -19,7 +19,9 @@ export const useEventReminder = (event: Event) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [reminderChecked, setReminderChecked] = useState(false);
+  const [pendingReminderState, setPendingReminderState] = useState<boolean | null>(null);
   const [settingReminder, setSettingReminder] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     const checkExistingReminder = async () => {
@@ -55,7 +57,10 @@ export const useEventReminder = (event: Event) => {
 
         console.log('EventReminder - Existing reminder check result:', data);
         console.log('EventReminder - Setting reminderChecked to:', !!data);
-        setReminderChecked(!!data);
+        const isChecked = !!data;
+        setReminderChecked(isChecked);
+        setPendingReminderState(isChecked);
+        setHasUnsavedChanges(false);
       } catch (error) {
         console.error('EventReminder - Exception checking existing reminder:', error);
         setReminderChecked(false);
@@ -65,8 +70,14 @@ export const useEventReminder = (event: Event) => {
     checkExistingReminder();
   }, [user, event?.id]);
 
-  const handleReminderToggle = async (checked: boolean) => {
+  const handleReminderToggle = (checked: boolean) => {
     console.log('EventReminder - Toggle called with checked:', checked);
+    setPendingReminderState(checked);
+    setHasUnsavedChanges(checked !== reminderChecked);
+  };
+
+  const handleSaveReminder = async () => {
+    console.log('EventReminder - Save called with pendingState:', pendingReminderState);
     console.log('EventReminder - Current user:', user);
     console.log('EventReminder - Current event:', event);
 
@@ -90,10 +101,15 @@ export const useEventReminder = (event: Event) => {
       return;
     }
 
+    if (pendingReminderState === null || pendingReminderState === reminderChecked) {
+      console.log('EventReminder - No changes to save');
+      return;
+    }
+
     setSettingReminder(true);
     
     try {
-      if (checked) {
+      if (pendingReminderState) {
         console.log('EventReminder - Attempting to INSERT reminder');
         console.log('EventReminder - Insert data:', {
           user_id: user.id,
@@ -125,7 +141,6 @@ export const useEventReminder = (event: Event) => {
           title: "Reminder set!",
           description: `You'll be notified before "${event.title}" starts.`,
         });
-        setReminderChecked(true);
       } else {
         console.log('EventReminder - Attempting to DELETE reminder');
         console.log('EventReminder - Delete criteria:', {
@@ -155,14 +170,14 @@ export const useEventReminder = (event: Event) => {
           title: "Reminder removed",
           description: `You will no longer receive notifications for "${event.title}".`,
         });
-        setReminderChecked(false);
       }
+
+      // Update states after successful save
+      setReminderChecked(pendingReminderState);
+      setHasUnsavedChanges(false);
     } catch (error: any) {
-      console.error('EventReminder - Exception in toggle:', error);
+      console.error('EventReminder - Exception in save:', error);
       console.error('EventReminder - Full error object:', JSON.stringify(error, null, 2));
-      
-      // Reset the checkbox state on error
-      setReminderChecked(!checked);
       
       let errorMessage = "Failed to update reminder. Please try again.";
       
@@ -186,8 +201,10 @@ export const useEventReminder = (event: Event) => {
   };
 
   return {
-    reminderChecked,
+    reminderChecked: pendingReminderState ?? reminderChecked,
     settingReminder,
+    hasUnsavedChanges,
     handleReminderToggle,
+    handleSaveReminder,
   };
 };

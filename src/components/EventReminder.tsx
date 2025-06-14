@@ -22,7 +22,13 @@ interface EventReminderProps {
 
 const EventReminder = ({ event }: EventReminderProps) => {
   const { user } = useAuth();
-  const { reminderChecked, settingReminder, handleReminderToggle } = useEventReminder(event);
+  const { 
+    reminderChecked, 
+    settingReminder, 
+    hasUnsavedChanges,
+    handleReminderToggle,
+    handleSaveReminder
+  } = useEventReminder(event);
 
   return (
     <div className="border-t pt-4">
@@ -36,7 +42,9 @@ const EventReminder = ({ event }: EventReminderProps) => {
           <ReminderToggle
             reminderChecked={reminderChecked}
             settingReminder={settingReminder}
+            hasUnsavedChanges={hasUnsavedChanges}
             onToggle={handleReminderToggle}
+            onSave={handleSaveReminder}
           />
         ) : (
           <div className="text-sm text-gray-600">
