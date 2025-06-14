@@ -4,7 +4,6 @@ import { format, isAfter, startOfDay, isToday, parseISO, isWithinInterval } from
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, User, Filter, Plus, CalendarIcon } from "lucide-react"
@@ -24,10 +23,6 @@ const EventCalendar = () => {
   
   const { data: events = [], isLoading } = useEvents()
   const { user } = useAuth()
-  
-  // Mock authentication state - replace with actual auth when Supabase is connected
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false)
-  const [reminderChecked, setReminderChecked] = React.useState(false)
 
   // Demo events with event types
   const demoEvents = [
@@ -150,16 +145,6 @@ const EventCalendar = () => {
     }
   }
 
-  const handleReminderChange = (event: any) => {
-    if (!user) {
-      alert('Please log in to set event reminders.')
-      return
-    }
-    
-    setReminderChecked(!reminderChecked)
-    console.log('Reminder set for event:', event.title)
-  }
-
   const clearFilters = () => {
     setEventTypeFilter("all")
     setDateRangeStart(undefined)
@@ -232,24 +217,6 @@ const EventCalendar = () => {
                             <p className="text-gray-700 leading-relaxed">
                               {event.fullDescription}
                             </p>
-                            
-                            <div className="border-t pt-4">
-                              <div className="flex items-center space-x-2">
-                                <Checkbox 
-                                  id="reminder" 
-                                  checked={reminderChecked}
-                                  onCheckedChange={() => handleReminderChange(event)}
-                                />
-                                <label htmlFor="reminder" className="text-sm font-medium">
-                                  Remind me before this event
-                                </label>
-                              </div>
-                              {!user && (
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  Log in to save event reminders to your profile
-                                </p>
-                              )}
-                            </div>
                           </div>
                         </div>
                       </DialogContent>
@@ -414,24 +381,6 @@ const EventCalendar = () => {
                       <p className="text-gray-700 leading-relaxed">
                         {event.fullDescription}
                       </p>
-                      
-                      <div className="border-t pt-4">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={`reminder-${index}`} 
-                            checked={reminderChecked}
-                            onCheckedChange={() => handleReminderChange(event)}
-                          />
-                          <label htmlFor={`reminder-${index}`} className="text-sm font-medium">
-                            Remind me before this event
-                          </label>
-                        </div>
-                        {!user && (
-                          <p className="text-xs text-muted-foreground mt-2">
-                            Log in to save event reminders to your profile
-                          </p>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </DialogContent>
