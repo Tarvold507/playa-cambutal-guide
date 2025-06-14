@@ -36,9 +36,19 @@ export const useUserEventReminders = () => {
     }
     
     console.log('useUserEventReminders - Fetching reminders for user:', user.id);
+    console.log('useUserEventReminders - User object:', user);
     setLoading(true);
     
     try {
+      // First, let's check what's in the user_event_reminders table
+      const { data: allReminders, error: allError } = await supabase
+        .from('user_event_reminders')
+        .select('*');
+      
+      console.log('useUserEventReminders - All reminders in table:', allReminders);
+      console.log('useUserEventReminders - All reminders error:', allError);
+
+      // Now fetch user's specific reminders with events joined
       const { data, error } = await supabase
         .from('user_event_reminders')
         .select(`
@@ -58,10 +68,20 @@ export const useUserEventReminders = () => {
             image_url
           )
         `)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
+
+      console.log('useUserEventReminders - User reminders query result:', data);
+      console.log('useUserEventReminders - User reminders error:', error);
 
       if (error) {
         console.error('useUserEventReminders - Error fetching reminders:', error);
+        console.error('useUserEventReminders - Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
 
@@ -96,7 +116,8 @@ export const useUserEventReminders = () => {
       const { error } = await supabase
         .from('user_event_reminders')
         .delete()
-        .eq('id', reminderId);
+        .eq('id', reminderId)
+        .eq('user_id', user.id); // Add user_id check for security
 
       if (error) {
         console.error('useUserEventReminders - Error removing reminder:', error);
@@ -122,6 +143,7 @@ export const useUserEventReminders = () => {
   };
 
   useEffect(() => {
+    console.log('useUserEventReminders - useEffect triggered, user.id:', user?.id);
     fetchEventReminders();
   }, [user?.id]);
 

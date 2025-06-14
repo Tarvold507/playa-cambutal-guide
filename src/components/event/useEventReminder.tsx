@@ -54,6 +54,7 @@ export const useEventReminder = (event: Event) => {
         }
 
         console.log('EventReminder - Existing reminder check result:', data);
+        console.log('EventReminder - Setting reminderChecked to:', !!data);
         setReminderChecked(!!data);
       } catch (error) {
         console.error('EventReminder - Exception checking existing reminder:', error);
@@ -62,7 +63,7 @@ export const useEventReminder = (event: Event) => {
     };
 
     checkExistingReminder();
-  }, [user, event.id]);
+  }, [user, event?.id]);
 
   const handleReminderToggle = async (checked: boolean) => {
     console.log('EventReminder - Toggle called with checked:', checked);
