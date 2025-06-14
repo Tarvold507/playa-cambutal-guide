@@ -14,19 +14,20 @@ const StayExpediaWidget = () => {
       return;
     }
 
-    // Ensure the widget container exists before loading script
-    if (!widgetRef.current) {
-      console.error('Widget container not found');
-      setLoadError(true);
-      return;
-    }
+    // Function to check if element is ready and load script
+    const loadScriptWhenReady = () => {
+      // Ensure the widget container exists and is in the DOM
+      if (!widgetRef.current || !document.contains(widgetRef.current)) {
+        console.log('Widget container not ready, retrying...');
+        setTimeout(loadScriptWhenReady, 50);
+        return;
+      }
 
-    // Add a small delay to ensure React has completed its render cycle
-    const timeoutId = setTimeout(() => {
-      // Double-check the element exists
-      if (!widgetRef.current) {
-        console.error('Widget container disappeared');
-        setLoadError(true);
+      // Additional check to ensure element has required attributes
+      const element = widgetRef.current;
+      if (!element.getAttribute('data-widget')) {
+        console.log('Widget attributes not ready, retrying...');
+        setTimeout(loadScriptWhenReady, 50);
         return;
       }
 
@@ -46,7 +47,10 @@ const StayExpediaWidget = () => {
       };
       
       document.head.appendChild(script);
-    }, 100); // Small delay to ensure DOM is ready
+    };
+
+    // Start the loading process with a delay to ensure React has completed rendering
+    const timeoutId = setTimeout(loadScriptWhenReady, 200);
 
     // Cleanup function
     return () => {
