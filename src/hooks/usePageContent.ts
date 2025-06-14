@@ -22,6 +22,7 @@ export const usePageContent = () => {
   const { toast } = useToast();
 
   const fetchPageContent = useCallback(async (pagePath?: string) => {
+    console.log('usePageContent - fetchPageContent called with pagePath:', pagePath);
     try {
       let query = supabase
         .from('page_content')
@@ -35,18 +36,22 @@ export const usePageContent = () => {
       const { data, error } = await query;
 
       if (error) throw error;
+      console.log('usePageContent - fetchPageContent success, data length:', data?.length || 0);
       setPageContent(data || []);
     } catch (error) {
       console.error('Error fetching page content:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch page content',
-        variant: 'destructive',
-      });
+      // Use a stable reference to toast to avoid infinite loops
+      setTimeout(() => {
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch page content',
+          variant: 'destructive',
+        });
+      }, 0);
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []); // Remove toast from dependencies to prevent infinite loop
 
   const createPageContent = async (contentData: Omit<PageContent, 'id' | 'created_at' | 'updated_at'>) => {
     try {
