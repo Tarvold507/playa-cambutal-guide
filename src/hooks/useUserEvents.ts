@@ -18,6 +18,10 @@ export interface UserEvent {
   approved: boolean;
   user_id: string;
   created_at: string;
+  event_series_id?: string;
+  is_series_master?: boolean;
+  series_instance_date?: string;
+  is_exception?: boolean;
 }
 
 export const useUserEvents = () => {
