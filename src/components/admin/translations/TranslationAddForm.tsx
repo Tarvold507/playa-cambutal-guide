@@ -5,14 +5,16 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+interface NewTranslation {
+  translation_key: string;
+  language: 'en' | 'es';
+  value: string;
+  category: string;
+}
+
 interface TranslationAddFormProps {
-  newTranslation: {
-    translation_key: string;
-    language: 'en' | 'es';
-    value: string;
-    category: string;
-  };
-  onTranslationChange: (updates: Partial<typeof newTranslation>) => void;
+  newTranslation: NewTranslation;
+  onTranslationChange: (updates: Partial<NewTranslation>) => void;
   onAdd: () => void;
   onCancel: () => void;
 }
