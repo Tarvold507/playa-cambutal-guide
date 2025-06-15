@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { translations, TranslationKey } from '@/translations';
+import { useEnhancedTranslation } from '@/hooks/useDynamicTranslations';
 
 type Language = 'en' | 'es';
 
@@ -14,6 +15,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('en');
+  const { t: enhancedT } = useEnhancedTranslation(language);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language') as Language;
@@ -28,7 +30,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const t = (key: string): string => {
-    return translations[language][key as TranslationKey] || key;
+    return enhancedT(key);
   };
 
   return (

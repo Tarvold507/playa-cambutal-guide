@@ -18,6 +18,7 @@ import LiveRestaurantsTab from '@/components/admin/LiveRestaurantsTab';
 import LiveAdventureBusinessesTab from '@/components/admin/LiveAdventureBusinessesTab';
 import SEOManagementTab from '@/components/admin/SEOManagementTab';
 import ContentManagementTab from '@/components/admin/ContentManagementTab';
+import TranslationsManagementTab from '@/components/admin/TranslationsManagementTab';
 import GooglePlacesImport from '@/components/admin/GooglePlacesImport';
 import AdminEditDialog from '@/components/admin/AdminEditDialog';
 import { useAdminActions } from '@/hooks/useAdminActions';
@@ -136,12 +137,13 @@ const AdminDashboard = () => {
               <TabsTrigger value="blog" className="text-sm">Blog ({pendingBlogPosts.length})</TabsTrigger>
             </TabsList>
             
-            <TabsList className="grid w-full grid-cols-6 h-auto">
+            <TabsList className="grid w-full grid-cols-7 h-auto">
               <TabsTrigger value="live-hotels" className="text-sm">Live Hotels ({liveHotels.length})</TabsTrigger>
               <TabsTrigger value="live-restaurants" className="text-sm">Live Restaurants ({liveRestaurants.length})</TabsTrigger>
               <TabsTrigger value="live-adventure" className="text-sm">Live Adventure ({liveAdventureBusinesses.length})</TabsTrigger>
               <TabsTrigger value="seo" className="text-sm">SEO ({pageSEO.length})</TabsTrigger>
               <TabsTrigger value="content" className="text-sm">Content</TabsTrigger>
+              <TabsTrigger value="translations" className="text-sm">Translations</TabsTrigger>
               <TabsTrigger value="import" className="text-sm">Import</TabsTrigger>
             </TabsList>
           </div>
@@ -231,6 +233,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="content">
               <ContentManagementTab />
+            </TabsContent>
+
+            <TabsContent value="translations">
+              <TranslationsManagementTab />
             </TabsContent>
 
             <TabsContent value="import">

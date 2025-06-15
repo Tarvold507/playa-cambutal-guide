@@ -750,6 +750,42 @@ export type Database = {
           },
         ]
       }
+      translations: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          language: string
+          translation_key: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          language: string
+          translation_key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          language?: string
+          translation_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
