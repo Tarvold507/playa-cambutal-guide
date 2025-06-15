@@ -204,6 +204,45 @@ export type Database = {
           },
         ]
       }
+      event_series: {
+        Row: {
+          created_at: string
+          description: string | null
+          full_description: string | null
+          host: string
+          id: string
+          image_url: string | null
+          location: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          full_description?: string | null
+          host: string
+          id?: string
+          image_url?: string | null
+          location: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          full_description?: string | null
+          host?: string
+          id?: string
+          image_url?: string | null
+          location?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           approved: boolean | null
@@ -213,11 +252,15 @@ export type Database = {
           description: string | null
           end_time: string | null
           event_date: string
+          event_series_id: string | null
           full_description: string | null
           host: string
           id: string
           image_url: string | null
+          is_exception: boolean
+          is_series_master: boolean
           location: string
+          series_instance_date: string | null
           start_time: string | null
           title: string
           updated_at: string | null
@@ -231,11 +274,15 @@ export type Database = {
           description?: string | null
           end_time?: string | null
           event_date: string
+          event_series_id?: string | null
           full_description?: string | null
           host: string
           id?: string
           image_url?: string | null
+          is_exception?: boolean
+          is_series_master?: boolean
           location: string
+          series_instance_date?: string | null
           start_time?: string | null
           title: string
           updated_at?: string | null
@@ -249,11 +296,15 @@ export type Database = {
           description?: string | null
           end_time?: string | null
           event_date?: string
+          event_series_id?: string | null
           full_description?: string | null
           host?: string
           id?: string
           image_url?: string | null
+          is_exception?: boolean
+          is_series_master?: boolean
           location?: string
+          series_instance_date?: string | null
           start_time?: string | null
           title?: string
           updated_at?: string | null
@@ -265,6 +316,13 @@ export type Database = {
             columns: ["approved_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_event_series_id_fkey"
+            columns: ["event_series_id"]
+            isOneToOne: false
+            referencedRelation: "event_series"
             referencedColumns: ["id"]
           },
           {
@@ -522,6 +580,59 @@ export type Database = {
         }
         Relationships: []
       }
+      recurrence_pattern: {
+        Row: {
+          created_at: string
+          day_of_month: number | null
+          day_of_week_monthly: number | null
+          days_of_week: number[] | null
+          end_count: number | null
+          end_date: string | null
+          end_type: string
+          event_series_id: string
+          id: string
+          interval_value: number
+          pattern_type: string
+          week_of_month: number | null
+        }
+        Insert: {
+          created_at?: string
+          day_of_month?: number | null
+          day_of_week_monthly?: number | null
+          days_of_week?: number[] | null
+          end_count?: number | null
+          end_date?: string | null
+          end_type: string
+          event_series_id: string
+          id?: string
+          interval_value?: number
+          pattern_type: string
+          week_of_month?: number | null
+        }
+        Update: {
+          created_at?: string
+          day_of_month?: number | null
+          day_of_week_monthly?: number | null
+          days_of_week?: number[] | null
+          end_count?: number | null
+          end_date?: string | null
+          end_type?: string
+          event_series_id?: string
+          id?: string
+          interval_value?: number
+          pattern_type?: string
+          week_of_month?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurrence_pattern_event_series_id_fkey"
+            columns: ["event_series_id"]
+            isOneToOne: false
+            referencedRelation: "event_series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       restaurant_listings: {
         Row: {
           address: string
@@ -596,6 +707,48 @@ export type Database = {
           whatsapp?: string | null
         }
         Relationships: []
+      }
+      series_exceptions: {
+        Row: {
+          created_at: string
+          event_series_id: string
+          exception_date: string
+          exception_type: string
+          id: string
+          new_event_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_series_id: string
+          exception_date: string
+          exception_type: string
+          id?: string
+          new_event_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_series_id?: string
+          exception_date?: string
+          exception_type?: string
+          id?: string
+          new_event_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "series_exceptions_event_series_id_fkey"
+            columns: ["event_series_id"]
+            isOneToOne: false
+            referencedRelation: "event_series"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "series_exceptions_new_event_id_fkey"
+            columns: ["new_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

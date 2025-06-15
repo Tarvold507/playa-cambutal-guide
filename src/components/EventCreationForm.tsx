@@ -6,13 +6,16 @@ import { z } from 'zod'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
+import { Checkbox } from '@/components/ui/checkbox'
 import { useCreateEvent } from '@/hooks/useEvents'
+import { useCreateEventSeries } from '@/hooks/useEventSeries'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
 import EventBasicInfoFields from './event-form/EventBasicInfoFields'
 import EventDateTimeFields from './event-form/EventDateTimeFields'
 import EventDescriptionFields from './event-form/EventDescriptionFields'
 import EventImageFields from './event-form/EventImageFields'
+import RecurrencePatternFields from './event-form/RecurrencePatternFields'
 
 const eventFormSchema = z.object({
   title: z.string().min(3, 'Event name must be at least 3 characters'),
@@ -29,7 +32,25 @@ const eventFormSchema = z.object({
   event_type: z.enum(['class', 'social', 'kids'], {
     required_error: 'Please select an event type',
   }),
-})
+  is_recurring: z.boolean().default(false),
+  recurrence: z.object({
+    pattern_type: z.enum(['daily', 'weekly', 'monthly']).optional(),
+    interval_value: z.number().min(1).default(1),
+    days_of_week: z.array(z.number()).optional(),
+    day_of_month: z.number().min(1).max(31).optional(),
+    end_type: z.enum(['never', 'after_count', 'by_date']).default('never'),
+    end_count: z.number().min(1).optional(),
+    end_date: z.string().optional(),
+  }).optional(),
+}).refine((data) => {
+  if (data.is_recurring && !data.recurrence?.pattern_type) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Please select a recurrence pattern for recurring events",
+  path: ["recurrence.pattern_type"],
+});
 
 type EventFormData = z.infer<typeof eventFormSchema>
 
@@ -41,6 +62,7 @@ const EventCreationForm: React.FC<EventCreationFormProps> = ({ onSuccess }) => {
   const { user } = useAuth()
   const { toast } = useToast()
   const createEvent = useCreateEvent()
+  const createEventSeries = useCreateEventSeries()
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
 
@@ -56,8 +78,16 @@ const EventCreationForm: React.FC<EventCreationFormProps> = ({ onSuccess }) => {
       full_description: '',
       image_url: '',
       event_type: undefined,
+      is_recurring: false,
+      recurrence: {
+        pattern_type: undefined,
+        interval_value: 1,
+        end_type: 'never',
+      },
     },
   })
+
+  const isRecurring = form.watch('is_recurring')
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -84,22 +114,44 @@ const EventCreationForm: React.FC<EventCreationFormProps> = ({ onSuccess }) => {
     }
 
     try {
-      await createEvent.mutateAsync({
-        title: data.title,
-        location: data.location,
-        host: data.host,
-        event_date: format(data.event_date, 'yyyy-MM-dd'),
-        start_time: data.start_time,
-        end_time: data.end_time,
-        description: `${data.description} | Type: ${data.event_type}`,
-        full_description: data.full_description,
-        image_url: data.image_url || undefined,
-      })
-
-      toast({
-        title: 'Event submitted successfully!',
-        description: 'Your event has been submitted for admin approval.',
-      })
+      if (data.is_recurring && data.recurrence?.pattern_type) {
+        // Create recurring event series
+        await createEventSeries.mutateAsync({
+          seriesData: {
+            title: data.title,
+            location: data.location,
+            host: data.host,
+            description: `${data.description} | Type: ${data.event_type}`,
+            full_description: data.full_description,
+            image_url: data.image_url || undefined,
+          },
+          recurrencePattern: {
+            pattern_type: data.recurrence.pattern_type,
+            interval_value: data.recurrence.interval_value,
+            days_of_week: data.recurrence.days_of_week,
+            day_of_month: data.recurrence.day_of_month,
+            end_type: data.recurrence.end_type,
+            end_count: data.recurrence.end_count,
+            end_date: data.recurrence.end_date,
+          },
+          firstEventDate: format(data.event_date, 'yyyy-MM-dd'),
+          startTime: data.start_time,
+          endTime: data.end_time,
+        })
+      } else {
+        // Create single event
+        await createEvent.mutateAsync({
+          title: data.title,
+          location: data.location,
+          host: data.host,
+          event_date: format(data.event_date, 'yyyy-MM-dd'),
+          start_time: data.start_time,
+          end_time: data.end_time,
+          description: `${data.description} | Type: ${data.event_type}`,
+          full_description: data.full_description,
+          image_url: data.image_url || undefined,
+        })
+      }
 
       form.reset()
       setImageFile(null)
@@ -135,15 +187,31 @@ const EventCreationForm: React.FC<EventCreationFormProps> = ({ onSuccess }) => {
           onImageChange={handleImageChange}
         />
 
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="is_recurring"
+            checked={isRecurring}
+            onCheckedChange={(checked) => form.setValue('is_recurring', checked as boolean)}
+          />
+          <label
+            htmlFor="is_recurring"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Make this a recurring event
+          </label>
+        </div>
+
+        {isRecurring && <RecurrencePatternFields control={form.control} />}
+
         <div className="flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onSuccess}>
             Cancel
           </Button>
           <Button 
             type="submit" 
-            disabled={createEvent.isPending}
+            disabled={createEvent.isPending || createEventSeries.isPending}
           >
-            {createEvent.isPending ? 'Submitting...' : 'Submit Event'}
+            {createEvent.isPending || createEventSeries.isPending ? 'Submitting...' : 'Submit Event'}
           </Button>
         </div>
       </form>

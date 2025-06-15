@@ -17,6 +17,10 @@ export interface Event {
   approved: boolean;
   user_id: string;
   created_at: string;
+  event_series_id?: string;
+  is_series_master?: boolean;
+  series_instance_date?: string;
+  is_exception?: boolean;
 }
 
 export const useEvents = () => {
@@ -55,7 +59,7 @@ export const useCreateEvent = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (eventData: Omit<Event, 'id' | 'approved' | 'user_id' | 'created_at'>) => {
+    mutationFn: async (eventData: Omit<Event, 'id' | 'approved' | 'user_id' | 'created_at' | 'event_series_id' | 'is_series_master' | 'series_instance_date' | 'is_exception'>) => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
