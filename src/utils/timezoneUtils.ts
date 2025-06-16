@@ -18,10 +18,23 @@ export const formatTimeWithDefaults = (timeValue: string): string => {
     return `${timeValue.padStart(2, '0')}:00`;
   }
   
-  // If time is in format "HH:MM", ensure minutes default to 00 if not specified
+  // If time is in format "HH:MM", ensure minutes are valid (00, 15, 30, 45)
   const [hours, minutes] = timeValue.split(':');
   const formattedHours = hours.padStart(2, '0');
-  const formattedMinutes = minutes ? minutes.padStart(2, '0') : '00';
+  
+  // Snap minutes to nearest valid value
+  const validMinutes = ['00', '15', '30', '45'];
+  let formattedMinutes = minutes ? minutes.padStart(2, '0') : '00';
+  
+  // If minutes are not in valid options, snap to nearest
+  if (!validMinutes.includes(formattedMinutes)) {
+    const minuteNum = parseInt(formattedMinutes, 10);
+    if (minuteNum < 8) formattedMinutes = '00';
+    else if (minuteNum < 23) formattedMinutes = '15';
+    else if (minuteNum < 38) formattedMinutes = '30';
+    else if (minuteNum < 53) formattedMinutes = '45';
+    else formattedMinutes = '00';
+  }
   
   return `${formattedHours}:${formattedMinutes}`;
 };

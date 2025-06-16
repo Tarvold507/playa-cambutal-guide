@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Control, useFormContext } from 'react-hook-form';
 import AutoCloseCalendar from '@/components/ui/auto-close-calendar';
+import TimeSelector from '@/components/ui/time-selector';
 import { formatInPanamaTime, calculateEndTime, formatTimeWithDefaults } from '@/utils/timezoneUtils';
 
 interface EventDateTimeFieldsProps {
@@ -69,11 +69,10 @@ const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) =>
             <FormItem>
               <FormLabel>Start Time</FormLabel>
               <FormControl>
-                <Input 
-                  type="time" 
-                  {...field}
-                  onChange={(e) => {
-                    const formattedTime = formatTimeWithDefaults(e.target.value);
+                <TimeSelector
+                  value={field.value}
+                  onChange={(time) => {
+                    const formattedTime = formatTimeWithDefaults(time);
                     field.onChange(formattedTime);
                     
                     // Auto-calculate end time
@@ -82,6 +81,7 @@ const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) =>
                       setValue('end_time', endTime);
                     }
                   }}
+                  placeholder="Select start time"
                 />
               </FormControl>
               <FormMessage />
@@ -96,13 +96,13 @@ const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) =>
             <FormItem>
               <FormLabel>End Time</FormLabel>
               <FormControl>
-                <Input 
-                  type="time" 
-                  {...field}
-                  onChange={(e) => {
-                    const formattedTime = formatTimeWithDefaults(e.target.value);
+                <TimeSelector
+                  value={field.value}
+                  onChange={(time) => {
+                    const formattedTime = formatTimeWithDefaults(time);
                     field.onChange(formattedTime);
                   }}
+                  placeholder="Select end time"
                 />
               </FormControl>
               <FormMessage />

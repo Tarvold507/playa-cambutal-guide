@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -191,11 +190,10 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
               <FormItem>
                 <FormLabel>Start Time</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="time" 
-                    {...field}
-                    onChange={(e) => {
-                      const formattedTime = formatTimeWithDefaults(e.target.value);
+                  <TimeSelector
+                    value={field.value}
+                    onChange={(time) => {
+                      const formattedTime = formatTimeWithDefaults(time);
                       field.onChange(formattedTime);
                       
                       // Auto-calculate end time
@@ -204,6 +202,7 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
                         form.setValue('end_time', endTime);
                       }
                     }}
+                    placeholder="Select start time"
                   />
                 </FormControl>
                 <FormMessage />
@@ -218,13 +217,13 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
               <FormItem>
                 <FormLabel>End Time</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="time" 
-                    {...field}
-                    onChange={(e) => {
-                      const formattedTime = formatTimeWithDefaults(e.target.value);
+                  <TimeSelector
+                    value={field.value}
+                    onChange={(time) => {
+                      const formattedTime = formatTimeWithDefaults(time);
                       field.onChange(formattedTime);
                     }}
+                    placeholder="Select end time"
                   />
                 </FormControl>
                 <FormMessage />
