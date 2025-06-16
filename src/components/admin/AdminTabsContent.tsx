@@ -12,6 +12,7 @@ import LiveAdventureBusinessesTab from '@/components/admin/LiveAdventureBusiness
 import SEOManagementTab from '@/components/admin/SEOManagementTab';
 import ContentManagementTab from '@/components/admin/ContentManagementTab';
 import GooglePlacesImport from '@/components/admin/GooglePlacesImport';
+import { SitemapGenerator } from './SitemapGenerator';
 
 interface AdminTabsContentProps {
   data: {
@@ -137,10 +138,10 @@ const AdminTabsContent = ({ data, handlers }: AdminTabsContentProps) => {
       </TabsContent>
 
       <TabsContent value="seo">
-        <SEOManagementTab
-          pageSEO={pageSEO}
-          onRefresh={refreshSEOData}
-        />
+        <div className="space-y-6">
+          <SEOManagementTab />
+          <SitemapGenerator />
+        </div>
       </TabsContent>
 
       <TabsContent value="content">
