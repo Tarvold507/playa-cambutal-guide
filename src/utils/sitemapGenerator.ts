@@ -109,7 +109,7 @@ export const generateSitemap = async (): Promise<string> => {
     const { data: blogPosts } = await supabase
       .from('blog_posts')
       .select('slug, updated_at')
-      .eq('published', true);
+      .eq('approved', true);
 
     if (blogPosts) {
       blogPosts.forEach(post => {
@@ -126,32 +126,33 @@ export const generateSitemap = async (): Promise<string> => {
     console.error('Error fetching sitemap data:', error);
   }
 
-  // Generate XML sitemap with proper escaping
-  const urlElements = urls.map(urlData => {
-    const urlElement = `  <url>
-    <loc>${baseUrl}${urlData.url}</loc>`;
-    
-    const lastModified = urlData.lastModified 
-      ? `\n    <lastmod>${new Date(urlData.lastModified).toISOString().split('T')[0]}</lastmod>` 
-      : '';
-    
-    const changeFreq = urlData.changeFrequency 
-      ? `\n    <changefreq>${urlData.changeFrequency}</changefreq>` 
-      : '';
-    
-    const priority = urlData.priority 
-      ? `\n    <priority>${urlData.priority}</priority>` 
-      : '';
+  // Generate XML sitemap using a simpler approach to avoid TypeScript type depth issues
+  const xmlParts: string[] = ['<?xml version="1.0" encoding="UTF-8"?>'];
+  xmlParts.push('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
 
-    return urlElement + lastModified + changeFreq + priority + '\n  </url>';
-  }).join('\n');
+  urls.forEach(urlData => {
+    xmlParts.push('  <url>');
+    xmlParts.push(`    <loc>${baseUrl}${urlData.url}</loc>`);
+    
+    if (urlData.lastModified) {
+      const date = new Date(urlData.lastModified).toISOString().split('T')[0];
+      xmlParts.push(`    <lastmod>${date}</lastmod>`);
+    }
+    
+    if (urlData.changeFrequency) {
+      xmlParts.push(`    <changefreq>${urlData.changeFrequency}</changefreq>`);
+    }
+    
+    if (urlData.priority !== undefined) {
+      xmlParts.push(`    <priority>${urlData.priority}</priority>`);
+    }
+    
+    xmlParts.push('  </url>');
+  });
 
-  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urlElements}
-</urlset>`;
-
-  return sitemapXml;
+  xmlParts.push('</urlset>');
+  
+  return xmlParts.join('\n');
 };
 
 export const downloadSitemap = async (): Promise<void> => {
