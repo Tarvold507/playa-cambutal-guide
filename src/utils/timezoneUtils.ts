@@ -1,4 +1,5 @@
 
+
 import { format, parseISO } from 'date-fns';
 import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
@@ -37,3 +38,20 @@ export const calculateEndTime = (startTime: string): string => {
 export const toPanamaTime = (date: Date): Date => {
   return toZonedTime(date, PANAMA_TIMEZONE);
 };
+
+export const parseEventDatePanama = (dateString: string): Date => {
+  // If the date string doesn't include time, treat it as local Panama date
+  if (!dateString.includes('T') && !dateString.includes(' ')) {
+    const [year, month, day] = dateString.split('-').map(Number);
+    // Create date in Panama timezone
+    const localDate = new Date(year, month - 1, day);
+    return toPanamaTime(localDate);
+  }
+  
+  return toPanamaTime(typeof dateString === 'string' ? parseISO(dateString) : dateString);
+};
+
+export const formatDateForDB = (date: Date): string => {
+  return formatInPanamaTime(date, 'yyyy-MM-dd');
+};
+
