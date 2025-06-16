@@ -97,7 +97,7 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
         const match = field.match(/cards\[(\d+)\]\.imageSrc/);
         if (match) {
           const cardIndex = parseInt(match[1]);
-          const cards = formData.content_data.cards || [];
+          const cards = (formData.content_data as any).cards || [];
           if (cards[cardIndex]) {
             const updatedCards = [...cards];
             updatedCards[cardIndex] = { ...updatedCards[cardIndex], imageSrc: imageUrl };
