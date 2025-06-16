@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -93,7 +92,22 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
   const handleImageUpload = async (file: File, field: string) => {
     const imageUrl = await uploadImage(file, 'content');
     if (imageUrl) {
-      updateContentData(field, imageUrl);
+      // Handle special case for card images in cards array
+      if (field.includes('cards[') && field.includes('].imageSrc')) {
+        const match = field.match(/cards\[(\d+)\]\.imageSrc/);
+        if (match) {
+          const cardIndex = parseInt(match[1]);
+          const cards = formData.content_data.cards || [];
+          if (cards[cardIndex]) {
+            const updatedCards = [...cards];
+            updatedCards[cardIndex] = { ...updatedCards[cardIndex], imageSrc: imageUrl };
+            updateContentData('cards', updatedCards);
+          }
+        }
+      } else {
+        // Handle regular field updates
+        updateContentData(field, imageUrl);
+      }
     }
   };
 

@@ -41,22 +41,9 @@ const CardsFields = ({ contentData, updateContentData, onImageUpload, uploading 
   };
 
   const handleCardImageUpload = async (file: File, cardIndex: number) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (response.ok) {
-        const { url } = await response.json();
-        updateCard(cardIndex, 'imageSrc', url);
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    }
+    // Use the onImageUpload prop with a field identifier that includes the card index
+    const fieldName = `cards[${cardIndex}].imageSrc`;
+    await onImageUpload(file, fieldName);
   };
 
   return (
@@ -175,7 +162,7 @@ const CardsFields = ({ contentData, updateContentData, onImageUpload, uploading 
                       onClick={() => document.getElementById(`card-image-${index}`)?.click()}
                       disabled={uploading}
                     >
-                      Upload
+                      {uploading ? 'Uploading...' : 'Upload'}
                     </Button>
                   </div>
                 </div>
