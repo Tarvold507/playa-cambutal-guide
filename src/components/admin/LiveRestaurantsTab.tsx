@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, MapPin, Clock, Phone, Globe, MessageCircle } from 'lucide-react';
+import { Edit, MapPin, Clock, Phone, Globe, MessageCircle, Crown } from 'lucide-react';
 
 interface LiveRestaurantsTabProps {
   liveRestaurants: any[];
@@ -31,6 +31,12 @@ const LiveRestaurantsTab = ({ liveRestaurants, onEdit }: LiveRestaurantsTabProps
                     Live
                   </Badge>
                   <Badge variant="secondary">{restaurant.category}</Badge>
+                  {restaurant.is_premium && (
+                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 flex items-center gap-1">
+                      <Crown className="w-3 h-3" />
+                      Premium
+                    </Badge>
+                  )}
                   {restaurant.closed_for_season && (
                     <Badge variant="destructive">Closed for Season</Badge>
                   )}
@@ -38,6 +44,11 @@ const LiveRestaurantsTab = ({ liveRestaurants, onEdit }: LiveRestaurantsTabProps
                 <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
                   <MapPin className="w-4 h-4" />
                   <span>{restaurant.address}</span>
+                  {restaurant.is_premium && restaurant.display_order !== undefined && (
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                      Order: {restaurant.display_order}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex gap-2">

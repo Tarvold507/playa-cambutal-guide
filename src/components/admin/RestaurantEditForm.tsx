@@ -90,18 +90,44 @@ const RestaurantEditForm = ({ editForm, onFormChange }: RestaurantEditFormProps)
           onChange={(e) => onFormChange({ image_url: e.target.value })}
         />
       </div>
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="edit-closed-for-season"
-          checked={editForm.closed_for_season || false}
-          onCheckedChange={(checked) => 
-            onFormChange({ closed_for_season: checked as boolean })
-          }
-        />
-        <Label htmlFor="edit-closed-for-season" className="text-sm font-medium">
-          Closed for Season
-        </Label>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="edit-closed-for-season"
+            checked={editForm.closed_for_season || false}
+            onCheckedChange={(checked) => 
+              onFormChange({ closed_for_season: checked as boolean })
+            }
+          />
+          <Label htmlFor="edit-closed-for-season" className="text-sm font-medium">
+            Closed for Season
+          </Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="edit-is-premium"
+            checked={editForm.is_premium || false}
+            onCheckedChange={(checked) => 
+              onFormChange({ is_premium: checked as boolean })
+            }
+          />
+          <Label htmlFor="edit-is-premium" className="text-sm font-medium">
+            Premium Listing
+          </Label>
+        </div>
       </div>
+      {editForm.is_premium && (
+        <div>
+          <Label htmlFor="edit-display-order">Display Order (Premium)</Label>
+          <Input
+            id="edit-display-order"
+            type="number"
+            value={editForm.display_order || 0}
+            onChange={(e) => onFormChange({ display_order: parseInt(e.target.value) || 0 })}
+            placeholder="Lower numbers appear first"
+          />
+        </div>
+      )}
     </>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +25,19 @@ export interface HotelListing {
   price_from: number | null;
   currency: string | null;
   created_at: string;
+  is_premium: boolean;
+  display_order: number;
 }
+
+// Helper function to randomize array order
+const shuffleArray = <T>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 export const useHotelListings = () => {
   const [hotels, setHotels] = useState<HotelListing[]>([]);
@@ -38,8 +49,7 @@ export const useHotelListings = () => {
       const { data, error } = await supabase
         .from('hotel_listings')
         .select('*')
-        .eq('approved', true)
-        .order('created_at', { ascending: false });
+        .eq('approved', true);
 
       if (error) throw error;
 
@@ -53,9 +63,32 @@ export const useHotelListings = () => {
           ? hotel.amenities.filter((amenity): amenity is string => typeof amenity === 'string')
           : [],
         policies: typeof hotel.policies === 'object' && hotel.policies !== null ? hotel.policies : {},
+        is_premium: hotel.is_premium || false,
+        display_order: hotel.display_order || 0,
       })) || [];
 
-      setHotels(transformedHotels);
+      // Sort hotels: premium first (by display_order, then randomized), then regular (randomized)
+      const premiumHotels = transformedHotels.filter(hotel => hotel.is_premium);
+      const regularHotels = transformedHotels.filter(hotel => !hotel.is_premium);
+
+      // Sort premium hotels by display_order, then randomize within same order
+      const sortedPremiumHotels = premiumHotels
+        .sort((a, b) => a.display_order - b.display_order)
+        .reduce((acc, hotel) => {
+          const sameOrderHotels = premiumHotels.filter(h => h.display_order === hotel.display_order);
+          if (!acc.some(h => h.id === hotel.id)) {
+            acc.push(...shuffleArray(sameOrderHotels));
+          }
+          return acc;
+        }, [] as HotelListing[]);
+
+      // Randomize regular hotels
+      const shuffledRegularHotels = shuffleArray(regularHotels);
+
+      // Combine: premium first, then regular
+      const finalHotels = [...sortedPremiumHotels, ...shuffledRegularHotels];
+
+      setHotels(finalHotels);
     } catch (error) {
       console.error('Error fetching hotels:', error);
       toast({
@@ -106,6 +139,8 @@ export const useHotelDetails = (slug: string) => {
                 ? matchingHotel.amenities.filter((amenity): amenity is string => typeof amenity === 'string')
                 : [],
               policies: typeof matchingHotel.policies === 'object' && matchingHotel.policies !== null ? matchingHotel.policies : {},
+              is_premium: matchingHotel.is_premium || false,
+              display_order: matchingHotel.display_order || 0,
             });
           }
         }

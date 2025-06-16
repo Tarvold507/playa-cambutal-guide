@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, MapPin, Star, ExternalLink } from 'lucide-react';
+import { Edit, MapPin, Star, ExternalLink, Crown } from 'lucide-react';
 import { getAmenityIcon } from '@/utils/amenityIcons';
 
 interface LiveHotelsTabProps {
@@ -32,6 +32,12 @@ const LiveHotelsTab = ({ liveHotels, onEdit }: LiveHotelsTabProps) => {
                     Live
                   </Badge>
                   <Badge variant="secondary">{hotel.category}</Badge>
+                  {hotel.is_premium && (
+                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 flex items-center gap-1">
+                      <Crown className="w-3 h-3" />
+                      Premium
+                    </Badge>
+                  )}
                   {hotel.rating && (
                     <div className="flex items-center gap-1 text-sm">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -42,6 +48,11 @@ const LiveHotelsTab = ({ liveHotels, onEdit }: LiveHotelsTabProps) => {
                 <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
                   <MapPin className="w-4 h-4" />
                   <span>{hotel.address}</span>
+                  {hotel.is_premium && hotel.display_order !== undefined && (
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                      Order: {hotel.display_order}
+                    </span>
+                  )}
                 </div>
                 {hotel.price_from && (
                   <div className="text-lg font-semibold text-venao-dark mt-2">

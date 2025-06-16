@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -26,7 +27,18 @@ interface RestaurantItem {
   latitude?: number;
   longitude?: number;
   closedForSeason?: boolean;
+  isPremium?: boolean;
 }
+
+// Helper function to randomize array order
+const shuffleArray = <T>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 const Eat = () => {
   const [allItems, setAllItems] = useState<RestaurantItem[]>([]);
@@ -54,8 +66,7 @@ const Eat = () => {
       const { data, error } = await supabase
         .from('restaurant_listings')
         .select('*')
-        .eq('approved', true)
-        .order('created_at', { ascending: false });
+        .eq('approved', true);
 
       if (error) throw error;
 
@@ -81,12 +92,50 @@ const Eat = () => {
           hours: normalizedHours,
           latitude: (restaurant as any).latitude ? Number((restaurant as any).latitude) : undefined,
           longitude: (restaurant as any).longitude ? Number((restaurant as any).longitude) : undefined,
-          closedForSeason: restaurant.closed_for_season
+          closedForSeason: restaurant.closed_for_season,
+          isPremium: restaurant.is_premium || false,
         };
       }) || [];
 
-      setAllItems(dbRestaurants);
-      setFilteredItems(dbRestaurants);
+      // Sort restaurants: premium first (by display_order, then randomized), then regular (randomized)
+      const premiumRestaurants = dbRestaurants.filter(restaurant => restaurant.isPremium);
+      const regularRestaurants = dbRestaurants.filter(restaurant => !restaurant.isPremium);
+
+      // Get the display order from the database for premium restaurants
+      const premiumWithOrder = await Promise.all(
+        premiumRestaurants.map(async (restaurant) => {
+          const { data } = await supabase
+            .from('restaurant_listings')
+            .select('display_order')
+            .eq('id', restaurant.id)
+            .single();
+          
+          return {
+            ...restaurant,
+            displayOrder: data?.display_order || 0
+          };
+        })
+      );
+
+      // Sort premium restaurants by display_order, then randomize within same order
+      const sortedPremiumRestaurants = premiumWithOrder
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+        .reduce((acc, restaurant) => {
+          const sameOrderRestaurants = premiumWithOrder.filter(r => r.displayOrder === restaurant.displayOrder);
+          if (!acc.some(r => r.id === restaurant.id)) {
+            acc.push(...shuffleArray(sameOrderRestaurants));
+          }
+          return acc;
+        }, [] as typeof premiumWithOrder);
+
+      // Randomize regular restaurants
+      const shuffledRegularRestaurants = shuffleArray(regularRestaurants);
+
+      // Combine: premium first, then regular
+      const finalRestaurants = [...sortedPremiumRestaurants, ...shuffledRegularRestaurants];
+
+      setAllItems(finalRestaurants);
+      setFilteredItems(finalRestaurants);
     } catch (error) {
       console.error('Error fetching approved restaurants:', error);
       toast({

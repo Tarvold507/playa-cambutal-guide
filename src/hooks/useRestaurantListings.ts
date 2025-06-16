@@ -22,6 +22,8 @@ export interface RestaurantListing {
   user_id: string;
   created_at: string;
   updated_at: string;
+  is_premium: boolean;
+  display_order: number;
 }
 
 export const useRestaurantListings = () => {
@@ -52,6 +54,8 @@ export const useRestaurantListings = () => {
           item.gallery_images as string[] : [],
         menu_images: Array.isArray(item.menu_images) ? 
           item.menu_images as string[] : [],
+        is_premium: item.is_premium || false,
+        display_order: item.display_order || 0,
       })) || [];
       
       setUserRestaurants(transformedData);
@@ -67,7 +71,7 @@ export const useRestaurantListings = () => {
     }
   };
 
-  const submitRestaurant = async (restaurantData: Omit<RestaurantListing, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'approved'>) => {
+  const submitRestaurant = async (restaurantData: Omit<RestaurantListing, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'approved' | 'is_premium' | 'display_order'>) => {
     if (!user) throw new Error('User not authenticated');
 
     const { error } = await supabase

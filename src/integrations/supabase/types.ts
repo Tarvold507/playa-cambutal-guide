@@ -347,11 +347,13 @@ export type Database = {
           created_at: string
           currency: string | null
           description: string | null
+          display_order: number | null
           expedia_hotel_id: string | null
           full_description: string | null
           gallery_images: Json | null
           id: string
           image_url: string | null
+          is_premium: boolean
           latitude: number | null
           longitude: number | null
           name: string
@@ -374,11 +376,13 @@ export type Database = {
           created_at?: string
           currency?: string | null
           description?: string | null
+          display_order?: number | null
           expedia_hotel_id?: string | null
           full_description?: string | null
           gallery_images?: Json | null
           id?: string
           image_url?: string | null
+          is_premium?: boolean
           latitude?: number | null
           longitude?: number | null
           name: string
@@ -401,11 +405,13 @@ export type Database = {
           created_at?: string
           currency?: string | null
           description?: string | null
+          display_order?: number | null
           expedia_hotel_id?: string | null
           full_description?: string | null
           gallery_images?: Json | null
           id?: string
           image_url?: string | null
+          is_premium?: boolean
           latitude?: number | null
           longitude?: number | null
           name?: string
@@ -643,11 +649,13 @@ export type Database = {
           closed_for_season: boolean
           created_at: string | null
           description: string | null
+          display_order: number | null
           email: string | null
           gallery_images: Json | null
           hours: Json | null
           id: string
           image_url: string | null
+          is_premium: boolean
           latitude: number | null
           longitude: number | null
           menu_images: Json | null
@@ -667,11 +675,13 @@ export type Database = {
           closed_for_season?: boolean
           created_at?: string | null
           description?: string | null
+          display_order?: number | null
           email?: string | null
           gallery_images?: Json | null
           hours?: Json | null
           id?: string
           image_url?: string | null
+          is_premium?: boolean
           latitude?: number | null
           longitude?: number | null
           menu_images?: Json | null
@@ -691,11 +701,13 @@ export type Database = {
           closed_for_season?: boolean
           created_at?: string | null
           description?: string | null
+          display_order?: number | null
           email?: string | null
           gallery_images?: Json | null
           hours?: Json | null
           id?: string
           image_url?: string | null
+          is_premium?: boolean
           latitude?: number | null
           longitude?: number | null
           menu_images?: Json | null

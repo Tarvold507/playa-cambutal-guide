@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -51,6 +52,8 @@ export const useAdminLiveData = () => {
         .from('restaurant_listings')
         .select('*')
         .eq('approved', true)
+        .order('is_premium', { ascending: false })
+        .order('display_order', { ascending: true })
         .order('created_at', { ascending: false });
 
       if (restaurantError) {
@@ -74,6 +77,8 @@ export const useAdminLiveData = () => {
               menu_images: Array.isArray(restaurant.menu_images) ? 
                 restaurant.menu_images as string[] : [],
               closed_for_season: restaurant.closed_for_season || false,
+              is_premium: restaurant.is_premium || false,
+              display_order: restaurant.display_order || 0,
               profiles: profile
             };
           })
@@ -89,6 +94,8 @@ export const useAdminLiveData = () => {
         .from('hotel_listings')
         .select('*')
         .eq('approved', true)
+        .order('is_premium', { ascending: false })
+        .order('display_order', { ascending: true })
         .order('created_at', { ascending: false });
 
       if (hotelError) {
@@ -118,6 +125,8 @@ export const useAdminLiveData = () => {
                   hotel.amenities as string[] : [],
                 policies: typeof hotel.policies === 'object' && hotel.policies !== null ? 
                   hotel.policies as Record<string, any> : {},
+                is_premium: hotel.is_premium || false,
+                display_order: hotel.display_order || 0,
                 profiles: profile || null
               };
             })

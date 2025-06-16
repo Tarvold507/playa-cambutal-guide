@@ -148,6 +148,34 @@ const HotelEditForm = ({ editForm, onFormChange }: HotelEditFormProps) => {
         </div>
       </div>
 
+      {/* Premium Listing Settings */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="edit-is-premium"
+            checked={editForm.is_premium || false}
+            onCheckedChange={(checked) => 
+              onFormChange({ is_premium: checked as boolean })
+            }
+          />
+          <Label htmlFor="edit-is-premium" className="text-sm font-medium">
+            Premium Listing
+          </Label>
+        </div>
+        {editForm.is_premium && (
+          <div>
+            <Label htmlFor="edit-display-order">Display Order (Premium)</Label>
+            <Input
+              id="edit-display-order"
+              type="number"
+              value={editForm.display_order || 0}
+              onChange={(e) => onFormChange({ display_order: parseInt(e.target.value) || 0 })}
+              placeholder="Lower numbers appear first"
+            />
+          </div>
+        )}
+      </div>
+
       {/* Images */}
       <div>
         <Label htmlFor="edit-image-url">Main Image URL</Label>
