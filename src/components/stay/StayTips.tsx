@@ -1,7 +1,5 @@
-
 const StayTips = () => {
-  return (
-    <section className="bg-white py-16">
+  return <section className="bg-white py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Accommodation Tips</h2>
@@ -14,7 +12,7 @@ const StayTips = () => {
             
             <div className="bg-gray-50 p-6 rounded-lg">
               <h3 className="font-semibold text-lg text-gray-800 mb-2">Location Considerations</h3>
-              <p className="text-gray-600">The bay is horseshoe-shaped, with accommodations spread along its curve. The center offers easy access to most restaurants and services, while the ends provide more tranquility but may require transportation for getting around.</p>
+              <p className="text-gray-600">Accommodations are spread out along the beach and in the hills along the beach. Heading into town there are additional accommodations along the main road. Along the main beach road offers easy access to most restaurants and services.</p>
             </div>
             
             <div className="bg-gray-50 p-6 rounded-lg">
@@ -24,8 +22,6 @@ const StayTips = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default StayTips;
