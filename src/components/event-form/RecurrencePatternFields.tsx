@@ -20,14 +20,15 @@ const RecurrencePatternFields: React.FC<RecurrencePatternFieldsProps> = ({ contr
   const patternType = useWatch({ control, name: 'recurrence.pattern_type' });
   const endType = useWatch({ control, name: 'recurrence.end_type' });
 
+  // PostgreSQL uses 0=Sunday, 1=Monday, 2=Tuesday, etc.
   const daysOfWeek = [
-    { value: 0, label: 'Sun' },
-    { value: 1, label: 'Mon' },
+    { value: 1, label: 'Mon' }, // Monday = 1 in PostgreSQL
     { value: 2, label: 'Tue' },
     { value: 3, label: 'Wed' },
     { value: 4, label: 'Thu' },
     { value: 5, label: 'Fri' },
     { value: 6, label: 'Sat' },
+    { value: 0, label: 'Sun' }, // Sunday = 0 in PostgreSQL
   ];
 
   return (

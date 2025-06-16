@@ -16,6 +16,8 @@ DECLARE
   v_instance_count INTEGER := 0;
   v_max_instances INTEGER := 100; -- Safety limit
   v_day_of_week INTEGER;
+  v_target_day INTEGER;
+  v_days_checked INTEGER := 0;
 BEGIN
   -- Get the event series info
   SELECT * INTO v_series FROM event_series WHERE id = p_event_series_id;
@@ -35,7 +37,7 @@ BEGIN
     RAISE EXCEPTION 'Master event not found';
   END IF;
 
-  -- Set the starting date (skip the first occurrence as it's the master event)
+  -- Set the starting date (start from the day after the master event)
   v_current_date := v_master_event.event_date;
   
   -- Calculate end date based on pattern
@@ -50,70 +52,91 @@ BEGIN
 
   -- Generate instances based on pattern type
   IF v_pattern.pattern_type = 'weekly' THEN
-    LOOP
-      -- Move to next occurrence
-      IF v_pattern.days_of_week IS NOT NULL AND array_length(v_pattern.days_of_week, 1) > 0 THEN
-        -- Find next occurrence based on days of week
-        v_day_of_week := EXTRACT(DOW FROM v_current_date);
+    -- For weekly patterns with specific days of week
+    IF v_pattern.days_of_week IS NOT NULL AND array_length(v_pattern.days_of_week, 1) > 0 THEN
+      LOOP
+        -- Move to next day
         v_current_date := v_current_date + INTERVAL '1 day';
+        v_day_of_week := EXTRACT(DOW FROM v_current_date);
         
-        -- Find the next occurrence that matches the pattern
-        WHILE NOT (EXTRACT(DOW FROM v_current_date) = ANY(v_pattern.days_of_week)) LOOP
-          v_current_date := v_current_date + INTERVAL '1 day';
-          -- Safety check to prevent infinite loop
-          IF v_current_date > v_master_event.event_date + INTERVAL '1 year' THEN
+        -- Check if current day matches any of the target days
+        IF v_day_of_week = ANY(v_pattern.days_of_week) THEN
+          -- Check if we should stop
+          IF v_pattern.end_type = 'by_date' AND v_current_date > v_end_date THEN
             EXIT;
           END IF;
-        END LOOP;
-      ELSE
-        -- Default weekly interval
+          
+          IF v_instance_count >= v_max_instances - 1 THEN -- -1 because master event counts as first
+            EXIT;
+          END IF;
+
+          -- Create the event instance
+          INSERT INTO events (
+            title,
+            description,
+            full_description,
+            location,
+            host,
+            event_date,
+            start_time,
+            end_time,
+            image_url,
+            user_id,
+            event_series_id,
+            is_series_master,
+            series_instance_date,
+            approved
+          ) VALUES (
+            v_master_event.title,
+            v_master_event.description,
+            v_master_event.full_description,
+            v_master_event.location,
+            v_master_event.host,
+            v_current_date,
+            v_master_event.start_time,
+            v_master_event.end_time,
+            v_master_event.image_url,
+            v_master_event.user_id,
+            p_event_series_id,
+            false, -- Not a series master
+            v_current_date,
+            false -- Instances start as unapproved, will be approved when series is approved
+          );
+
+          v_instance_count := v_instance_count + 1;
+        END IF;
+        
+        -- Safety check to prevent infinite loop
+        IF v_current_date > v_master_event.event_date + INTERVAL '2 years' THEN
+          EXIT;
+        END IF;
+      END LOOP;
+    ELSE
+      -- Default weekly interval (every N weeks from master event date)
+      LOOP
         v_current_date := v_current_date + (v_pattern.interval_value || ' weeks')::INTERVAL;
-      END IF;
+        
+        IF v_pattern.end_type = 'by_date' AND v_current_date > v_end_date THEN
+          EXIT;
+        END IF;
+        
+        IF v_instance_count >= v_max_instances - 1 THEN
+          EXIT;
+        END IF;
 
-      -- Check if we should stop
-      IF v_pattern.end_type = 'by_date' AND v_current_date > v_end_date THEN
-        EXIT;
-      END IF;
-      
-      IF v_instance_count >= v_max_instances - 1 THEN -- -1 because master event counts as first
-        EXIT;
-      END IF;
+        INSERT INTO events (
+          title, description, full_description, location, host, event_date, start_time, end_time,
+          image_url, user_id, event_series_id, is_series_master, series_instance_date, approved
+        ) VALUES (
+          v_master_event.title, v_master_event.description, v_master_event.full_description,
+          v_master_event.location, v_master_event.host, v_current_date, v_master_event.start_time,
+          v_master_event.end_time, v_master_event.image_url, v_master_event.user_id,
+          p_event_series_id, false, v_current_date, false
+        );
 
-      -- Create the event instance
-      INSERT INTO events (
-        title,
-        description,
-        full_description,
-        location,
-        host,
-        event_date,
-        start_time,
-        end_time,
-        image_url,
-        user_id,
-        event_series_id,
-        is_series_master,
-        series_instance_date,
-        approved
-      ) VALUES (
-        v_master_event.title,
-        v_master_event.description,
-        v_master_event.full_description,
-        v_master_event.location,
-        v_master_event.host,
-        v_current_date,
-        v_master_event.start_time,
-        v_master_event.end_time,
-        v_master_event.image_url,
-        v_master_event.user_id,
-        p_event_series_id,
-        false, -- Not a series master
-        v_current_date,
-        false -- Instances start as unapproved, will be approved when series is approved
-      );
-
-      v_instance_count := v_instance_count + 1;
-    END LOOP;
+        v_instance_count := v_instance_count + 1;
+      END LOOP;
+    END IF;
 
   ELSIF v_pattern.pattern_type = 'daily' THEN
     LOOP
