@@ -4,6 +4,7 @@ import { useHotelListings } from '@/hooks/useHotelListings';
 import { useRestaurantListings } from '@/hooks/useRestaurantListings';
 import { usePageSEO } from '@/hooks/usePageSEO';
 import { useToast } from '@/hooks/use-toast';
+import { generateSlug } from '@/utils/slugUtils';
 
 export const useAdminSEOBulkActions = () => {
   const { hotels } = useHotelListings();
@@ -50,15 +51,48 @@ export const useAdminSEOBulkActions = () => {
     setIsGenerating(true);
     try {
       for (const restaurant of userRestaurants) {
-        const pagePath = `/eat/${restaurant.name.toLowerCase().replace(/\s+/g, '_')}`;
+        // Generate proper slug for restaurant
+        const restaurantSlug = generateSlug(restaurant.name);
+        const pagePath = `/eat/${restaurantSlug}`;
+        
+        // Get the best available image for OG tags
+        const getRestaurantOGImage = () => {
+          if (restaurant.image_url) return restaurant.image_url;
+          if (restaurant.gallery_images && restaurant.gallery_images.length > 0) return restaurant.gallery_images[0];
+          // Fallback to a default restaurant image
+          return 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+        };
+
+        // Create detailed description
+        const createDescription = () => {
+          let description = restaurant.description || `Experience authentic dining at ${restaurant.name} in Playa Cambutal, Panama.`;
+          
+          if (restaurant.address) {
+            description += ` Located at ${restaurant.address}.`;
+          }
+          
+          if (restaurant.category) {
+            description += ` Specializing in ${restaurant.category.toLowerCase()}.`;
+          }
+          
+          if (restaurant.phone || restaurant.whatsapp) {
+            description += ' Call or message us for reservations.';
+          }
+          
+          return description;
+        };
+
         const seoData = {
-          page_title: `${restaurant.name} - Playa Cambutal Restaurants`,
-          meta_description: `${restaurant.name} in Playa Cambutal: ${restaurant.description || 'Delicious local cuisine and international dishes.'} Visit us today.`,
-          meta_keywords: `${restaurant.name}, Playa Cambutal restaurant, restaurant, Panama dining, beach restaurant`,
-          og_title: `${restaurant.name} - Playa Cambutal`,
-          og_description: restaurant.description || `Enjoy delicious meals at ${restaurant.name} in beautiful Playa Cambutal, Panama.`,
-          og_image: restaurant.image_url || '',
-          canonical_url: `${window.location.origin}/eat/${restaurant.name.toLowerCase().replace(/\s+/g, '_')}`,
+          page_title: `${restaurant.name} - Restaurant in Playa Cambutal | Playa Cambutal Guide`,
+          meta_description: createDescription(),
+          meta_keywords: `${restaurant.name}, Playa Cambutal restaurant, ${restaurant.category || 'restaurant'}, Panama dining, beach restaurant, ${restaurant.address ? restaurant.address + ', ' : ''}Los Santos Province`,
+          og_title: `${restaurant.name} - Playa Cambutal Restaurant`,
+          og_description: createDescription(),
+          og_image: getRestaurantOGImage(),
+          twitter_title: `${restaurant.name} - Playa Cambutal Restaurant`,
+          twitter_description: createDescription(),
+          twitter_image: getRestaurantOGImage(),
+          canonical_url: `${window.location.origin}/eat/${restaurantSlug}`,
           robots: 'index, follow',
         };
 
