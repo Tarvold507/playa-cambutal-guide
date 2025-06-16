@@ -1,3 +1,4 @@
+
 import { Facebook, Instagram, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -78,7 +79,6 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-400">
               <li>{t('footer.address')}</li>
               <li>{t('footer.email')}</li>
-              <li>{t('footer.phone')}</li>
             </ul>
           </div>
         </div>
