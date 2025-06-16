@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -78,6 +77,7 @@ const Eat = () => {
             restaurant.menu_images as string[] : [],
           is_premium: restaurant.is_premium || false,
           display_order: restaurant.display_order || 0,
+          closed_for_season: restaurant.closed_for_season || false,
         })) || [];
 
         // Sort restaurants: premium first (by display_order, then randomized), then regular (randomized)
