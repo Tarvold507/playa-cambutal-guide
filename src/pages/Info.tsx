@@ -74,7 +74,7 @@ const TransportationContent = () => (
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-2">Car Rentals</h3>
-          <p className="text-gray-600">Vehicle rental services including cars, ATVs, and motorcycles.</p>
+          <p className="text-gray-600">Vehicle rental services including cars, ATVs, and motorcycles. <a href="https://www.autospanama.net/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Autos Panama</a> offers reliable rental options.</p>
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-2">Boat Services</h3>
