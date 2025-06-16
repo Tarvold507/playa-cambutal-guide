@@ -57,7 +57,7 @@ const TransportationContent = () => <Card className="w-full">
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold mb-2">Airport Transfers</h3>
-          <p className="text-gray-600">Buses are available from the Albrook Airport in Panama City and Chitre Airport that will bring you to Cambutal but will require some transfers. </p>
+          <p className="text-gray-600">Buses are available from the Albrook Airport in Panama City and Chitre Airport that will bring you to Cambutal but will require some transfers. </p>
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-2">Local Taxi Services</h3>
@@ -65,11 +65,11 @@ const TransportationContent = () => <Card className="w-full">
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-2">Car Rentals</h3>
-          <p className="text-gray-600">Vehicle rental services including cars, ATVs, and motorcycles. <a href="https://www.autospanama.net/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Autos Panama</a> offers reliable rental options.</p>
+          <p className="text-gray-600">Vehicle rental services are available in Panama City, Chitre, and Pedasi. Common rental companies used are Hertz, National, and <a href="https://www.autospanama.net/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Autos Panama</a>.</p>
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-2">Shuttle Services</h3>
-          <p className="text-gray-600">There are a few different shuttle services that operate in the area. The most commonly used ones are Pineapple Shuttles and My Pink Bus.</p>
+          <p className="text-gray-600">There are a few different shuttle services that operate in the area. The most commonly used ones are <a href="https://pineappleshuttle.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Pineapple Shuttles</a> and <a href="https://mypinkbus.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">My Pink Bus</a>.</p>
         </div>
       </div>
     </CardContent>
