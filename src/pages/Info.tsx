@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -8,9 +7,7 @@ import BusinessDirectory from '../components/BusinessDirectory';
 import LocalServices from '../components/LocalServices';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-const RealEstateContent = () => (
-  <Card className="w-full">
+const RealEstateContent = () => <Card className="w-full">
     <CardHeader>
       <CardTitle>Real Estate Services</CardTitle>
     </CardHeader>
@@ -30,11 +27,8 @@ const RealEstateContent = () => (
         </div>
       </div>
     </CardContent>
-  </Card>
-);
-
-const LegalContent = () => (
-  <Card className="w-full">
+  </Card>;
+const LegalContent = () => <Card className="w-full">
     <CardHeader>
       <CardTitle>Legal Services</CardTitle>
     </CardHeader>
@@ -54,11 +48,8 @@ const LegalContent = () => (
         </div>
       </div>
     </CardContent>
-  </Card>
-);
-
-const TransportationContent = () => (
-  <Card className="w-full">
+  </Card>;
+const TransportationContent = () => <Card className="w-full">
     <CardHeader>
       <CardTitle>Transportation Services</CardTitle>
     </CardHeader>
@@ -77,20 +68,17 @@ const TransportationContent = () => (
           <p className="text-gray-600">Vehicle rental services including cars, ATVs, and motorcycles. <a href="https://www.autospanama.net/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Autos Panama</a> offers reliable rental options.</p>
         </div>
         <div>
-          <h3 className="text-lg font-semibold mb-2">Boat Services</h3>
-          <p className="text-gray-600">Water taxis, fishing charters, and island hopping tours.</p>
+          <h3 className="text-lg font-semibold mb-2">Shuttle Services</h3>
+          <p className="text-gray-600">There are a few different shuttle services that operate in the area. The most commonly used ones are Pineapple Shuttles and My Pink Bus.</p>
         </div>
       </div>
     </CardContent>
-  </Card>
-);
-
+  </Card>;
 const Info = () => {
   const [activeTab, setActiveTab] = useState('services');
-
   useEffect(() => {
     window.scrollTo(0, 0);
-    
+
     // Check for hash in URL and set active tab accordingly
     const hash = window.location.hash.replace('#', '');
     if (hash === 'transportation') {
@@ -99,21 +87,17 @@ const Info = () => {
       setTimeout(() => {
         const tabsSection = document.querySelector('section[data-tabs]');
         if (tabsSection) {
-          tabsSection.scrollIntoView({ behavior: 'smooth' });
+          tabsSection.scrollIntoView({
+            behavior: 'smooth'
+          });
         }
       }, 100);
     }
   }, []);
-
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       <Navbar />
       
-      <Hero 
-        title="Information Guide"
-        subtitle="Everything you need to know about Playa Cambutal"
-        imageSrc="https://images.unsplash.com/photo-1596627116790-af6f46dddbae?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
-      />
+      <Hero title="Information Guide" subtitle="Everything you need to know about Playa Cambutal" imageSrc="https://images.unsplash.com/photo-1596627116790-af6f46dddbae?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80" />
 
       <section className="bg-white py-16" data-tabs>
         <div className="container mx-auto px-4">
@@ -146,8 +130,6 @@ const Info = () => {
 
       <Newsletter />
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Info;
