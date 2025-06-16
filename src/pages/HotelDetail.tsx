@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ArrowLeft, Star, ExternalLink } from 'lucide-react';
@@ -10,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useHotelDetails } from '@/hooks/useHotelListings';
-import { useHotelSEO } from '@/hooks/useDynamicSEO';
+import { useHotelSEO } from '@/hooks/useHotelSEO';
 import { getAmenityIcon } from '@/utils/amenityIcons';
 
 const HotelDetail = () => {

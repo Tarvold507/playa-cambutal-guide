@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -12,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { isRestaurantOpen, formatHoursForDisplay, getCurrentPanamaTime } from '../utils/timeUtils';
 import RestaurantMap from '../components/RestaurantMap';
-import { useRestaurantSEO } from '@/hooks/useDynamicSEO';
+import { useRestaurantSEO } from '@/hooks/useRestaurantSEO';
 
 interface Restaurant {
   name: string;
