@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://playacambutal.guide/sitemap.xml
+Sitemap: https://playacambutalguide.com/sitemap.xml
 
 # Specific crawling instructions for better indexing
 User-agent: Googlebot

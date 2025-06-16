@@ -9,7 +9,7 @@ export interface SitemapUrl {
 }
 
 export const generateSitemap = async (): Promise<string> => {
-  const baseUrl = 'https://playacambutal.guide';
+  const baseUrl = 'https://playacambutalguide.com';
   const urls: SitemapUrl[] = [];
 
   // Static pages with high priority
