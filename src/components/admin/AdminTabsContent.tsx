@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TabsContent } from "@/components/ui/tabs";
 import PendingEventsTab from '@/components/admin/PendingEventsTab';
@@ -12,7 +11,6 @@ import LiveRestaurantsTab from '@/components/admin/LiveRestaurantsTab';
 import LiveAdventureBusinessesTab from '@/components/admin/LiveAdventureBusinessesTab';
 import SEOManagementTab from '@/components/admin/SEOManagementTab';
 import ContentManagementTab from '@/components/admin/ContentManagementTab';
-import TranslationsManagementTab from '@/components/admin/TranslationsManagementTab';
 import GooglePlacesImport from '@/components/admin/GooglePlacesImport';
 
 interface AdminTabsContentProps {
@@ -147,10 +145,6 @@ const AdminTabsContent = ({ data, handlers }: AdminTabsContentProps) => {
 
       <TabsContent value="content">
         <ContentManagementTab />
-      </TabsContent>
-
-      <TabsContent value="translations">
-        <TranslationsManagementTab />
       </TabsContent>
 
       <TabsContent value="import">

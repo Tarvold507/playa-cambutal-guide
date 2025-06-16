@@ -7,7 +7,7 @@ export interface PageContent {
   id: string;
   page_path: string;
   section_name: string;
-  content_type: 'hero' | 'text' | 'image' | 'card' | 'featured' | 'section' | 'services';
+  content_type: 'hero' | 'text' | 'image' | 'card' | 'cards' | 'featured' | 'section' | 'services';
   content_data: any;
   is_visible: boolean;
   display_order: number;

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -29,6 +28,7 @@ const CONTENT_TYPES = [
   { value: 'text', label: 'Text Content' },
   { value: 'image', label: 'Image' },
   { value: 'card', label: 'Card' },
+  { value: 'cards', label: 'Cards Section' },
   { value: 'featured', label: 'Featured Section' },
   { value: 'section', label: 'General Section' },
   { value: 'services', label: 'Services Section' },
@@ -36,7 +36,7 @@ const CONTENT_TYPES = [
 
 // Define predefined section names for each page
 const PAGE_SECTIONS = {
-  '/': ['hero', 'intro', 'featured', 'newsletter'],
+  '/': ['hero', 'intro', 'cards', 'featured', 'newsletter'],
   '/info': ['hero', 'services', 'businesses', 'realestate', 'legal', 'transportation'],
   '/stay': ['hero', 'hotels', 'featured'],
   '/eat': ['hero', 'restaurants', 'featured'],
@@ -113,6 +113,8 @@ const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: Conte
         return <ImageFields contentData={formData.content_data} updateContentData={updateContentData} onImageUpload={handleImageUpload} uploading={uploading} />;
       case 'card':
         return <CardFields contentData={formData.content_data} updateContentData={updateContentData} onImageUpload={handleImageUpload} uploading={uploading} />;
+      case 'cards':
+        return <CardsFields contentData={formData.content_data} updateContentData={updateContentData} onImageUpload={handleImageUpload} uploading={uploading} />;
       case 'featured':
         return <FeaturedFields contentData={formData.content_data} updateContentData={updateContentData} onImageUpload={handleImageUpload} uploading={uploading} />;
       case 'section':

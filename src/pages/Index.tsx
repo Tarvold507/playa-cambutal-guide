@@ -6,7 +6,7 @@ import Newsletter from '../components/Newsletter';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import OptimizedCMSIntroSection from '../components/home/OptimizedCMSIntroSection';
-import HomeCardSection from '../components/home/HomeCardSection';
+import CMSCardSection from '../components/home/CMSCardSection';
 import OptimizedCMSFeaturedSections from '../components/home/OptimizedCMSFeaturedSections';
 import HomeSEO from '../components/home/HomeSEO';
 import { LazyEventCalendar, LazyBusinessDirectory, LazyLocalServices } from '../components/LazyComponents';
@@ -54,8 +54,8 @@ const Index = () => {
       {/* Intro Section - optimized */}
       <OptimizedCMSIntroSection />
       
-      {/* Card Section - kept as is since it's lightweight */}
-      <HomeCardSection />
+      {/* Card Section - now uses CMS content */}
+      <CMSCardSection />
       
       {/* Calendar Section - lazy loaded */}
       <section className="bg-white py-16">

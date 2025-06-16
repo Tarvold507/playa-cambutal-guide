@@ -46,7 +46,7 @@ const AdminTabsNavigation = ({ pendingCounts, liveCounts }: AdminTabsNavigationP
         </TabsTrigger>
       </TabsList>
       
-      <TabsList className="grid w-full grid-cols-7 h-auto">
+      <TabsList className="grid w-full grid-cols-6 h-auto">
         <TabsTrigger value="live-hotels" className="text-sm">
           Live Hotels ({liveCounts.hotels})
         </TabsTrigger>
@@ -61,9 +61,6 @@ const AdminTabsNavigation = ({ pendingCounts, liveCounts }: AdminTabsNavigationP
         </TabsTrigger>
         <TabsTrigger value="content" className="text-sm">
           Content
-        </TabsTrigger>
-        <TabsTrigger value="translations" className="text-sm">
-          Translations
         </TabsTrigger>
         <TabsTrigger value="import" className="text-sm">
           Import

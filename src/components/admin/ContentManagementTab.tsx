@@ -79,6 +79,7 @@ const ContentManagementTab = () => {
       case 'text': return 'bg-blue-100 text-blue-800';
       case 'image': return 'bg-green-100 text-green-800';
       case 'card': return 'bg-orange-100 text-orange-800';
+      case 'cards': return 'bg-pink-100 text-pink-800';
       case 'featured': return 'bg-red-100 text-red-800';
       case 'services': return 'bg-teal-100 text-teal-800';
       case 'section': return 'bg-yellow-100 text-yellow-800';
@@ -206,6 +207,16 @@ const ContentManagementTab = () => {
                     <div>
                       <p><strong>Image URL:</strong> {content.content_data.url ? 'Set' : 'Not set'}</p>
                       <p><strong>Alt Text:</strong> {content.content_data.alt || 'Not set'}</p>
+                    </div>
+                  )}
+                  {content.content_type === 'cards' && (
+                    <div>
+                      <p><strong>Title:</strong> {content.content_data.title || 'Not set'}</p>
+                      <p><strong>Description:</strong> {content.content_data.description || 'Not set'}</p>
+                      <p><strong>Cards:</strong> {content.content_data.cards ? `${content.content_data.cards.length} card(s)` : 'Not set'}</p>
+                      {content.content_data.cards && content.content_data.cards.length > 0 && (
+                        <p><strong>First card:</strong> {content.content_data.cards[0].title}</p>
+                      )}
                     </div>
                   )}
                   {content.content_type === 'services' && (
