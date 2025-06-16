@@ -837,6 +837,7 @@ export type Database = {
         | "featured"
         | "section"
         | "services"
+        | "cards"
       user_role: "admin" | "user"
     }
     CompositeTypes: {
@@ -961,6 +962,7 @@ export const Constants = {
         "featured",
         "section",
         "services",
+        "cards",
       ],
       user_role: ["admin", "user"],
     },
