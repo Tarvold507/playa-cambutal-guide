@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { usePageSEO } from '@/hooks/usePageSEO';
-import { useRestaurantListings, RestaurantListing } from '@/hooks/useRestaurantListings';
+import { RestaurantListing } from '@/hooks/useRestaurantListings';
 import RestaurantFilter from '@/components/RestaurantFilter';
 import RestaurantMap from '@/components/RestaurantMap';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 // Helper function to randomize array order
-const shuffleArray = <T>(array: T[]): T[] => {
+const shuffleArray = <T,>(array: T[]): T[] => {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
