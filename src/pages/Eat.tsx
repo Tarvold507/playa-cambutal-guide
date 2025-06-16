@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import { RestaurantListing } from '@/hooks/useRestaurantListings';
 import { updatePageHead } from '@/utils/seoUtils';
+import { isRestaurantOpen } from '@/utils/timeUtils';
 import EatHero from '../components/eat/EatHero';
 import EatIntro from '../components/eat/EatIntro';
 import EatSearchFilter from '../components/eat/EatSearchFilter';
@@ -28,8 +29,7 @@ const Eat = () => {
   const { toast } = useToast();
   const [restaurants, setRestaurants] = useState<RestaurantListing[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [showOpenOnly, setShowOpenOnly] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -117,16 +117,16 @@ const Eat = () => {
     fetchRestaurants();
   }, [toast]);
 
-  // Filter restaurants based on search and category
+  // Filter restaurants based on open/closed status
   const filteredRestaurants = restaurants.filter(restaurant => {
-    const matchesSearch = restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         restaurant.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         restaurant.address.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || restaurant.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    if (!showOpenOnly) return true;
+    
+    // Skip filtering if restaurant is closed for season
+    if (restaurant.closed_for_season) return false;
+    
+    // Check if restaurant is currently open
+    return isRestaurantOpen(restaurant.hours);
   });
-
-  const categories = [...new Set(restaurants.map(restaurant => restaurant.category))];
 
   if (loading) {
     return (
@@ -146,11 +146,8 @@ const Eat = () => {
       <EatHero />
       <EatIntro />
       <EatSearchFilter 
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        categories={categories}
+        showOpenOnly={showOpenOnly}
+        setShowOpenOnly={setShowOpenOnly}
       />
       <EatRestaurantGrid filteredRestaurants={filteredRestaurants} />
       <EatTips />

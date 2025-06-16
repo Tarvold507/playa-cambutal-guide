@@ -1,14 +1,34 @@
 
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { MapPin, Phone, Globe, Star, Clock } from 'lucide-react';
+import { Utensils, Pizza, Coffee, Wine, Fish, Salad } from 'lucide-react';
 import { RestaurantListing } from '@/hooks/useRestaurantListings';
+import { generateSlug } from '@/utils/slugUtils';
 
 interface EatRestaurantGridProps {
   filteredRestaurants: RestaurantListing[];
 }
+
+const getCategoryIcon = (category: string) => {
+  switch (category.toLowerCase()) {
+    case 'italian':
+    case 'pizza':
+      return Pizza;
+    case 'cafe':
+    case 'coffee':
+      return Coffee;
+    case 'bar & tapas':
+    case 'bar':
+      return Wine;
+    case 'seafood':
+      return Fish;
+    case 'healthy':
+    case 'vegetarian':
+      return Salad;
+    default:
+      return Utensils;
+  }
+};
 
 const EatRestaurantGrid = ({ filteredRestaurants }: EatRestaurantGridProps) => {
   return (
@@ -19,87 +39,46 @@ const EatRestaurantGrid = ({ filteredRestaurants }: EatRestaurantGridProps) => {
           <p className="text-gray-600">From local favorites to international cuisine, find the perfect spot for your next meal.</p>
         </div>
         
-        <div className="grid gap-6">
-          {filteredRestaurants.map((restaurant) => (
-            <Card key={restaurant.id} className={`hover:shadow-lg transition-shadow ${restaurant.is_premium ? 'ring-2 ring-yellow-400 shadow-lg' : ''}`}>
-              <div className="md:flex">
-                {restaurant.image_url && (
-                  <div className="md:w-1/3">
-                    <img
-                      src={restaurant.image_url}
-                      alt={restaurant.name}
-                      className="w-full h-48 md:h-full object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none"
-                    />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredRestaurants.map((restaurant) => {
+            const CategoryIcon = getCategoryIcon(restaurant.category);
+            const slug = generateSlug(restaurant.name);
+            
+            return (
+              <Link 
+                key={restaurant.id} 
+                to={`/eat/${slug}`}
+                className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+              >
+                <div className="relative h-64 overflow-hidden">
+                  <img 
+                    src={restaurant.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'} 
+                    alt={restaurant.name} 
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute top-4 left-4 bg-venao-dark/90 text-white p-2 rounded-full">
+                    <CategoryIcon className="w-4 h-4" />
                   </div>
-                )}
-                <div className={`${restaurant.image_url ? 'md:w-2/3' : 'w-full'}`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-xl flex items-center gap-2">
-                          {restaurant.name}
-                          {restaurant.is_premium && (
-                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                              <Star className="w-3 h-3 mr-1" />
-                              Featured
-                            </Badge>
-                          )}
-                        </CardTitle>
-                        <CardDescription className="flex items-center text-gray-600 mt-2">
-                          <MapPin className="w-4 h-4 mr-1" />
-                          {restaurant.address}
-                        </CardDescription>
-                      </div>
-                      <Badge variant="outline">{restaurant.category}</Badge>
+                  {restaurant.is_premium && (
+                    <div className="absolute top-4 right-4">
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                        Featured
+                      </Badge>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700 mb-4">{restaurant.description}</p>
-                    
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
-                      {restaurant.phone && (
-                        <div className="flex items-center">
-                          <Phone className="w-4 h-4 mr-1" />
-                          {restaurant.phone}
-                        </div>
-                      )}
-                      {restaurant.website && (
-                        <div className="flex items-center">
-                          <Globe className="w-4 h-4 mr-1" />
-                          <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                            Website
-                          </a>
-                        </div>
-                      )}
-                    </div>
-
-                    {restaurant.hours && Object.keys(restaurant.hours).length > 0 && (
-                      <div className="mb-4">
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
-                          <Clock className="w-4 h-4 mr-1" />
-                          Hours
-                        </div>
-                        <div className="text-sm text-gray-600 grid grid-cols-2 gap-1">
-                          {Object.entries(restaurant.hours).map(([day, hours]) => (
-                            <div key={day} className="flex justify-between">
-                              <span className="capitalize">{day}:</span>
-                              <span>{hours}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <Button asChild>
-                      <Link to={`/restaurant/${restaurant.id}`}>
-                        View Details
-                      </Link>
-                    </Button>
-                  </CardContent>
+                  )}
                 </div>
-              </div>
-            </Card>
-          ))}
+                <div className="p-5 bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-semibold text-gray-800 group-hover:text-venao transition-colors duration-300">
+                      {restaurant.name}
+                    </h3>
+                    <Badge variant="outline">{restaurant.category}</Badge>
+                  </div>
+                  <p className="text-gray-600 line-clamp-3">{restaurant.description}</p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
 
         {filteredRestaurants.length === 0 && (
