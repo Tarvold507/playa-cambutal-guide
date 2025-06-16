@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -16,6 +15,7 @@ import EventDateTimeFields from './event-form/EventDateTimeFields'
 import EventDescriptionFields from './event-form/EventDescriptionFields'
 import EventImageFields from './event-form/EventImageFields'
 import RecurrencePatternFields from './event-form/RecurrencePatternFields'
+import { formatDateForDB } from '@/utils/dateUtils'
 
 const eventFormSchema = z.object({
   title: z.string().min(3, 'Event name must be at least 3 characters'),
@@ -134,7 +134,7 @@ const EventCreationForm: React.FC<EventCreationFormProps> = ({ onSuccess }) => {
             end_count: data.recurrence.end_count,
             end_date: data.recurrence.end_date,
           },
-          firstEventDate: format(data.event_date, 'yyyy-MM-dd'),
+          firstEventDate: formatDateForDB(data.event_date),
           startTime: data.start_time,
           endTime: data.end_time,
         })
@@ -144,7 +144,7 @@ const EventCreationForm: React.FC<EventCreationFormProps> = ({ onSuccess }) => {
           title: data.title,
           location: data.location,
           host: data.host,
-          event_date: format(data.event_date, 'yyyy-MM-dd'),
+          event_date: formatDateForDB(data.event_date),
           start_time: data.start_time,
           end_time: data.end_time,
           description: `${data.description} | Type: ${data.event_type}`,

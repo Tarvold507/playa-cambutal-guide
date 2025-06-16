@@ -2,6 +2,8 @@
 // Utility functions for handling dates and day-of-week conversions
 // PostgreSQL uses: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
 
+import { formatInPanamaTime, parseEventDatePanama } from './timezoneUtils';
+
 export const POSTGRES_DAYS_OF_WEEK = {
   SUNDAY: 0,
   MONDAY: 1,
@@ -67,30 +69,21 @@ export const getDayNameShort = (pgDay: number): string => {
 };
 
 /**
- * Format date to YYYY-MM-DD format for database storage
+ * Format date to YYYY-MM-DD format for database storage using Panama timezone
  */
 export const formatDateForDB = (date: Date): string => {
-  return date.toISOString().split('T')[0];
+  return formatInPanamaTime(date, 'yyyy-MM-dd');
 };
 
 /**
- * Parse date string and ensure it's in the correct timezone
+ * Parse date string and ensure it's in Panama timezone
  */
 export const parseEventDate = (dateString: string): Date => {
-  // Ensure we're working with a proper date object
-  const date = new Date(dateString);
-  
-  // If the date string doesn't include time, treat it as local date
-  if (!dateString.includes('T') && !dateString.includes(' ')) {
-    const [year, month, day] = dateString.split('-').map(Number);
-    return new Date(year, month - 1, day); // month is 0-indexed in JS
-  }
-  
-  return date;
+  return parseEventDatePanama(dateString);
 };
 
 /**
- * Get the day of week for a given date string
+ * Get the day of week for a given date string in Panama timezone
  */
 export const getDayOfWeekFromDate = (dateString: string): number => {
   const date = parseEventDate(dateString);

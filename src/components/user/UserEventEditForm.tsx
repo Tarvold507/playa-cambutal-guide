@@ -1,18 +1,17 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 import { UserEvent } from '@/hooks/useUserEvents';
+import AutoCloseCalendar from '@/components/ui/auto-close-calendar';
+import { formatInPanamaTime, formatDateForDBPanama, calculateEndTime, formatTimeWithDefaults } from '@/utils/timezoneUtils';
 
 const eventFormSchema = z.object({
   title: z.string().min(3, 'Event name must be at least 3 characters'),
@@ -43,6 +42,8 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
   onCancel, 
   loading = false 
 }) => {
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
@@ -63,7 +64,7 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
       title: data.title,
       location: data.location,
       host: data.host,
-      event_date: format(data.event_date, 'yyyy-MM-dd'),
+      event_date: formatDateForDBPanama(data.event_date),
       start_time: data.start_time || null,
       end_time: data.end_time || null,
       description: data.description,
@@ -127,7 +128,7 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Event Date</FormLabel>
-              <Popover>
+              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -138,7 +139,7 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
                       )}
                     >
                       {field.value ? (
-                        format(field.value, "PPP")
+                        formatInPanamaTime(field.value, "PPP")
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -147,10 +148,11 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
+                  <AutoCloseCalendar
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
+                    onClose={() => setDatePickerOpen(false)}
                     disabled={(date) => date < new Date()}
                     initialFocus
                   />
@@ -169,7 +171,20 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
               <FormItem>
                 <FormLabel>Start Time</FormLabel>
                 <FormControl>
-                  <Input type="time" {...field} />
+                  <Input 
+                    type="time" 
+                    {...field}
+                    onChange={(e) => {
+                      const formattedTime = formatTimeWithDefaults(e.target.value);
+                      field.onChange(formattedTime);
+                      
+                      // Auto-calculate end time
+                      const endTime = calculateEndTime(formattedTime);
+                      if (endTime) {
+                        form.setValue('end_time', endTime);
+                      }
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -183,7 +198,14 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
               <FormItem>
                 <FormLabel>End Time</FormLabel>
                 <FormControl>
-                  <Input type="time" {...field} />
+                  <Input 
+                    type="time" 
+                    {...field}
+                    onChange={(e) => {
+                      const formattedTime = formatTimeWithDefaults(e.target.value);
+                      field.onChange(formattedTime);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

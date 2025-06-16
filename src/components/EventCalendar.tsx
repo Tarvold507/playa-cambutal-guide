@@ -1,6 +1,6 @@
 
 import * as React from "react"
-import { format, isAfter, startOfDay, isToday, parseISO, isWithinInterval } from "date-fns"
+import { isAfter, startOfDay, isToday, parseISO, isWithinInterval } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils"
 import { useEvents } from "@/hooks/useEvents"
 import { useAuth } from "@/contexts/AuthContext"
 import EventCreationForm from "./EventCreationForm"
+import AutoCloseCalendar from "@/components/ui/auto-close-calendar"
+import { formatInPanamaTime, parseEventDatePanama } from "@/utils/timezoneUtils"
 
 const EventCalendar = () => {
   const [date, setDate] = React.useState<Date | undefined>(new Date())
@@ -20,6 +22,8 @@ const EventCalendar = () => {
   const [dateRangeStart, setDateRangeStart] = React.useState<Date | undefined>()
   const [dateRangeEnd, setDateRangeEnd] = React.useState<Date | undefined>()
   const [showEventCreation, setShowEventCreation] = React.useState(false)
+  const [startDatePickerOpen, setStartDatePickerOpen] = React.useState(false)
+  const [endDatePickerOpen, setEndDatePickerOpen] = React.useState(false)
   
   const { data: events = [], isLoading } = useEvents()
   const { user } = useAuth()
@@ -83,7 +87,7 @@ const EventCalendar = () => {
     ...demoEvents, 
     ...events.map(event => ({
       ...event,
-      date: parseISO(event.event_date),
+      date: parseEventDatePanama(event.event_date),
       fullDescription: event.full_description,
       image: event.image_url || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80", // Default image
       type: "social" // Default type for database events
@@ -111,13 +115,13 @@ const EventCalendar = () => {
   }, [allEvents, eventTypeFilter, dateRangeStart, dateRangeEnd])
 
   const selectedDateEvents = filteredEvents.filter(event => 
-    date && format(event.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+    date && formatInPanamaTime(event.date, 'yyyy-MM-dd') === formatInPanamaTime(date, 'yyyy-MM-dd')
   )
 
   // Get next 5 upcoming events
   const today = startOfDay(new Date())
   const upcomingEvents = filteredEvents
-    .filter(event => isAfter(event.date, today) || format(event.date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd'))
+    .filter(event => isAfter(event.date, today) || formatInPanamaTime(event.date, 'yyyy-MM-dd') === formatInPanamaTime(today, 'yyyy-MM-dd'))
     .sort((a, b) => a.date.getTime() - b.date.getTime())
     .slice(0, 5)
 
@@ -169,7 +173,7 @@ const EventCalendar = () => {
             />
             <div className="space-y-4 flex-1">
               <h3 className="font-semibold text-lg">
-                Events for {date ? format(date, 'MMMM d, yyyy') : 'Select a date'}
+                Events for {date ? formatInPanamaTime(date, 'MMMM d, yyyy') : 'Select a date'}
                 {date && isToday(date) && <span className="text-primary ml-2">(Today)</span>}
               </h3>
               {selectedDateEvents.length > 0 ? (
@@ -201,7 +205,7 @@ const EventCalendar = () => {
                           />
                           <div className="space-y-4">
                             <p className="text-sm text-primary font-medium">
-                              {format(event.date, 'EEEE, MMMM d, yyyy')}
+                              {formatInPanamaTime(event.date, 'EEEE, MMMM d, yyyy')}
                             </p>
                             
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -264,7 +268,7 @@ const EventCalendar = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium">Date Range</label>
               <div className="flex gap-2">
-                <Popover>
+                <Popover open={startDatePickerOpen} onOpenChange={setStartDatePickerOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
@@ -274,21 +278,21 @@ const EventCalendar = () => {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRangeStart ? format(dateRangeStart, "MMM dd") : "Start date"}
+                      {dateRangeStart ? formatInPanamaTime(dateRangeStart, "MMM dd") : "Start date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
+                    <AutoCloseCalendar
                       mode="single"
                       selected={dateRangeStart}
                       onSelect={setDateRangeStart}
+                      onClose={() => setStartDatePickerOpen(false)}
                       initialFocus
-                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
                 
-                <Popover>
+                <Popover open={endDatePickerOpen} onOpenChange={setEndDatePickerOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
@@ -298,16 +302,16 @@ const EventCalendar = () => {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRangeEnd ? format(dateRangeEnd, "MMM dd") : "End date"}
+                      {dateRangeEnd ? formatInPanamaTime(dateRangeEnd, "MMM dd") : "End date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
+                    <AutoCloseCalendar
                       mode="single"
                       selected={dateRangeEnd}
                       onSelect={setDateRangeEnd}
+                      onClose={() => setEndDatePickerOpen(false)}
                       initialFocus
-                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>

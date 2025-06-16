@@ -1,20 +1,22 @@
 
-import React from 'react';
-import { format } from 'date-fns';
+import React, { useState } from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Control } from 'react-hook-form';
+import AutoCloseCalendar from '@/components/ui/auto-close-calendar';
+import { formatInPanamaTime, calculateEndTime, formatTimeWithDefaults } from '@/utils/timezoneUtils';
 
 interface EventDateTimeFieldsProps {
   control: Control<any>;
 }
 
 const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) => {
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+
   return (
     <>
       <FormField
@@ -23,7 +25,7 @@ const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) =>
         render={({ field }) => (
           <FormItem className="flex flex-col">
             <FormLabel>Event Date</FormLabel>
-            <Popover>
+            <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
                   <Button
@@ -34,7 +36,7 @@ const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) =>
                     )}
                   >
                     {field.value ? (
-                      format(field.value, "PPP")
+                      formatInPanamaTime(field.value, "PPP")
                     ) : (
                       <span>Pick a date</span>
                     )}
@@ -43,13 +45,13 @@ const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) =>
                 </FormControl>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
+                <AutoCloseCalendar
                   mode="single"
                   selected={field.value}
                   onSelect={field.onChange}
+                  onClose={() => setDatePickerOpen(false)}
                   disabled={(date) => date < new Date()}
                   initialFocus
-                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
@@ -68,7 +70,21 @@ const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) =>
               <FormControl>
                 <Input 
                   type="time" 
-                  {...field} 
+                  {...field}
+                  onChange={(e) => {
+                    const formattedTime = formatTimeWithDefaults(e.target.value);
+                    field.onChange(formattedTime);
+                    
+                    // Auto-calculate end time
+                    const endTime = calculateEndTime(formattedTime);
+                    if (endTime) {
+                      // Get the form instance to update end_time
+                      const form = control._formState;
+                      if (form) {
+                        control._setValue('end_time', endTime);
+                      }
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -85,7 +101,11 @@ const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) =>
               <FormControl>
                 <Input 
                   type="time" 
-                  {...field} 
+                  {...field}
+                  onChange={(e) => {
+                    const formattedTime = formatTimeWithDefaults(e.target.value);
+                    field.onChange(formattedTime);
+                  }}
                 />
               </FormControl>
               <FormMessage />

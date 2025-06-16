@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { format } from 'date-fns';
 import { Calendar, Clock, MapPin, User, Edit, Trash2, Repeat } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { UserEvent } from '@/hooks/useUserEvents';
 import { parseEventDate, getDayName } from '@/utils/dateUtils';
+import { formatInPanamaTime } from '@/utils/timezoneUtils';
 
 interface UserEventCardProps {
   event: UserEvent;
@@ -28,6 +28,13 @@ const UserEventCard: React.FC<UserEventCardProps> = ({ event, onEdit, onDelete }
     }
   };
 
+  const formatTime = (timeString: string) => {
+    if (!timeString) return '';
+    // Create a date object with the time for formatting
+    const timeDate = new Date(`2000-01-01T${timeString}`);
+    return formatInPanamaTime(timeDate, 'h:mm a');
+  };
+
   return (
     <Card className="h-full">
       <CardHeader className="pb-3">
@@ -37,15 +44,15 @@ const UserEventCard: React.FC<UserEventCardProps> = ({ event, onEdit, onDelete }
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                <span>{dayOfWeek}, {format(eventDate, 'MMM d, yyyy')}</span>
+                <span>{dayOfWeek}, {formatInPanamaTime(eventDate, 'MMM d, yyyy')}</span>
               </div>
               {(event.start_time || event.end_time) && (
                 <div className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
                   <span>
-                    {event.start_time && format(new Date(`2000-01-01T${event.start_time}`), 'h:mm a')}
+                    {event.start_time && formatTime(event.start_time)}
                     {event.start_time && event.end_time && ' - '}
-                    {event.end_time && format(new Date(`2000-01-01T${event.end_time}`), 'h:mm a')}
+                    {event.end_time && formatTime(event.end_time)}
                   </span>
                 </div>
               )}
