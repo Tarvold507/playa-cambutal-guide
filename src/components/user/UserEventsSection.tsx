@@ -46,6 +46,10 @@ const UserEventsSection = () => {
     setShowCreateForm(false);
   };
 
+  const handleEditSuccess = () => {
+    setEditingEvent(null);
+  };
+
   // Separate single events from series events using allUserEvents
   const singleEvents = allUserEvents?.filter(event => !event.event_series_id) || [];
   const seriesEvents = allUserEvents?.filter(event => event.event_series_id && event.is_series_master) || [];
@@ -174,7 +178,7 @@ const UserEventsSection = () => {
           {editingEvent && (
             <UserEventEditForm
               event={editingEvent}
-              onSave={handleSaveEvent}
+              onSuccess={handleEditSuccess}
               onCancel={() => setEditingEvent(null)}
             />
           )}

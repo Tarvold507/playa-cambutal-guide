@@ -113,3 +113,39 @@ export const useCreateEvent = () => {
     },
   });
 };
+
+export const useUpdateEvent = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (eventData: Partial<Event> & { id: string }) => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      const { id, ...updates } = eventData;
+      const { data, error } = await supabase
+        .from('events')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_id', user.user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-events'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['all-user-events'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};

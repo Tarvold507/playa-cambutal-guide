@@ -66,6 +66,10 @@ const UserListingsSection = () => {
     setEditingHotel(null);
   };
 
+  const handleEditEventSuccess = () => {
+    setEditingEvent(null);
+  };
+
   const EmptyState = ({ type, addLink }: { type: string; addLink: string }) => (
     <div className="text-center py-12">
       <p className="text-gray-500 mb-4">You haven't submitted any {type} yet.</p>
@@ -222,7 +226,7 @@ const UserListingsSection = () => {
           {editingEvent && (
             <UserEventEditForm
               event={editingEvent}
-              onSave={handleSaveEvent}
+              onSuccess={handleEditEventSuccess}
               onCancel={() => setEditingEvent(null)}
             />
           )}

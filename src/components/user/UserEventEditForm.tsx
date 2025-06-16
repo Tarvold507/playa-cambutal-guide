@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserEvent } from '@/hooks/useUserEvents';
 import AutoCloseCalendar from '@/components/ui/auto-close-calendar';
 import { formatDateForDB, parseEventDate } from '@/utils/dateUtils';
-import { formatInPanamaTime } from '@/utils/timezoneUtils';
+import { formatInPanamaTime, formatTimeWithDefaults, calculateEndTime } from '@/utils/timezoneUtils';
 
 const eventEditSchema = z.object({
   title: z.string().min(3, 'Event name must be at least 3 characters'),
@@ -289,8 +290,8 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Saving...' : 'Save Changes'}
+          <Button type="submit" disabled={updateEvent.isPending}>
+            {updateEvent.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
       </form>
