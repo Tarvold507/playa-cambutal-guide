@@ -1,34 +1,17 @@
 
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import CMSHero from '../components/CMSHero';
-import CardSection from '../components/CardSection';
-import Newsletter from '../components/Newsletter';
-import RestaurantFilter from '../components/RestaurantFilter';
+import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
+import { usePageSEO } from '@/hooks/usePageSEO';
+import { useRestaurantListings, RestaurantListing } from '@/hooks/useRestaurantListings';
+import RestaurantFilter from '@/components/RestaurantFilter';
+import RestaurantMap from '@/components/RestaurantMap';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { MapPin, Phone, Globe, Star, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { generateSlug } from '../utils/slugUtils';
-import { isRestaurantOpen } from '../utils/timeUtils';
-
-interface RestaurantItem {
-  id: string;
-  title: string;
-  description: string;
-  imageSrc: string;
-  link: string;
-  category?: string;
-  openNow?: boolean;
-  hours?: Record<string, string>;
-  latitude?: number;
-  longitude?: number;
-  closedForSeason?: boolean;
-  isPremium?: boolean;
-}
 
 // Helper function to randomize array order
 const shuffleArray = <T>(array: T[]): T[] => {
@@ -41,238 +24,239 @@ const shuffleArray = <T>(array: T[]): T[] => {
 };
 
 const Eat = () => {
-  const [allItems, setAllItems] = useState<RestaurantItem[]>([]);
-  const [filteredItems, setFilteredItems] = useState<RestaurantItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const { seoData } = usePageSEO('eat');
   const { toast } = useToast();
-
-  // Helper function to normalize hours keys from lowercase to capitalized
-  const normalizeHoursKeys = (hours: Record<string, string>): Record<string, string> => {
-    const normalizedHours: Record<string, string> = {};
-    
-    Object.entries(hours).forEach(([key, value]) => {
-      // Capitalize the first letter of the day name
-      const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
-      normalizedHours[capitalizedKey] = value;
-    });
-    
-    return normalizedHours;
-  };
-
-  const fetchApprovedRestaurants = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('restaurant_listings')
-        .select('*')
-        .eq('approved', true);
-
-      if (error) throw error;
-
-      // Transform database restaurants to match our RestaurantItem interface
-      const dbRestaurants: RestaurantItem[] = data?.map(restaurant => {
-        const rawHours = typeof restaurant.hours === 'object' && restaurant.hours !== null ? 
-          restaurant.hours as Record<string, string> : {};
-        
-        // Normalize the hours keys to be capitalized for consistency
-        const normalizedHours = normalizeHoursKeys(rawHours);
-        
-        // Check if restaurant is open: must not be closed for season AND within operating hours
-        const isOpen = !restaurant.closed_for_season && isRestaurantOpen(normalizedHours);
-        
-        return {
-          id: restaurant.id,
-          title: restaurant.name,
-          description: restaurant.description || 'Delicious food awaits you at this local restaurant.',
-          imageSrc: restaurant.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-          link: `/eat/${generateSlug(restaurant.name)}`,
-          category: restaurant.category,
-          openNow: isOpen,
-          hours: normalizedHours,
-          latitude: (restaurant as any).latitude ? Number((restaurant as any).latitude) : undefined,
-          longitude: (restaurant as any).longitude ? Number((restaurant as any).longitude) : undefined,
-          closedForSeason: restaurant.closed_for_season,
-          isPremium: restaurant.is_premium || false,
-        };
-      }) || [];
-
-      // Sort restaurants: premium first (by display_order, then randomized), then regular (randomized)
-      const premiumRestaurants = dbRestaurants.filter(restaurant => restaurant.isPremium);
-      const regularRestaurants = dbRestaurants.filter(restaurant => !restaurant.isPremium);
-
-      // Get the display order from the database for premium restaurants
-      const premiumWithOrder = await Promise.all(
-        premiumRestaurants.map(async (restaurant) => {
-          const { data } = await supabase
-            .from('restaurant_listings')
-            .select('display_order')
-            .eq('id', restaurant.id)
-            .single();
-          
-          return {
-            ...restaurant,
-            displayOrder: data?.display_order || 0
-          };
-        })
-      );
-
-      // Sort premium restaurants by display_order, then randomize within same order
-      const sortedPremiumRestaurants = premiumWithOrder
-        .sort((a, b) => a.displayOrder - b.displayOrder)
-        .reduce((acc, restaurant) => {
-          const sameOrderRestaurants = premiumWithOrder.filter(r => r.displayOrder === restaurant.displayOrder);
-          if (!acc.some(r => r.id === restaurant.id)) {
-            acc.push(...shuffleArray(sameOrderRestaurants));
-          }
-          return acc;
-        }, [] as typeof premiumWithOrder);
-
-      // Randomize regular restaurants
-      const shuffledRegularRestaurants = shuffleArray(regularRestaurants);
-
-      // Combine: premium first, then regular
-      const finalRestaurants = [...sortedPremiumRestaurants, ...shuffledRegularRestaurants];
-
-      setAllItems(finalRestaurants);
-      setFilteredItems(finalRestaurants);
-    } catch (error) {
-      console.error('Error fetching approved restaurants:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load restaurants",
-        variant: "destructive",
-      });
-      setAllItems([]);
-      setFilteredItems([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [restaurants, setRestaurants] = useState<RestaurantListing[]>([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState<RestaurantListing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchApprovedRestaurants();
-  }, []);
+    const fetchRestaurants = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('restaurant_listings')
+          .select('*')
+          .eq('approved', true);
 
-  const handleFilterChange = (showOpenOnly: boolean) => {
-    if (showOpenOnly) {
-      setFilteredItems(allItems.filter(item => item.openNow));
-    } else {
-      setFilteredItems(allItems);
+        if (error) throw error;
+
+        const transformedRestaurants: RestaurantListing[] = data?.map(restaurant => ({
+          ...restaurant,
+          hours: typeof restaurant.hours === 'object' && restaurant.hours !== null ? 
+            restaurant.hours as Record<string, string> : {},
+          gallery_images: Array.isArray(restaurant.gallery_images) ? 
+            restaurant.gallery_images as string[] : [],
+          menu_images: Array.isArray(restaurant.menu_images) ? 
+            restaurant.menu_images as string[] : [],
+          is_premium: restaurant.is_premium || false,
+          display_order: restaurant.display_order || 0,
+        })) || [];
+
+        // Sort restaurants: premium first (by display_order, then randomized), then regular (randomized)
+        const premiumRestaurants = transformedRestaurants.filter(restaurant => restaurant.is_premium);
+        const regularRestaurants = transformedRestaurants.filter(restaurant => !restaurant.is_premium);
+
+        // Sort premium restaurants by display_order, then randomize within same order
+        const sortedPremiumRestaurants = premiumRestaurants
+          .sort((a, b) => a.display_order - b.display_order)
+          .reduce((acc, restaurant) => {
+            const sameOrderRestaurants = premiumRestaurants.filter(r => r.display_order === restaurant.display_order);
+            if (!acc.some(r => r.id === restaurant.id)) {
+              acc.push(...shuffleArray(sameOrderRestaurants));
+            }
+            return acc;
+          }, [] as RestaurantListing[]);
+
+        // Randomize regular restaurants
+        const shuffledRegularRestaurants = shuffleArray(regularRestaurants);
+
+        // Combine: premium first, then regular
+        const finalRestaurants = [...sortedPremiumRestaurants, ...shuffledRegularRestaurants];
+
+        setRestaurants(finalRestaurants);
+        setFilteredRestaurants(finalRestaurants);
+      } catch (error) {
+        console.error('Error fetching restaurants:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load restaurant listings",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRestaurants();
+  }, [toast]);
+
+  const handleFilter = (category: string, search: string) => {
+    setSelectedCategory(category);
+    setSearchTerm(search);
+    
+    let filtered = restaurants;
+    
+    if (category !== 'all') {
+      filtered = filtered.filter(restaurant => 
+        restaurant.category.toLowerCase().includes(category.toLowerCase())
+      );
     }
+    
+    if (search) {
+      filtered = filtered.filter(restaurant =>
+        restaurant.name.toLowerCase().includes(search.toLowerCase()) ||
+        restaurant.description.toLowerCase().includes(search.toLowerCase()) ||
+        restaurant.address.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    
+    setFilteredRestaurants(filtered);
   };
+
+  const categories = Array.from(new Set(restaurants.map(r => r.category))).filter(Boolean);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
-        <Navbar />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-800">Loading restaurants...</h1>
-        </div>
-        <Footer />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
+        <div className="text-xl">Loading restaurants...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      
-      {/* Hero Section */}
-      <CMSHero 
-        pagePath="/eat"
-        fallbackTitle="Eat & Drink"
-        fallbackSubtitle="Discover the best culinary experiences in Playa Cambutal"
-        fallbackImageSrc="https://images.unsplash.com/photo-1579631542761-3f43399f7fe8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
-      />
-      
-      {/* Intro Section */}
-      <section className="bg-white py-16 md:py-24" id="content">
-        <div className="container mx-auto px-4 text-center max-w-3xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Culinary Delights in Paradise</h2>
-          <p className="text-gray-600 mb-4">
-            Playa Cambutal may be small, but its food scene is surprisingly diverse and delicious. From 
-            beachfront seafood shacks to upscale international cuisine, there's something to satisfy every palate.
-          </p>
-          <p className="text-gray-600">
-            Many restaurants emphasize locally-sourced ingredients, including fresh seafood caught daily, 
-            tropical fruits, and vegetables from nearby farms. Don't miss the opportunity to try local Panamanian dishes 
-            alongside international favorites.
-          </p>
-        </div>
-      </section>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+      <Helmet>
+        <title>{seoData?.title || 'Eat - Playa Cambutal Guide'}</title>
+        <meta name="description" content={seoData?.description || 'Discover the best restaurants and dining options in Playa Cambutal'} />
+        <meta name="keywords" content={seoData?.keywords || 'restaurants, dining, Playa Cambutal, food, Panama'} />
+      </Helmet>
 
-      {/* Restaurant Filter */}
-      <section className="bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
-          <RestaurantFilter onFilterChange={handleFilterChange} />
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6">
+            Eat
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Discover amazing dining experiences in Playa Cambutal. From local favorites to international cuisine, find the perfect spot for your next meal.
+          </p>
         </div>
-      </section>
-      
-      {/* Restaurant Listings */}
-      <CardSection 
-        title="Where to Eat"
-        description="From casual beachfront dining to upscale restaurants, explore Playa Cambutal's food scene."
-        items={filteredItems}
-        bgColor="bg-gray-50"
-      />
-      
-      {/* Food Tips Section */}
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Dining Tips</h2>
-            
-            <div className="space-y-6">
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg text-gray-800 mb-2">Reservation Recommendations</h3>
-                <p className="text-gray-600">During high season (December-April), we recommend making reservations at popular restaurants, especially for dinner. Most places accept reservations by phone or WhatsApp.</p>
-              </div>
-              
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg text-gray-800 mb-2">Local Specialties</h3>
-                <p className="text-gray-600">Be sure to try local specialties like ceviche, patacones (fried plantains), sancocho (chicken soup), and fresh tropical fruit juices.</p>
-              </div>
-              
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg text-gray-800 mb-2">Dietary Restrictions</h3>
-                <p className="text-gray-600">Most restaurants can accommodate vegetarian diets, and many now offer vegan options as well. For those with specific food allergies, it's best to call ahead.</p>
-              </div>
+
+        <RestaurantFilter 
+          categories={categories}
+          onFilter={handleFilter}
+          selectedCategory={selectedCategory}
+          searchTerm={searchTerm}
+        />
+
+        <div className="grid lg:grid-cols-3 gap-8 mb-12">
+          <div className="lg:col-span-2">
+            <div className="grid gap-6">
+              {filteredRestaurants.map((restaurant) => (
+                <Card key={restaurant.id} className={`hover:shadow-lg transition-shadow ${restaurant.is_premium ? 'ring-2 ring-yellow-400 shadow-lg' : ''}`}>
+                  <div className="md:flex">
+                    {restaurant.image_url && (
+                      <div className="md:w-1/3">
+                        <img
+                          src={restaurant.image_url}
+                          alt={restaurant.name}
+                          className="w-full h-48 md:h-full object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none"
+                        />
+                      </div>
+                    )}
+                    <div className={`${restaurant.image_url ? 'md:w-2/3' : 'w-full'}`}>
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <CardTitle className="text-xl flex items-center gap-2">
+                              {restaurant.name}
+                              {restaurant.is_premium && (
+                                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                                  <Star className="w-3 h-3 mr-1" />
+                                  Featured
+                                </Badge>
+                              )}
+                            </CardTitle>
+                            <CardDescription className="flex items-center text-gray-600 mt-2">
+                              <MapPin className="w-4 h-4 mr-1" />
+                              {restaurant.address}
+                            </CardDescription>
+                          </div>
+                          <Badge variant="outline">{restaurant.category}</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-700 mb-4">{restaurant.description}</p>
+                        
+                        <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                          {restaurant.phone && (
+                            <div className="flex items-center">
+                              <Phone className="w-4 h-4 mr-1" />
+                              {restaurant.phone}
+                            </div>
+                          )}
+                          {restaurant.website && (
+                            <div className="flex items-center">
+                              <Globe className="w-4 h-4 mr-1" />
+                              <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                Website
+                              </a>
+                            </div>
+                          )}
+                        </div>
+
+                        {restaurant.hours && Object.keys(restaurant.hours).length > 0 && (
+                          <div className="mb-4">
+                            <div className="flex items-center text-sm text-gray-600 mb-2">
+                              <Clock className="w-4 h-4 mr-1" />
+                              Hours
+                            </div>
+                            <div className="text-sm text-gray-600 grid grid-cols-2 gap-1">
+                              {Object.entries(restaurant.hours).map(([day, hours]) => (
+                                <div key={day} className="flex justify-between">
+                                  <span className="capitalize">{day}:</span>
+                                  <span>{hours}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <Button asChild>
+                          <Link to={`/restaurant/${restaurant.id}`}>
+                            View Details
+                          </Link>
+                        </Button>
+                      </CardContent>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <div className="lg:col-span-1">
+            <div className="sticky top-4">
+              <RestaurantMap restaurants={filteredRestaurants} />
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Add Restaurant Section */}
-      <section className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Own a Restaurant in Cambutal?</h2>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Join our directory and reach more customers! Add your restaurant to our platform and showcase your 
-            delicious offerings to locals and tourists alike.
-          </p>
-          <Button 
-            onClick={() => navigate('/add-restaurant')}
-            size="lg"
-            className="bg-venao-dark hover:bg-venao-dark/90"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Add Your Restaurant Here
-          </Button>
-          {!user && (
-            <p className="text-sm text-gray-500 mt-2">
-              You'll need to sign in to add a restaurant listing.
+        {filteredRestaurants.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600">
+              No restaurants found matching your criteria.
             </p>
-          )}
-        </div>
-      </section>
-      
-      {/* Newsletter */}
-      <Newsletter />
-      
-      {/* Footer */}
-      <Footer />
+            <Button 
+              onClick={() => handleFilter('all', '')}
+              className="mt-4"
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
