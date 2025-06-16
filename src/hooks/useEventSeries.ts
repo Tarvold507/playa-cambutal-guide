@@ -84,7 +84,7 @@ export const useCreateEventSeries = () => {
       if (patternError) throw patternError;
 
       // Create master event
-      const { error: eventError } = await supabase
+      const { data: masterEvent, error: eventError } = await supabase
         .from('events')
         .insert({
           title: data.seriesData.title,
@@ -100,9 +100,30 @@ export const useCreateEventSeries = () => {
           is_series_master: true,
           series_instance_date: data.firstEventDate,
           user_id: user.user.id,
-        });
+        })
+        .select()
+        .single();
 
       if (eventError) throw eventError;
+
+      // Generate recurring instances using the database function
+      const { data: instanceCount, error: functionError } = await supabase
+        .rpc('generate_recurring_event_instances', {
+          p_event_series_id: series.id,
+          p_master_event_id: masterEvent.id
+        });
+
+      if (functionError) {
+        console.error('Error generating recurring instances:', functionError);
+        // Don't fail the entire operation, just log the error
+        toast({
+          title: "Warning",
+          description: `Event series created but some recurring instances may not have been generated: ${functionError.message}`,
+          variant: "destructive",
+        });
+      } else {
+        console.log(`Generated ${instanceCount} recurring event instances`);
+      }
 
       return series;
     },
@@ -112,7 +133,7 @@ export const useCreateEventSeries = () => {
       queryClient.invalidateQueries({ queryKey: ['user-events'] });
       toast({
         title: "Event series created!",
-        description: "Your recurring event series has been created and is pending approval.",
+        description: "Your recurring event series and all instances have been created and are pending approval.",
       });
     },
     onError: (error: any) => {

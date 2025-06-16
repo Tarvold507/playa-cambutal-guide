@@ -39,6 +39,26 @@ export const useEvents = () => {
   });
 };
 
+// New hook to get all events for a user (including instances)
+export const useAllUserEvents = () => {
+  return useQuery({
+    queryKey: ['all-user-events'],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('user_id', user.user.id)
+        .order('event_date', { ascending: true });
+
+      if (error) throw error;
+      return data as Event[];
+    },
+  });
+};
+
 export const useUserEvents = () => {
   return useQuery({
     queryKey: ['user-events'],
@@ -78,6 +98,7 @@ export const useCreateEvent = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-events'] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['all-user-events'] });
       toast({
         title: "Event submitted!",
         description: "Your event is pending approval and will be visible once approved.",

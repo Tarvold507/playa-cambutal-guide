@@ -820,6 +820,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_recurring_event_instances: {
+        Args: { p_event_series_id: string; p_master_event_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _user_id: string
