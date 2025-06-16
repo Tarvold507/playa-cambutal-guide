@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import HeroFields from './content-fields/HeroFields';
 import TextFields from './content-fields/TextFields';
 import ImageFields from './content-fields/ImageFields';
 import CardFields from './content-fields/CardFields';
+import CardsFields from './content-fields/CardsFields';
 import FeaturedFields from './content-fields/FeaturedFields';
 import SectionFields from './content-fields/SectionFields';
 import ServicesFields from './content-fields/ServicesFields';
