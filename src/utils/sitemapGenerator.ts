@@ -13,21 +13,21 @@ export const generateSitemap = async (): Promise<string> => {
   const urls: SitemapUrl[] = [];
 
   // Static pages with high priority
-  const staticPages = [
-    { url: '/', changeFrequency: 'daily' as const, priority: 1.0 },
-    { url: '/surf', changeFrequency: 'weekly' as const, priority: 0.9 },
-    { url: '/eat', changeFrequency: 'daily' as const, priority: 0.9 },
-    { url: '/stay', changeFrequency: 'daily' as const, priority: 0.9 },
-    { url: '/do', changeFrequency: 'weekly' as const, priority: 0.8 },
-    { url: '/calendar', changeFrequency: 'daily' as const, priority: 0.8 },
-    { url: '/blog', changeFrequency: 'daily' as const, priority: 0.8 },
-    { url: '/transportation', changeFrequency: 'monthly' as const, priority: 0.7 },
-    { url: '/real-estate', changeFrequency: 'weekly' as const, priority: 0.7 },
-    { url: '/info', changeFrequency: 'monthly' as const, priority: 0.6 },
-    { url: '/legal', changeFrequency: 'yearly' as const, priority: 0.3 },
-    { url: '/privacy', changeFrequency: 'yearly' as const, priority: 0.3 },
-    { url: '/terms', changeFrequency: 'yearly' as const, priority: 0.3 },
-    { url: '/disclosure', changeFrequency: 'yearly' as const, priority: 0.3 },
+  const staticPages: SitemapUrl[] = [
+    { url: '/', changeFrequency: 'daily', priority: 1.0 },
+    { url: '/surf', changeFrequency: 'weekly', priority: 0.9 },
+    { url: '/eat', changeFrequency: 'daily', priority: 0.9 },
+    { url: '/stay', changeFrequency: 'daily', priority: 0.9 },
+    { url: '/do', changeFrequency: 'weekly', priority: 0.8 },
+    { url: '/calendar', changeFrequency: 'daily', priority: 0.8 },
+    { url: '/blog', changeFrequency: 'daily', priority: 0.8 },
+    { url: '/transportation', changeFrequency: 'monthly', priority: 0.7 },
+    { url: '/real-estate', changeFrequency: 'weekly', priority: 0.7 },
+    { url: '/info', changeFrequency: 'monthly', priority: 0.6 },
+    { url: '/legal', changeFrequency: 'yearly', priority: 0.3 },
+    { url: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
+    { url: '/terms', changeFrequency: 'yearly', priority: 0.3 },
+    { url: '/disclosure', changeFrequency: 'yearly', priority: 0.3 },
   ];
 
   urls.push(...staticPages);
@@ -126,21 +126,35 @@ export const generateSitemap = async (): Promise<string> => {
     console.error('Error fetching sitemap data:', error);
   }
 
-  // Generate XML sitemap
+  // Generate XML sitemap with proper escaping
+  const urlElements = urls.map(urlData => {
+    const urlElement = `  <url>
+    <loc>${baseUrl}${urlData.url}</loc>`;
+    
+    const lastModified = urlData.lastModified 
+      ? `\n    <lastmod>${new Date(urlData.lastModified).toISOString().split('T')[0]}</lastmod>` 
+      : '';
+    
+    const changeFreq = urlData.changeFrequency 
+      ? `\n    <changefreq>${urlData.changeFrequency}</changefreq>` 
+      : '';
+    
+    const priority = urlData.priority 
+      ? `\n    <priority>${urlData.priority}</priority>` 
+      : '';
+
+    return urlElement + lastModified + changeFreq + priority + '\n  </url>';
+  }).join('\n');
+
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(urlData => `  <url>
-    <loc>${baseUrl}${urlData.url}</loc>
-    ${urlData.lastModified ? `<lastmod>${new Date(urlData.lastModified).toISOString().split('T')[0]}</lastmod>` : ''}
-    ${urlData.changeFrequency ? `<changefreq>${urlData.changeFrequency}</changefreq>` : ''}
-    ${urlData.priority ? `<priority>${urlData.priority}</priority>` : ''}
-  </url>`).join('\n')}
+${urlElements}
 </urlset>`;
 
   return sitemapXml;
 };
 
-export const downloadSitemap = async () => {
+export const downloadSitemap = async (): Promise<void> => {
   const sitemapContent = await generateSitemap();
   const blob = new Blob([sitemapContent], { type: 'application/xml' });
   const url = URL.createObjectURL(blob);
