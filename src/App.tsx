@@ -30,6 +30,7 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Disclosure from './pages/Disclosure';
 import NotFound from './pages/NotFound';
+import Sitemap from './pages/Sitemap';
 
 // Lazy load heavy components
 const LazyAdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -75,6 +76,9 @@ function App() {
               <Route path="/my-listings" element={<MyListings />} />
               <Route path="/add-restaurant" element={<AddRestaurant />} />
               <Route path="/add-hotel" element={<AddHotel />} />
+              
+              {/* Sitemap route */}
+              <Route path="/sitemap.xml" element={<Sitemap />} />
               
               {/* Detail pages */}
               <Route path="/eat/:restaurantSlug" element={<RestaurantDetail />} />
