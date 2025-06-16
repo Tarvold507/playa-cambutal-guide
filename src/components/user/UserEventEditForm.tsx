@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
+import { useUpdateEvent } from '@/hooks/useEvents';
+import { useToast } from '@/hooks/use-toast';
 import { UserEvent } from '@/hooks/useUserEvents';
 import AutoCloseCalendar from '@/components/ui/auto-close-calendar';
-import { formatInPanamaTime, formatDateForDBPanama, calculateEndTime, formatTimeWithDefaults } from '@/utils/timezoneUtils';
+import { formatDateForDB, parseEventDate } from '@/utils/dateUtils';
+import { formatInPanamaTime } from '@/utils/timezoneUtils';
 
-const eventFormSchema = z.object({
+const eventEditSchema = z.object({
   title: z.string().min(3, 'Event name must be at least 3 characters'),
   location: z.string().min(3, 'Location must be at least 3 characters'),
   host: z.string().min(2, 'Host name must be at least 2 characters'),
@@ -27,30 +31,30 @@ const eventFormSchema = z.object({
   image_url: z.string().url('Please enter a valid image URL').optional().or(z.literal('')),
 });
 
-type EventFormData = z.infer<typeof eventFormSchema>;
+type EventEditData = z.infer<typeof eventEditSchema>;
 
 interface UserEventEditFormProps {
   event: UserEvent;
-  onSave: (eventId: string, updates: Partial<UserEvent>) => void;
+  onSuccess: () => void;
   onCancel: () => void;
-  loading?: boolean;
 }
 
 const UserEventEditForm: React.FC<UserEventEditFormProps> = ({ 
   event, 
-  onSave, 
-  onCancel, 
-  loading = false 
+  onSuccess, 
+  onCancel 
 }) => {
+  const { toast } = useToast();
+  const updateEvent = useUpdateEvent();
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   
-  const form = useForm<EventFormData>({
-    resolver: zodResolver(eventFormSchema),
+  const form = useForm<EventEditData>({
+    resolver: zodResolver(eventEditSchema),
     defaultValues: {
       title: event.title,
       location: event.location,
       host: event.host,
-      event_date: new Date(event.event_date),
+      event_date: parseEventDate(event.event_date),
       start_time: event.start_time || '',
       end_time: event.end_time || '',
       description: event.description,
@@ -59,20 +63,35 @@ const UserEventEditForm: React.FC<UserEventEditFormProps> = ({
     },
   });
 
-  const onSubmit = async (data: EventFormData) => {
-    const updates = {
-      title: data.title,
-      location: data.location,
-      host: data.host,
-      event_date: formatDateForDBPanama(data.event_date),
-      start_time: data.start_time || null,
-      end_time: data.end_time || null,
-      description: data.description,
-      full_description: data.full_description || null,
-      image_url: data.image_url || null,
-    };
+  const onSubmit = async (data: EventEditData) => {
+    try {
+      await updateEvent.mutateAsync({
+        id: event.id,
+        title: data.title,
+        location: data.location,
+        host: data.host,
+        event_date: formatDateForDB(data.event_date),
+        start_time: data.start_time || null,
+        end_time: data.end_time || null,
+        description: data.description,
+        full_description: data.full_description || null,
+        image_url: data.image_url || null,
+      });
 
-    onSave(event.id, updates);
+      toast({
+        title: 'Success',
+        description: 'Event updated successfully!',
+      });
+
+      onSuccess();
+    } catch (error) {
+      console.error('Error updating event:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update event. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (

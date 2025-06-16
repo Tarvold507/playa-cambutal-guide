@@ -1,11 +1,13 @@
 
 import React from 'react';
-import { Calendar, CalendarProps } from '@/components/ui/calendar';
+import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { DayPickerSingleProps } from 'react-day-picker';
 
-interface AutoCloseCalendarProps extends CalendarProps {
+interface AutoCloseCalendarProps extends DayPickerSingleProps {
   onSelect: (date: Date | undefined) => void;
   onClose?: () => void;
+  className?: string;
 }
 
 const AutoCloseCalendar: React.FC<AutoCloseCalendarProps> = ({ 

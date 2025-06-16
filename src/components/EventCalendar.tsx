@@ -1,6 +1,6 @@
 
 import * as React from "react"
-import { isAfter, startOfDay, isToday, parseISO, isWithinInterval } from "date-fns"
+import { isAfter, startOfDay, isToday, parseISO, isWithinInterval, format } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -341,7 +341,7 @@ const EventCalendar = () => {
                         <h4 className="font-medium text-lg">{event.title}</h4>
                         <div className="text-right">
                           <span className="text-sm text-primary font-medium">
-                            {format(event.date, 'MMM d')}
+                            {formatInPanamaTime(event.date, 'MMM d')}
                             {isToday(event.date) && <span className="ml-1">(Today)</span>}
                           </span>
                           <div className="text-xs text-muted-foreground capitalize">
@@ -351,7 +351,7 @@ const EventCalendar = () => {
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">{event.description}</p>
                       <p className="text-xs text-muted-foreground">
-                        {format(event.date, 'EEEE, MMMM d, yyyy')}
+                        {formatInPanamaTime(event.date, 'EEEE, MMMM d, yyyy')}
                       </p>
                     </div>
                   </div>
@@ -368,7 +368,7 @@ const EventCalendar = () => {
                     />
                     <div className="space-y-4">
                       <p className="text-sm text-primary font-medium">
-                        {format(event.date, 'EEEE, MMMM d, yyyy')}
+                        {formatInPanamaTime(event.date, 'EEEE, MMMM d, yyyy')}
                         {isToday(event.date) && <span className="ml-2 text-accent-foreground bg-primary px-2 py-1 rounded-full text-xs">Today</span>}
                       </p>
                       

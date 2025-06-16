@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { Control } from 'react-hook-form';
+import { Control, useFormContext } from 'react-hook-form';
 import AutoCloseCalendar from '@/components/ui/auto-close-calendar';
 import { formatInPanamaTime, calculateEndTime, formatTimeWithDefaults } from '@/utils/timezoneUtils';
 
@@ -16,6 +16,7 @@ interface EventDateTimeFieldsProps {
 
 const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const { setValue } = useFormContext();
 
   return (
     <>
@@ -78,11 +79,7 @@ const EventDateTimeFields: React.FC<EventDateTimeFieldsProps> = ({ control }) =>
                     // Auto-calculate end time
                     const endTime = calculateEndTime(formattedTime);
                     if (endTime) {
-                      // Get the form instance to update end_time
-                      const form = control._formState;
-                      if (form) {
-                        control._setValue('end_time', endTime);
-                      }
+                      setValue('end_time', endTime);
                     }
                   }}
                 />
