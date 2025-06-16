@@ -1,11 +1,11 @@
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Clock, MapPin, Phone, Globe } from 'lucide-react';
+import { MessageCircle, Clock, MapPin, Phone, Globe, ArrowLeft } from 'lucide-react';
 import { restaurantData, Restaurant as StaticRestaurant } from '../data/restaurants';
 import { findRestaurantBySlug, generateSlug } from '../utils/slugUtils';
 import { supabase } from '@/integrations/supabase/client';
@@ -190,6 +190,19 @@ const RestaurantDetail = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
       
+      {/* Back Button */}
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 py-3">
+          <Link 
+            to="/eat" 
+            className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Restaurants
+          </Link>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <div className="relative h-96 overflow-hidden">
         <img 
