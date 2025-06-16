@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
 import { usePageSEO } from '@/hooks/usePageSEO';
 import { RestaurantListing } from '@/hooks/useRestaurantListings';
 import RestaurantFilter from '@/components/RestaurantFilter';
@@ -31,6 +30,23 @@ const Eat = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
+
+  useEffect(() => {
+    // Update document title
+    document.title = seoData?.title || 'Eat - Playa Cambutal Guide';
+    
+    // Update meta description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', seoData?.description || 'Discover the best restaurants and dining options in Playa Cambutal');
+    }
+    
+    // Update meta keywords
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (metaKeywords) {
+      metaKeywords.setAttribute('content', seoData?.keywords || 'restaurants, dining, Playa Cambutal, food, Panama');
+    }
+  }, [seoData]);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -127,12 +143,6 @@ const Eat = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      <Helmet>
-        <title>{seoData?.title || 'Eat - Playa Cambutal Guide'}</title>
-        <meta name="description" content={seoData?.description || 'Discover the best restaurants and dining options in Playa Cambutal'} />
-        <meta name="keywords" content={seoData?.keywords || 'restaurants, dining, Playa Cambutal, food, Panama'} />
-      </Helmet>
-
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6">
