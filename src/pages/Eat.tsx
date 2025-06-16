@@ -1,14 +1,16 @@
 
-import { useState, useEffect } from 'react';
-import { usePageSEO } from '@/hooks/usePageSEO';
+import { useEffect, useState } from 'react';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import Newsletter from '../components/Newsletter';
 import { RestaurantListing } from '@/hooks/useRestaurantListings';
-import RestaurantFilter from '@/components/RestaurantFilter';
-import RestaurantMap from '@/components/RestaurantMap';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { MapPin, Phone, Globe, Star, Clock } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { updatePageHead } from '@/utils/seoUtils';
+import EatHero from '../components/eat/EatHero';
+import EatIntro from '../components/eat/EatIntro';
+import EatSearchFilter from '../components/eat/EatSearchFilter';
+import EatRestaurantGrid from '../components/eat/EatRestaurantGrid';
+import EatTips from '../components/eat/EatTips';
+import EatAddRestaurant from '../components/eat/EatAddRestaurant';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,33 +25,38 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 };
 
 const Eat = () => {
-  const { fetchSEOByPath } = usePageSEO();
   const { toast } = useToast();
   const [restaurants, setRestaurants] = useState<RestaurantListing[]>([]);
-  const [filteredRestaurants, setFilteredRestaurants] = useState<RestaurantListing[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showOpenOnly, setShowOpenOnly] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   useEffect(() => {
-    const loadSEO = async () => {
-      const seoData = await fetchSEOByPath('eat');
-      if (seoData) {
-        document.title = seoData.page_title || 'Eat - Playa Cambutal Guide';
-        
-        const metaDescription = document.querySelector('meta[name="description"]');
-        if (metaDescription) {
-          metaDescription.setAttribute('content', seoData.meta_description || 'Discover the best restaurants and dining options in Playa Cambutal');
-        }
-        
-        const metaKeywords = document.querySelector('meta[name="keywords"]');
-        if (metaKeywords) {
-          metaKeywords.setAttribute('content', seoData.meta_keywords || 'restaurants, dining, Playa Cambutal, food, Panama');
-        }
-      }
-    };
+    window.scrollTo(0, 0);
     
-    loadSEO();
-  }, [fetchSEOByPath]);
+    // Set SEO for the Eat page
+    updatePageHead({
+      id: 'eat-page',
+      page_path: '/eat',
+      page_title: 'Restaurants & Dining in Playa Cambutal - Playa Cambutal Guide',
+      meta_description: 'Discover the best restaurants and dining options in Playa Cambutal, Panama. From local favorites to international cuisine, find the perfect spot for your next meal.',
+      meta_keywords: 'Playa Cambutal restaurants, Panama dining, beach restaurants, local food, seafood, international cuisine',
+      og_title: 'Restaurants & Dining in Playa Cambutal',
+      og_description: 'Discover amazing dining experiences in Playa Cambutal, from fresh seafood to international cuisine.',
+      og_image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+      canonical_url: `${window.location.origin}/eat`,
+      robots: 'index, follow',
+      schema_markup: {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Restaurants & Dining in Playa Cambutal",
+        "description": "Discover the best restaurants and dining options in Playa Cambutal, Panama. From local favorites to international cuisine, find the perfect spot for your next meal.",
+        "url": `${window.location.origin}/eat`
+      },
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
+  }, []);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -95,7 +102,6 @@ const Eat = () => {
         const finalRestaurants = [...sortedPremiumRestaurants, ...shuffledRegularRestaurants];
 
         setRestaurants(finalRestaurants);
-        setFilteredRestaurants(finalRestaurants);
       } catch (error) {
         console.error('Error fetching restaurants:', error);
         toast({
@@ -111,152 +117,46 @@ const Eat = () => {
     fetchRestaurants();
   }, [toast]);
 
-  const handleFilterChange = (showOpen: boolean) => {
-    setShowOpenOnly(showOpen);
-    // Note: This is a simplified filter - you might want to implement actual "open now" logic
-    // For now, we'll just show all restaurants regardless of the filter
-    setFilteredRestaurants(restaurants);
-  };
+  // Filter restaurants based on search and category
+  const filteredRestaurants = restaurants.filter(restaurant => {
+    const matchesSearch = restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         restaurant.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         restaurant.address.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || restaurant.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = [...new Set(restaurants.map(restaurant => restaurant.category))];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
-        <div className="text-xl">Loading restaurants...</div>
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold text-gray-800">Loading restaurants...</h1>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6">
-            Eat
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover amazing dining experiences in Playa Cambutal. From local favorites to international cuisine, find the perfect spot for your next meal.
-          </p>
-        </div>
-
-        <RestaurantFilter onFilterChange={handleFilterChange} />
-
-        <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          <div className="lg:col-span-2">
-            <div className="grid gap-6">
-              {filteredRestaurants.map((restaurant) => (
-                <Card key={restaurant.id} className={`hover:shadow-lg transition-shadow ${restaurant.is_premium ? 'ring-2 ring-yellow-400 shadow-lg' : ''}`}>
-                  <div className="md:flex">
-                    {restaurant.image_url && (
-                      <div className="md:w-1/3">
-                        <img
-                          src={restaurant.image_url}
-                          alt={restaurant.name}
-                          className="w-full h-48 md:h-full object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none"
-                        />
-                      </div>
-                    )}
-                    <div className={`${restaurant.image_url ? 'md:w-2/3' : 'w-full'}`}>
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="text-xl flex items-center gap-2">
-                              {restaurant.name}
-                              {restaurant.is_premium && (
-                                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                                  <Star className="w-3 h-3 mr-1" />
-                                  Featured
-                                </Badge>
-                              )}
-                            </CardTitle>
-                            <CardDescription className="flex items-center text-gray-600 mt-2">
-                              <MapPin className="w-4 h-4 mr-1" />
-                              {restaurant.address}
-                            </CardDescription>
-                          </div>
-                          <Badge variant="outline">{restaurant.category}</Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-700 mb-4">{restaurant.description}</p>
-                        
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
-                          {restaurant.phone && (
-                            <div className="flex items-center">
-                              <Phone className="w-4 h-4 mr-1" />
-                              {restaurant.phone}
-                            </div>
-                          )}
-                          {restaurant.website && (
-                            <div className="flex items-center">
-                              <Globe className="w-4 h-4 mr-1" />
-                              <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                Website
-                              </a>
-                            </div>
-                          )}
-                        </div>
-
-                        {restaurant.hours && Object.keys(restaurant.hours).length > 0 && (
-                          <div className="mb-4">
-                            <div className="flex items-center text-sm text-gray-600 mb-2">
-                              <Clock className="w-4 h-4 mr-1" />
-                              Hours
-                            </div>
-                            <div className="text-sm text-gray-600 grid grid-cols-2 gap-1">
-                              {Object.entries(restaurant.hours).map(([day, hours]) => (
-                                <div key={day} className="flex justify-between">
-                                  <span className="capitalize">{day}:</span>
-                                  <span>{hours}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <Button asChild>
-                          <Link to={`/restaurant/${restaurant.id}`}>
-                            View Details
-                          </Link>
-                        </Button>
-                      </CardContent>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          <div className="lg:col-span-1">
-            <div className="sticky top-4">
-              {filteredRestaurants.length > 0 && (
-                <RestaurantMap 
-                  latitude={null} 
-                  longitude={null} 
-                  name="Restaurants in Playa Cambutal" 
-                  address="Playa Cambutal, Panama" 
-                />
-              )}
-            </div>
-          </div>
-        </div>
-
-        {filteredRestaurants.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-xl text-gray-600">
-              No restaurants found matching your criteria.
-            </p>
-            <Button 
-              onClick={() => {
-                setShowOpenOnly(false);
-                setFilteredRestaurants(restaurants);
-              }}
-              className="mt-4"
-            >
-              Clear Filters
-            </Button>
-          </div>
-        )}
-      </div>
+    <div className="min-h-screen bg-white">
+      <Navbar />
+      <EatHero />
+      <EatIntro />
+      <EatSearchFilter 
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        categories={categories}
+      />
+      <EatRestaurantGrid filteredRestaurants={filteredRestaurants} />
+      <EatTips />
+      <EatAddRestaurant />
+      <Newsletter />
+      <Footer />
     </div>
   );
 };
