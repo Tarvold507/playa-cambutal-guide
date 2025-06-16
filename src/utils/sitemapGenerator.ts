@@ -57,16 +57,23 @@ export const generateSitemap = async (): Promise<string> => {
       });
     }
 
-    // Fetch hotels
+    // Fetch hotels - using 'name' instead of 'slug' since hotels don't have a slug column
     const { data: hotels } = await supabase
       .from('hotel_listings')
-      .select('slug, updated_at')
+      .select('name, updated_at')
       .eq('approved', true);
 
     if (hotels) {
       hotels.forEach(hotel => {
+        const slug = hotel.name
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim();
+        
         urls.push({
-          url: `/stay/${hotel.slug}`,
+          url: `/stay/${slug}`,
           lastModified: hotel.updated_at,
           changeFrequency: 'weekly',
           priority: 0.8
@@ -74,15 +81,15 @@ export const generateSitemap = async (): Promise<string> => {
       });
     }
 
-    // Fetch adventure businesses
+    // Fetch adventure businesses - using 'business_name' instead of 'name'
     const { data: businesses } = await supabase
       .from('adventure_business_listings')
-      .select('name, updated_at')
+      .select('business_name, updated_at')
       .eq('approved', true);
 
     if (businesses) {
       businesses.forEach(business => {
-        const slug = business.name
+        const slug = business.business_name
           .toLowerCase()
           .replace(/[^\w\s-]/g, '')
           .replace(/\s+/g, '-')

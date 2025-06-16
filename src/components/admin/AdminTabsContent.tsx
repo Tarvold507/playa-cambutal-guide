@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TabsContent } from "@/components/ui/tabs";
 import PendingEventsTab from '@/components/admin/PendingEventsTab';
@@ -139,7 +140,7 @@ const AdminTabsContent = ({ data, handlers }: AdminTabsContentProps) => {
 
       <TabsContent value="seo">
         <div className="space-y-6">
-          <SEOManagementTab />
+          <SEOManagementTab pageSEO={pageSEO} onRefresh={refreshSEOData} />
           <SitemapGenerator />
         </div>
       </TabsContent>
