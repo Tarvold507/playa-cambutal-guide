@@ -57,7 +57,7 @@ const TransportationContent = () => <Card className="w-full">
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold mb-2">Airport Transfers</h3>
-          <p className="text-gray-600">Reliable transportation to and from Panama City airport and regional airports.</p>
+          <p className="text-gray-600">Buses are available from the Albrook Airport in Panama City and Chitre Airport that will bring you to Cambutal but will require some transfers. </p>
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-2">Local Taxi Services</h3>
