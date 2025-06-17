@@ -3,7 +3,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 
 const PANAMA_TIMEZONE = 'America/Panama';
 
-export const isRestaurantOpen = (hours: Record<string, string>): boolean => {
+export const isRestaurantOpen = (hours: Record<string, string> | any): boolean => {
   const now = new Date();
   
   // Get current day and time in Panama timezone
@@ -17,14 +17,52 @@ export const isRestaurantOpen = (hours: Record<string, string>): boolean => {
     panamaTime: formatInTimeZone(now, PANAMA_TIMEZONE, 'yyyy-MM-dd HH:mm:ss zzz')
   });
 
+  // Handle wrapped hours data structure
+  let actualHours: Record<string, string> = {};
+  
+  if (hours && typeof hours === 'object') {
+    // Check if hours is wrapped in a structure like {_type: "undefined", value: "undefined"}
+    if (hours.value !== undefined) {
+      console.log('Hours data is wrapped, unwrapping value:', hours.value);
+      actualHours = hours.value;
+    } else if (hours._type || hours.type) {
+      console.log('Hours data has type wrapper but no usable value:', hours);
+      return false; // Can't determine hours, assume closed
+    } else {
+      // Direct hours object
+      actualHours = hours;
+    }
+  } else {
+    console.log('Hours is not an object or is null/undefined:', hours);
+    return false;
+  }
+
+  console.log('Processed hours object:', actualHours);
+
   // Try to find today's hours - handle case insensitive matching
-  let todayHours = hours[currentDay];
+  let todayHours = actualHours[currentDay];
   if (!todayHours) {
     // Try lowercase version
-    todayHours = hours[currentDay.toLowerCase()];
+    todayHours = actualHours[currentDay.toLowerCase()];
+  }
+  if (!todayHours) {
+    // Try other variations
+    const dayVariations = [
+      currentDay.toUpperCase(),
+      currentDay.toLowerCase(),
+      currentDay.charAt(0).toUpperCase() + currentDay.slice(1).toLowerCase()
+    ];
+    
+    for (const dayVariation of dayVariations) {
+      if (actualHours[dayVariation]) {
+        todayHours = actualHours[dayVariation];
+        break;
+      }
+    }
   }
   
   console.log('Today hours for', currentDay, ':', todayHours);
+  console.log('Available days in hours object:', Object.keys(actualHours));
   
   if (!todayHours || todayHours.toLowerCase().trim() === 'closed' || todayHours.trim() === '') {
     console.log('Restaurant is closed today or no hours available');
