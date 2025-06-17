@@ -56,10 +56,11 @@ function App() {
           <LanguageProvider>
             <Toaster />
             <Routes>
-              {/* Static file routes - must come first */}
+              {/* Static file routes - must come first and be exact */}
               <Route path="/sitemap.xml" element={<StaticFileRoutes />} />
               <Route path="/robots.txt" element={<StaticFileRoutes />} />
               
+              {/* Regular application routes */}
               <Route path="/" element={<Index />} />
               <Route path="/eat" element={<Eat />} />
               <Route path="/stay" element={<Stay />} />
