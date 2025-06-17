@@ -32,6 +32,11 @@ export const useUserRestaurants = () => {
           item.gallery_images as string[] : [],
         menu_images: Array.isArray(item.menu_images) ? 
           item.menu_images as string[] : [],
+        latitude: item.latitude || null,
+        longitude: item.longitude || null,
+        is_premium: item.is_premium || false,
+        display_order: item.display_order || 0,
+        closed_for_season: item.closed_for_season || false,
       })) || [];
       
       setUserRestaurants(transformedData);

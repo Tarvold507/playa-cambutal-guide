@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +15,8 @@ export interface RestaurantListing {
   website?: string;
   email?: string;
   image_url?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   hours: Record<string, string>;
   gallery_images: string[];
   menu_images: string[];
