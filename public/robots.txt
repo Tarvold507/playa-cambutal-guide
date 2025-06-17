@@ -20,28 +20,30 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-# Block access to admin and private areas
+# Block access to admin and private areas only
 Disallow: /admin/
 Disallow: /profile/
 Disallow: /auth/
 
-# Important pages for Panama tourism
+# Allow all important pages for Panama tourism
 Allow: /surf
 Allow: /eat
 Allow: /stay
+Allow: /do
 Allow: /adventure
 Allow: /events
 Allow: /transportation
-
-# SEO optimizations
-User-agent: *
-Disallow: /*?
-Disallow: /api/
-Disallow: /_next/
-Disallow: /static/
+Allow: /info
+Allow: /blog
+Allow: /calendar
+Allow: /real-estate
 
 # Allow important static assets
 Allow: /images/
 Allow: /favicon.ico
 Allow: /*.css
 Allow: /*.js
+
+# Only disallow sensitive API endpoints, not all API paths
+Disallow: /api/admin/
+Disallow: /api/auth/

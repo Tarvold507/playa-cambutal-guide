@@ -33,7 +33,7 @@ export const generateSitemap = async (): Promise<string> => {
   urls.push(...staticPages);
 
   try {
-    // Fetch restaurants
+    // Fetch restaurants with slug generation
     const { data: restaurants } = await supabase
       .from('restaurant_listings')
       .select('name, updated_at')
@@ -57,7 +57,7 @@ export const generateSitemap = async (): Promise<string> => {
       });
     }
 
-    // Fetch hotels - using 'name' instead of 'slug' since hotels don't have a slug column
+    // Fetch hotels with slug generation (hotels don't have a slug column, so generate from name)
     const { data: hotels } = await supabase
       .from('hotel_listings')
       .select('name, updated_at')
@@ -81,7 +81,7 @@ export const generateSitemap = async (): Promise<string> => {
       });
     }
 
-    // Fetch adventure businesses - using 'business_name' instead of 'name'
+    // Fetch adventure businesses with slug generation (using business_name)
     const { data: businesses } = await supabase
       .from('adventure_business_listings')
       .select('business_name, updated_at')
@@ -122,11 +122,31 @@ export const generateSitemap = async (): Promise<string> => {
       });
     }
 
+    // Add pages from page_seo table to ensure all database-managed pages are included
+    const { data: seoPages } = await supabase
+      .from('page_seo')
+      .select('page_path, updated_at');
+
+    if (seoPages) {
+      seoPages.forEach(page => {
+        // Only add if not already in static pages
+        const existsInStatic = staticPages.some(staticPage => staticPage.url === page.page_path);
+        if (!existsInStatic) {
+          urls.push({
+            url: page.page_path,
+            lastModified: page.updated_at,
+            changeFrequency: 'monthly',
+            priority: 0.5
+          });
+        }
+      });
+    }
+
   } catch (error) {
     console.error('Error fetching sitemap data:', error);
   }
 
-  // Generate XML sitemap using a simpler approach to avoid TypeScript type depth issues
+  // Generate XML sitemap
   const xmlParts: string[] = ['<?xml version="1.0" encoding="UTF-8"?>'];
   xmlParts.push('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
 

@@ -44,7 +44,7 @@
     <link rel="canonical" href="https://playacambutalguide.com" />
     
     <!-- Additional SEO meta tags -->
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="language" content="English" />
     <meta name="geo.region" content="PA" />
     <meta name="geo.placename" content="Playa Cambutal, Panama" />
@@ -63,18 +63,24 @@
     
     <script src="https://analytics.ahrefs.com/analytics.js" data-key="x0Mr1itcxzInzPPPRtGKiQ" async></script>
 
-    <!-- Enhanced Schema.org structured data -->
+    <!-- Enhanced Schema.org structured data for better Google understanding -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "TravelGuide",
       "name": "Playa Cambutal Guide",
-      "description": "Ultimate travel guide to Playa Cambutal, Panama",
+      "description": "Ultimate travel guide to Playa Cambutal, Panama featuring restaurants, hotels, activities, and surf information",
       "url": "https://playacambutalguide.com",
       "image": "https://playacambutalguide.com/lovable-uploads/a8f15e8f-f24e-4740-b51b-a9263fbb0a51.png",
+      "author": {
+        "@type": "Organization",
+        "name": "Playa Cambutal Guide",
+        "url": "https://playacambutalguide.com"
+      },
       "about": {
-        "@type": "Place",
+        "@type": "TouristDestination",
         "name": "Playa Cambutal",
+        "description": "A beautiful beach destination in Panama known for surfing, dining, and adventure activities",
         "geo": {
           "@type": "GeoCoordinates",
           "latitude": 7.2833,
@@ -85,8 +91,32 @@
           "addressCountry": "PA",
           "addressRegion": "Los Santos",
           "addressLocality": "Cambutal"
+        },
+        "touristType": ["Beach Lover", "Surfer", "Adventure Seeker", "Food Enthusiast"],
+        "hasMap": "https://playacambutalguide.com"
+      },
+      "mainEntity": [
+        {
+          "@type": "WebPage",
+          "name": "Restaurants",
+          "url": "https://playacambutalguide.com/eat"
+        },
+        {
+          "@type": "WebPage", 
+          "name": "Hotels & Accommodations",
+          "url": "https://playacambutalguide.com/stay"
+        },
+        {
+          "@type": "WebPage",
+          "name": "Activities & Adventures", 
+          "url": "https://playacambutalguide.com/do"
+        },
+        {
+          "@type": "WebPage",
+          "name": "Surf Information",
+          "url": "https://playacambutalguide.com/surf"
         }
-      }
+      ]
     }
     </script>
   </head>
