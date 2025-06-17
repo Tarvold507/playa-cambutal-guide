@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, MapPin } from 'lucide-react';
 import { useRestaurantListings } from '@/hooks/useRestaurantListings';
 
 interface RestaurantFormData {
@@ -20,6 +20,8 @@ interface RestaurantFormData {
   website?: string;
   email?: string;
   image_url?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface RestaurantSubmissionFormProps {
@@ -68,6 +70,8 @@ const RestaurantSubmissionForm: React.FC<RestaurantSubmissionFormProps> = ({ onS
         hours,
         gallery_images: galleryImages,
         menu_images: menuImages,
+        latitude: data.latitude || null,
+        longitude: data.longitude || null,
       });
       reset();
       setGalleryImages([]);
@@ -147,6 +151,49 @@ const RestaurantSubmissionForm: React.FC<RestaurantSubmissionFormProps> = ({ onS
                 placeholder="Enter full address"
               />
               {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>}
+            </div>
+
+            {/* Location Coordinates */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="latitude">Latitude</Label>
+                <Input
+                  id="latitude"
+                  type="number"
+                  step="any"
+                  {...register('latitude', { 
+                    setValueAs: (v) => v === '' ? undefined : parseFloat(v),
+                    validate: (v) => v === undefined || (v >= -90 && v <= 90) || 'Latitude must be between -90 and 90'
+                  })}
+                  placeholder="e.g., 7.2335"
+                />
+                {errors.latitude && <p className="text-red-500 text-sm mt-1">{errors.latitude.message}</p>}
+              </div>
+              
+              <div>
+                <Label htmlFor="longitude">Longitude</Label>
+                <Input
+                  id="longitude"
+                  type="number"
+                  step="any"
+                  {...register('longitude', { 
+                    setValueAs: (v) => v === '' ? undefined : parseFloat(v),
+                    validate: (v) => v === undefined || (v >= -180 && v <= 180) || 'Longitude must be between -180 and 180'
+                  })}
+                  placeholder="e.g., -80.1030"
+                />
+                {errors.longitude && <p className="text-red-500 text-sm mt-1">{errors.longitude.message}</p>}
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-start space-x-2">
+                <MapPin className="w-4 h-4 text-blue-600 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium">Location coordinates help customers find you</p>
+                  <p className="text-blue-600">You can find these on Google Maps by right-clicking your location</p>
+                </div>
+              </div>
             </div>
           </div>
 
