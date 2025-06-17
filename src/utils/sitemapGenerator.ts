@@ -33,6 +33,8 @@ export const generateSitemap = async (): Promise<string> => {
   urls.push(...staticPages);
 
   try {
+    console.log('🗺️ Generating sitemap with domain:', baseUrl);
+
     // Fetch restaurants with slug generation
     const { data: restaurants } = await supabase
       .from('restaurant_listings')
@@ -55,9 +57,10 @@ export const generateSitemap = async (): Promise<string> => {
           priority: 0.8
         });
       });
+      console.log(`✅ Added ${restaurants.length} restaurant URLs`);
     }
 
-    // Fetch hotels with slug generation (hotels don't have a slug column, so generate from name)
+    // Fetch hotels with slug generation
     const { data: hotels } = await supabase
       .from('hotel_listings')
       .select('name, updated_at')
@@ -79,9 +82,10 @@ export const generateSitemap = async (): Promise<string> => {
           priority: 0.8
         });
       });
+      console.log(`✅ Added ${hotels.length} hotel URLs`);
     }
 
-    // Fetch adventure businesses with slug generation (using business_name)
+    // Fetch adventure businesses with slug generation
     const { data: businesses } = await supabase
       .from('adventure_business_listings')
       .select('business_name, updated_at')
@@ -103,6 +107,7 @@ export const generateSitemap = async (): Promise<string> => {
           priority: 0.7
         });
       });
+      console.log(`✅ Added ${businesses.length} business URLs`);
     }
 
     // Fetch blog posts
@@ -120,6 +125,7 @@ export const generateSitemap = async (): Promise<string> => {
           priority: 0.6
         });
       });
+      console.log(`✅ Added ${blogPosts.length} blog post URLs`);
     }
 
     // Add pages from page_seo table to ensure all database-managed pages are included
@@ -140,10 +146,11 @@ export const generateSitemap = async (): Promise<string> => {
           });
         }
       });
+      console.log(`✅ Added ${seoPages.length} SEO page URLs`);
     }
 
   } catch (error) {
-    console.error('Error fetching sitemap data:', error);
+    console.error('❌ Error fetching sitemap data:', error);
   }
 
   // Generate XML sitemap
@@ -172,6 +179,7 @@ export const generateSitemap = async (): Promise<string> => {
 
   xmlParts.push('</urlset>');
   
+  console.log(`🗺️ Generated sitemap with ${urls.length} URLs`);
   return xmlParts.join('\n');
 };
 

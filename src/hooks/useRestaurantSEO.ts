@@ -16,9 +16,46 @@ export const useRestaurantSEO = (restaurant: any) => {
       const pagePath = `/eat/${restaurant.slug}`;
       
       try {
-        // Check if SEO data already exists
+        console.log('🔍 Loading SEO for restaurant:', restaurant.name, 'Path:', pagePath);
+        
+        // First, try to get existing SEO data from database
         const existingSEO = await fetchSEOByPath(pagePath);
         
+        if (existingSEO) {
+          console.log('✅ Found database SEO data for:', pagePath);
+          console.log('📄 Database SEO:', {
+            title: existingSEO.page_title,
+            description: existingSEO.meta_description,
+            canonical: existingSEO.canonical_url
+          });
+          
+          // Update canonical URL if it uses old domain
+          if (existingSEO.canonical_url && !existingSEO.canonical_url.includes('playacambutalguide.com')) {
+            console.log('🔄 Updating canonical URL from old domain');
+            const updatedSEO = {
+              ...existingSEO,
+              canonical_url: `https://playacambutalguide.com${pagePath}`
+            };
+            
+            try {
+              await updatePageSEO(pagePath, updatedSEO);
+              updatePageHead(updatedSEO);
+              return;
+            } catch (updateError) {
+              console.warn('Could not update canonical URL:', updateError);
+              // Use existing data even if update failed
+              updatePageHead(existingSEO);
+              return;
+            }
+          } else {
+            // Use existing SEO data directly
+            updatePageHead(existingSEO);
+            return;
+          }
+        }
+
+        console.log('⚠️ No database SEO found, generating fallback for:', pagePath);
+
         // Get the best available image for OG tags
         const getRestaurantOGImage = () => {
           if (restaurant.image_url) return restaurant.image_url;
@@ -63,7 +100,7 @@ export const useRestaurantSEO = (restaurant: any) => {
         const ogImage = getRestaurantOGImage();
         const detailedDescription = createRestaurantDescription();
         
-        // Generate comprehensive SEO data
+        // Generate comprehensive SEO data with correct domain
         const seoData = {
           page_title: `${restaurant.name} - Restaurant in Playa Cambutal | Playa Cambutal Guide`,
           meta_description: detailedDescription,
@@ -74,16 +111,20 @@ export const useRestaurantSEO = (restaurant: any) => {
           twitter_title: `${restaurant.name} - Playa Cambutal Restaurant`,
           twitter_description: detailedDescription,
           twitter_image: ogImage,
-          canonical_url: `${window.location.origin}/eat/${restaurant.slug}`,
+          canonical_url: `https://playacambutalguide.com${pagePath}`,
           schema_markup: generateRestaurantSchema(restaurant)
         };
 
-        // Try to save/update SEO data in database if user is authenticated
-        let finalSEOData = existingSEO;
-        
-        if (user && (!existingSEO || !existingSEO.meta_keywords?.includes('custom'))) {
+        console.log('🔧 Generated fallback SEO data:', {
+          title: seoData.page_title,
+          description: seoData.meta_description,
+          canonical: seoData.canonical_url
+        });
+
+        // Try to save SEO data in database if user is authenticated
+        if (user) {
           try {
-            const updatedSEO = await updatePageSEO(pagePath, {
+            const savedSEO = await updatePageSEO(pagePath, {
               page_title: seoData.page_title,
               meta_description: seoData.meta_description,
               meta_keywords: seoData.meta_keywords,
@@ -98,17 +139,18 @@ export const useRestaurantSEO = (restaurant: any) => {
               schema_markup: seoData.schema_markup,
             });
             
-            if (updatedSEO) {
-              finalSEOData = updatedSEO;
-              console.log('SEO data saved to database for:', pagePath);
+            if (savedSEO) {
+              console.log('💾 Saved new SEO data to database for:', pagePath);
+              updatePageHead(savedSEO);
+              return;
             }
           } catch (saveError) {
             console.warn('Could not save SEO data to database:', saveError);
           }
         }
 
-        // Use existing SEO data from database if available, otherwise use generated data
-        const seoToApply = finalSEOData || {
+        // Use generated data as fallback
+        const fallbackSEO = {
           id: restaurant.id,
           page_path: pagePath,
           ...seoData,
@@ -117,12 +159,13 @@ export const useRestaurantSEO = (restaurant: any) => {
           updated_at: new Date().toISOString()
         };
 
-        updatePageHead(seoToApply);
+        console.log('📋 Using fallback SEO data');
+        updatePageHead(fallbackSEO);
         
       } catch (error) {
-        console.error('Error handling restaurant SEO:', error);
+        console.error('❌ Error handling restaurant SEO:', error);
         
-        // Enhanced fallback
+        // Enhanced fallback with correct domain
         const fallbackOGImage = restaurant.image_url || restaurant.imageSrc || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
         const fallbackDescription = restaurant.description || `Experience delicious dining at ${restaurant.name} in beautiful Playa Cambutal, Panama. A must-visit restaurant for locals and tourists alike.`;
         
@@ -134,12 +177,13 @@ export const useRestaurantSEO = (restaurant: any) => {
           og_title: `${restaurant.name} - Playa Cambutal`,
           og_description: fallbackDescription,
           og_image: fallbackOGImage,
-          canonical_url: `${window.location.origin}/eat/${restaurant.slug}`,
+          canonical_url: `https://playacambutalguide.com${pagePath}`,
           robots: 'index, follow',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
         
+        console.log('🆘 Using emergency fallback SEO');
         updatePageHead(fallbackSEO);
       }
     };

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { usePageSEO, PageSEO } from '@/hooks/usePageSEO';
 import { useToast } from '@/hooks/use-toast';
 import { Edit, Save, X, RefreshCw } from 'lucide-react';
+import BulkSEOActions from './BulkSEOActions';
 
 interface SEOManagementTabProps {
   pageSEO: PageSEO[];
@@ -54,12 +55,14 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
     if (!editingPage || !editForm.page_path) return;
 
     try {
-      // Add 'custom' to meta_keywords to indicate this is manually edited
       const updatedForm = {
         ...editForm,
         meta_keywords: editForm.meta_keywords?.includes('custom') 
           ? editForm.meta_keywords 
-          : `${editForm.meta_keywords || ''}, custom`.replace(/^, /, '')
+          : `${editForm.meta_keywords || ''}, custom`.replace(/^, /, ''),
+        canonical_url: editForm.canonical_url?.includes('playacambutalguide.com') 
+          ? editForm.canonical_url 
+          : `https://playacambutalguide.com${editForm.page_path}`
       };
 
       await updatePageSEO(editForm.page_path, updatedForm);
@@ -93,7 +96,9 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <BulkSEOActions />
+      
       <div className="flex justify-between items-center">
         <div className="flex gap-2 items-center">
           <Label htmlFor="filter">Filter by type:</Label>
@@ -120,6 +125,7 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
       {filteredPages.map((page) => {
         const pageType = getPageType(page.page_path);
         const isCustom = page.meta_keywords?.includes('custom');
+        const hasCorrectDomain = page.canonical_url?.includes('playacambutalguide.com');
         
         return (
           <Card key={page.id}>
@@ -134,6 +140,11 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
                     {isCustom && (
                       <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
                         Custom
+                      </Badge>
+                    )}
+                    {!hasCorrectDomain && (
+                      <Badge variant="destructive" className="bg-red-50 text-red-700 border-red-200">
+                        Domain Fix Needed
                       </Badge>
                     )}
                   </div>
@@ -226,7 +237,7 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
                       id="canonical_url"
                       value={editForm.canonical_url || ''}
                       onChange={(e) => setEditForm(prev => ({ ...prev, canonical_url: e.target.value }))}
-                      placeholder="https://playacambutal.guide/page"
+                      placeholder="https://playacambutalguide.com/page"
                     />
                   </div>
                 </div>
