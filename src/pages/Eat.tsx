@@ -1,9 +1,9 @@
+
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import { RestaurantListing } from '@/hooks/useRestaurantListings';
-import { updatePageHead } from '@/utils/seoUtils';
 import { isRestaurantOpen } from '@/utils/timeUtils';
 import EatHero from '../components/eat/EatHero';
 import EatIntro from '../components/eat/EatIntro';
@@ -11,6 +11,7 @@ import EatSearchFilter from '../components/eat/EatSearchFilter';
 import EatRestaurantGrid from '../components/eat/EatRestaurantGrid';
 import EatTips from '../components/eat/EatTips';
 import EatAddRestaurant from '../components/eat/EatAddRestaurant';
+import EatSEO from '../components/eat/EatSEO';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,29 +33,6 @@ const Eat = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    // Set SEO for the Eat page
-    updatePageHead({
-      id: 'eat-page',
-      page_path: '/eat',
-      page_title: 'Restaurants & Dining in Playa Cambutal - Playa Cambutal Guide',
-      meta_description: 'Discover the best restaurants and dining options in Playa Cambutal, Panama. From local favorites to international cuisine, find the perfect spot for your next meal.',
-      meta_keywords: 'Playa Cambutal restaurants, Panama dining, beach restaurants, local food, seafood, international cuisine',
-      og_title: 'Restaurants & Dining in Playa Cambutal',
-      og_description: 'Discover amazing dining experiences in Playa Cambutal, from fresh seafood to international cuisine.',
-      og_image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      canonical_url: `${window.location.origin}/eat`,
-      robots: 'index, follow',
-      schema_markup: {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "Restaurants & Dining in Playa Cambutal",
-        "description": "Discover the best restaurants and dining options in Playa Cambutal, Panama. From local favorites to international cuisine, find the perfect spot for your next meal.",
-        "url": `${window.location.origin}/eat`
-      },
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    });
   }, []);
 
   useEffect(() => {
@@ -142,6 +120,7 @@ const Eat = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <EatSEO />
       <Navbar />
       <EatHero />
       <EatIntro />

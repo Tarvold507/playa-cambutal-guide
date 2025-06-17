@@ -5,8 +5,10 @@ import Hero from '../components/Hero';
 import Newsletter from '../components/Newsletter';
 import BusinessDirectory from '../components/BusinessDirectory';
 import LocalServices from '../components/LocalServices';
+import InfoSEO from '../components/info/InfoSEO';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 const RealEstateContent = () => <Card className="w-full">
     <CardHeader>
       <CardTitle>Real Estate Services</CardTitle>
@@ -74,8 +76,10 @@ const TransportationContent = () => <Card className="w-full">
       </div>
     </CardContent>
   </Card>;
+
 const Info = () => {
   const [activeTab, setActiveTab] = useState('services');
+  
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -94,7 +98,10 @@ const Info = () => {
       }, 100);
     }
   }, []);
-  return <div className="min-h-screen bg-white">
+  
+  return (
+    <div className="min-h-screen bg-white">
+      <InfoSEO />
       <Navbar />
       
       <Hero title="Information Guide" subtitle="Everything you need to know about Playa Cambutal" imageSrc="https://images.unsplash.com/photo-1596627116790-af6f46dddbae?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80" />
@@ -130,6 +137,8 @@ const Info = () => {
 
       <Newsletter />
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Info;
