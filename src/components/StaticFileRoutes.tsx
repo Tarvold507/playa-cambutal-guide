@@ -3,11 +3,6 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 const SitemapRoute = () => {
-  React.useEffect(() => {
-    // Set proper content type for XML
-    document.contentType = 'application/xml';
-  }, []);
-
   const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -85,11 +80,6 @@ const SitemapRoute = () => {
 };
 
 const RobotsRoute = () => {
-  React.useEffect(() => {
-    // Set proper content type for text
-    document.contentType = 'text/plain';
-  }, []);
-
   const robotsContent = `User-agent: *
 Allow: /
 
