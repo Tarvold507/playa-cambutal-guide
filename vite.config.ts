@@ -25,12 +25,17 @@ export default defineConfig(({ mode }) => ({
     // Ensure all assets are copied during build
     assetsDir: 'assets',
     copyPublicDir: true,
-    // Ensure static files are not processed as modules
+    // Force static files to be in root for Lovable hosting
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      },
       output: {
         assetFileNames: (assetInfo) => {
-          // Keep static files in root for direct serving
-          if (assetInfo.name === 'sitemap.xml' || assetInfo.name === 'robots.txt' || assetInfo.name === 'favicon.ico') {
+          // Keep critical static files in root for direct serving
+          if (assetInfo.name === 'sitemap.xml' || 
+              assetInfo.name === 'robots.txt' || 
+              assetInfo.name === 'favicon.ico') {
             return '[name][extname]';
           }
           return 'assets/[name]-[hash][extname]';
@@ -38,8 +43,8 @@ export default defineConfig(({ mode }) => ({
       }
     }
   },
-  // Configure how static files are handled
+  // Ensure proper MIME types for static files
   define: {
-    // Ensure the build process doesn't interfere with static file serving
+    __STATIC_FILES_BASE__: JSON.stringify('/'),
   }
 }));

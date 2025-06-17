@@ -1,10 +1,10 @@
-
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { Toaster } from '@/components/ui/sonner';
+import { StaticFileRoutes } from './components/StaticFileRoutes';
 
 // Import existing pages directly (non-lazy for now)
 import Index from './pages/Index';
@@ -56,6 +56,10 @@ function App() {
           <LanguageProvider>
             <Toaster />
             <Routes>
+              {/* Static file routes - must come first */}
+              <Route path="/sitemap.xml" element={<StaticFileRoutes />} />
+              <Route path="/robots.txt" element={<StaticFileRoutes />} />
+              
               <Route path="/" element={<Index />} />
               <Route path="/eat" element={<Eat />} />
               <Route path="/stay" element={<Stay />} />
