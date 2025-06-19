@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '../components/Navbar';
@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X } from 'lucide-react';
+import { X, RefreshCw } from 'lucide-react';
 
 const AddBlog = () => {
   const { user } = useAuth();
@@ -22,6 +22,7 @@ const AddBlog = () => {
   
   const [formData, setFormData] = useState({
     title: '',
+    slug: '',
     content: '',
     excerpt: '',
     featured_image_url: '',
@@ -36,16 +37,27 @@ const AddBlog = () => {
   const [newTag, setNewTag] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Auto-generate slug from title when title changes
+  useEffect(() => {
+    if (formData.title && !formData.slug) {
+      setFormData(prev => ({ ...prev, slug: generateSlug(formData.title) }));
+    }
+  }, [formData.title, formData.slug]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
+    if (!formData.slug.trim()) {
+      alert('Please provide a URL slug for your blog post');
+      return;
+    }
+
     setLoading(true);
     try {
-      const slug = generateSlug(formData.title);
       const result = await createBlogPost({
         ...formData,
-        slug,
+        slug: formData.slug.trim(),
         tags,
         published_at: formData.status === 'published' ? new Date().toISOString() : null,
       });
@@ -69,6 +81,12 @@ const AddBlog = () => {
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const regenerateSlug = () => {
+    if (formData.title) {
+      setFormData(prev => ({ ...prev, slug: generateSlug(formData.title) }));
+    }
   };
 
   if (!user) {
@@ -108,6 +126,31 @@ const AddBlog = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     required
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="slug">URL Slug *</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="slug"
+                      value={formData.slug}
+                      onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                      placeholder="url-friendly-slug"
+                      required
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="icon"
+                      onClick={regenerateSlug}
+                      title="Regenerate slug from title"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    This will be your blog post's URL: /blog/{formData.slug || 'your-slug'}
+                  </p>
                 </div>
                 
                 <div>
