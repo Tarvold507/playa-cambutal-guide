@@ -19,7 +19,7 @@ export const useAdminBlogData = () => {
         .from('blog_posts')
         .select(`
           *,
-          profiles (
+          profiles!blog_posts_user_id_fkey (
             name,
             email
           )
@@ -59,7 +59,7 @@ export const useAdminBlogData = () => {
         .from('blog_posts')
         .select(`
           *,
-          profiles (
+          profiles!blog_posts_user_id_fkey (
             name,
             email
           )
