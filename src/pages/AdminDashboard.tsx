@@ -1,7 +1,8 @@
-
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Tabs } from "@/components/ui/tabs";
@@ -16,6 +17,7 @@ import { useAdminSEOData } from '@/hooks/admin/useAdminSEOData';
 const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const {
     pendingEvents,
