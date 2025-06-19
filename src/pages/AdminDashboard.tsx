@@ -41,8 +41,11 @@ const AdminDashboard = () => {
   const {
     pendingBlogPosts,
     liveBlogPosts,
+    isLoading: blogLoading,
+    error: blogError,
     fetchPendingBlogPosts,
     fetchLiveBlogPosts,
+    refreshBlogData,
   } = useAdminBlogData();
 
   const {
@@ -59,22 +62,19 @@ const AdminDashboard = () => {
   }, [user, navigate]);
 
   useEffect(() => {
+    console.log('🔄 AdminDashboard mounted, refreshing all data...');
     refreshAllData();
-    fetchPendingBlogPosts();
-    fetchLiveBlogPosts();
+    // Blog data is fetched by useAdminBlogData hook automatically
   }, []);
 
-  const refreshBlogData = () => {
-    fetchPendingBlogPosts();
-    fetchLiveBlogPosts();
-  };
-
   const handleBlogApprove = async (id: string) => {
+    console.log('✅ Approving blog post:', id);
     await handleApprove('blog_posts', id);
     refreshBlogData();
   };
 
   const handleBlogReject = async (id: string) => {
+    console.log('❌ Rejecting blog post:', id);
     await handleReject('blog_posts', id);
     refreshBlogData();
   };
@@ -135,6 +135,12 @@ const AdminDashboard = () => {
     refreshSEOData,
   };
 
+  const blogDataProps = {
+    isLoading: blogLoading,
+    error: blogError,
+    refreshBlogData,
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -151,6 +157,7 @@ const AdminDashboard = () => {
           <AdminTabsContent 
             data={adminData}
             handlers={adminHandlers}
+            blogData={blogDataProps}
           />
         </Tabs>
 

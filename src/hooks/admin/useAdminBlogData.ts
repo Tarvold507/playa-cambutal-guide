@@ -6,8 +6,14 @@ import { BlogPost } from '@/hooks/useBlogPosts';
 export const useAdminBlogData = () => {
   const [pendingBlogPosts, setPendingBlogPosts] = useState<BlogPost[]>([]);
   const [liveBlogPosts, setLiveBlogPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchPendingBlogPosts = async () => {
+    console.log('🔍 Fetching pending blog posts...');
+    setIsLoading(true);
+    setError(null);
+    
     try {
       const { data, error } = await supabase
         .from('blog_posts')
@@ -21,7 +27,14 @@ export const useAdminBlogData = () => {
         .eq('approved', false)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching pending blog posts:', error);
+        setError(error.message);
+        throw error;
+      }
+      
+      console.log('✅ Fetched pending blog posts:', data?.length || 0, 'posts');
+      console.log('📋 Posts data:', data);
       
       // Type the data properly to match BlogPost interface
       const typedData = (data || []).map(post => ({
@@ -32,11 +45,15 @@ export const useAdminBlogData = () => {
       
       setPendingBlogPosts(typedData);
     } catch (error) {
-      console.error('Error fetching pending blog posts:', error);
+      console.error('❌ Error fetching pending blog posts:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchLiveBlogPosts = async () => {
+    console.log('🔍 Fetching live blog posts...');
     try {
       const { data, error } = await supabase
         .from('blog_posts')
@@ -50,7 +67,12 @@ export const useAdminBlogData = () => {
         .eq('approved', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching live blog posts:', error);
+        throw error;
+      }
+      
+      console.log('✅ Fetched live blog posts:', data?.length || 0, 'posts');
       
       // Type the data properly to match BlogPost interface
       const typedData = (data || []).map(post => ({
@@ -61,11 +83,18 @@ export const useAdminBlogData = () => {
       
       setLiveBlogPosts(typedData);
     } catch (error) {
-      console.error('Error fetching live blog posts:', error);
+      console.error('❌ Error fetching live blog posts:', error);
     }
   };
 
+  const refreshBlogData = () => {
+    console.log('🔄 Manual refresh of blog data triggered');
+    fetchPendingBlogPosts();
+    fetchLiveBlogPosts();
+  };
+
   useEffect(() => {
+    console.log('🚀 useAdminBlogData hook mounted, fetching initial data...');
     fetchPendingBlogPosts();
     fetchLiveBlogPosts();
   }, []);
@@ -73,7 +102,10 @@ export const useAdminBlogData = () => {
   return {
     pendingBlogPosts,
     liveBlogPosts,
+    isLoading,
+    error,
     fetchPendingBlogPosts,
     fetchLiveBlogPosts,
+    refreshBlogData,
   };
 };

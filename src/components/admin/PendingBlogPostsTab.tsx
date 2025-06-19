@@ -2,32 +2,89 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, User, Eye, Edit, Trash2 } from 'lucide-react';
+import { Calendar, User, Eye, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { BlogPost } from '@/hooks/useBlogPosts';
 
 interface PendingBlogPostsTabProps {
   pendingBlogPosts: BlogPost[];
+  isLoading?: boolean;
+  error?: string | null;
   onApprove: (id: string) => void;
   onEdit: (post: BlogPost) => void;
   onReject: (id: string) => void;
+  onRefresh?: () => void;
 }
 
 const PendingBlogPostsTab = ({ 
   pendingBlogPosts, 
+  isLoading = false,
+  error = null,
   onApprove, 
   onEdit, 
-  onReject 
+  onReject,
+  onRefresh
 }: PendingBlogPostsTabProps) => {
+  console.log('🎨 PendingBlogPostsTab rendering with:', {
+    pendingBlogPostsCount: pendingBlogPosts.length,
+    isLoading,
+    error,
+    posts: pendingBlogPosts
+  });
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-red-500 mb-4">
+          <p className="font-semibold">Error loading blog posts:</p>
+          <p className="text-sm">{error}</p>
+        </div>
+        {onRefresh && (
+          <Button onClick={onRefresh} variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Try Again
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-500">Loading blog posts...</p>
+      </div>
+    );
+  }
+
   if (pendingBlogPosts.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">No pending blog posts to review.</p>
+        <p className="text-gray-500 mb-4">No pending blog posts to review.</p>
+        {onRefresh && (
+          <Button onClick={onRefresh} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        )}
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-gray-600">
+          {pendingBlogPosts.length} pending blog post{pendingBlogPosts.length !== 1 ? 's' : ''}
+        </p>
+        {onRefresh && (
+          <Button onClick={onRefresh} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        )}
+      </div>
+      
       {pendingBlogPosts.map((post) => (
         <Card key={post.id}>
           <CardHeader>

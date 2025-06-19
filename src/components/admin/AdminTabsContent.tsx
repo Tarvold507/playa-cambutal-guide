@@ -36,9 +36,14 @@ interface AdminTabsContentProps {
     handleBlogReject: (id: string) => Promise<void>;
     refreshSEOData: () => void;
   };
+  blogData?: {
+    isLoading?: boolean;
+    error?: string | null;
+    refreshBlogData?: () => void;
+  };
 }
 
-const AdminTabsContent = ({ data, handlers }: AdminTabsContentProps) => {
+const AdminTabsContent = ({ data, handlers, blogData }: AdminTabsContentProps) => {
   const {
     pendingEvents,
     pendingBusinesses,
@@ -104,16 +109,19 @@ const AdminTabsContent = ({ data, handlers }: AdminTabsContentProps) => {
           pendingAdventureBusinesses={pendingAdventureBusinesses}
           onApprove={(id) => handleApprove('adventure_business_listings', id)}
           onEdit={(item) => handleEdit(item, 'adventure')}
-          onReject={(id) => handleReject('adventure_business_listings', id)}
+          onReject={(id) => handleReject('adventure_listings', id)}
         />
       </TabsContent>
 
       <TabsContent value="blog">
         <PendingBlogPostsTab
           pendingBlogPosts={pendingBlogPosts}
+          isLoading={blogData?.isLoading}
+          error={blogData?.error}
           onApprove={handleBlogApprove}
           onEdit={(item) => handleEdit(item, 'blog')}
           onReject={handleBlogReject}
+          onRefresh={blogData?.refreshBlogData}
         />
       </TabsContent>
 
