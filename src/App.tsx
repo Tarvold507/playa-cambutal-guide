@@ -1,3 +1,4 @@
+
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -17,6 +18,7 @@ import Auth from './pages/Auth';
 import Calendar from './pages/Calendar';
 import AddRestaurant from './pages/AddRestaurant';
 import AddHotel from './pages/AddHotel';
+import AddBlog from './pages/AddBlog';
 import MyListings from './pages/MyListings';
 import RestaurantDetail from './pages/RestaurantDetail';
 import HotelDetail from './pages/HotelDetail';
@@ -80,6 +82,7 @@ function App() {
               <Route path="/my-listings" element={<MyListings />} />
               <Route path="/add-restaurant" element={<AddRestaurant />} />
               <Route path="/add-hotel" element={<AddHotel />} />
+              <Route path="/add-blog" element={<AddBlog />} />
               
               {/* Detail pages */}
               <Route path="/eat/:restaurantSlug" element={<RestaurantDetail />} />
