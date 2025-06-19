@@ -19,7 +19,7 @@ export const useAdminBlogData = () => {
         .from('blog_posts')
         .select(`
           *,
-          profiles!blog_posts_user_id_fkey (
+          profiles (
             name,
             email
           )
@@ -29,7 +29,7 @@ export const useAdminBlogData = () => {
 
       if (error) {
         console.error('❌ Error fetching pending blog posts:', error);
-        setError(error.message);
+        setError(`Failed to fetch pending blog posts: ${error.message}`);
         throw error;
       }
       
@@ -44,9 +44,9 @@ export const useAdminBlogData = () => {
       }));
       
       setPendingBlogPosts(typedData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error fetching pending blog posts:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      setError(error?.message || 'Failed to fetch pending blog posts');
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +59,7 @@ export const useAdminBlogData = () => {
         .from('blog_posts')
         .select(`
           *,
-          profiles!blog_posts_user_id_fkey (
+          profiles (
             name,
             email
           )
@@ -82,7 +82,7 @@ export const useAdminBlogData = () => {
       }));
       
       setLiveBlogPosts(typedData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error fetching live blog posts:', error);
     }
   };
