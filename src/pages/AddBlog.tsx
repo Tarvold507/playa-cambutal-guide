@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import HtmlEditor from '../components/blog/HtmlEditor';
 import { useBlogPosts } from '../hooks/useBlogPosts';
 import { generateSlug } from '../utils/seoUtils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -164,17 +164,14 @@ const AddBlog = () => {
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="content">Content *</Label>
-                  <Textarea
-                    id="content"
-                    value={formData.content}
-                    onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                    placeholder="Write your blog content here (HTML supported)"
-                    rows={12}
-                    required
-                  />
-                </div>
+                <HtmlEditor
+                  value={formData.content}
+                  onChange={(content) => setFormData(prev => ({ ...prev, content }))}
+                  label="Blog Content"
+                  placeholder="Write your blog content here..."
+                  rows={15}
+                  required
+                />
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
