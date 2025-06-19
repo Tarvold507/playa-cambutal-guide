@@ -1,5 +1,6 @@
 
 import { Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -14,14 +15,13 @@ const EatAddRestaurant = () => {
           Join our directory and reach more customers! Add your restaurant to our platform and showcase your 
           cuisine to food lovers from around the world.
         </p>
-        <Button 
-          onClick={() => window.location.href = user ? '/add-restaurant' : '/auth'}
-          size="lg"
-          className="bg-venao-dark hover:bg-venao-dark/90"
+        <Link 
+          to={user ? '/add-restaurant' : '/auth'}
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-venao-dark text-primary-foreground hover:bg-venao-dark/90 h-11 rounded-md px-8"
         >
           <Plus className="w-5 h-5 mr-2" />
           Add Your Restaurant
-        </Button>
+        </Link>
         {!user && (
           <p className="text-sm text-gray-500 mt-2">
             You'll need to sign in to add a restaurant listing.
