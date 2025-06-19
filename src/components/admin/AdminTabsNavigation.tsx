@@ -16,6 +16,7 @@ interface AdminTabsNavigationProps {
     hotels: number;
     restaurants: number;
     adventure: number;
+    blog: number;
     seo: number;
   };
 }
@@ -56,12 +57,18 @@ const AdminTabsNavigation = ({ pendingCounts, liveCounts }: AdminTabsNavigationP
         <TabsTrigger value="live-adventure" className="text-sm">
           Live Adventure ({liveCounts.adventure})
         </TabsTrigger>
+        <TabsTrigger value="live-blog" className="text-sm">
+          Live Blog ({liveCounts.blog})
+        </TabsTrigger>
         <TabsTrigger value="seo" className="text-sm">
           SEO ({liveCounts.seo})
         </TabsTrigger>
         <TabsTrigger value="content" className="text-sm">
           Content
         </TabsTrigger>
+      </TabsList>
+      
+      <TabsList className="grid w-full grid-cols-1 h-auto">
         <TabsTrigger value="import" className="text-sm">
           Import
         </TabsTrigger>

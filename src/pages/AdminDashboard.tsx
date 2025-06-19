@@ -138,6 +138,7 @@ const AdminDashboard = () => {
     hotels: liveHotels.length,
     restaurants: liveRestaurants.length,
     adventure: liveAdventureBusinesses.length,
+    blog: liveBlogPosts.length,
     seo: pageSEO.length,
   };
 
@@ -151,6 +152,7 @@ const AdminDashboard = () => {
     liveHotels,
     liveRestaurants,
     liveAdventureBusinesses,
+    liveBlogPosts,
     pageSEO,
   };
 

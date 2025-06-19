@@ -10,6 +10,7 @@ import PendingAdventureBusinessesTab from '@/components/admin/PendingAdventureBu
 import LiveHotelsTab from '@/components/admin/LiveHotelsTab';
 import LiveRestaurantsTab from '@/components/admin/LiveRestaurantsTab';
 import LiveAdventureBusinessesTab from '@/components/admin/LiveAdventureBusinessesTab';
+import LiveBlogPostsTab from '@/components/admin/LiveBlogPostsTab';
 import SEOManagementTab from '@/components/admin/SEOManagementTab';
 import ContentManagementTab from '@/components/admin/ContentManagementTab';
 import GooglePlacesImport from '@/components/admin/GooglePlacesImport';
@@ -26,6 +27,7 @@ interface AdminTabsContentProps {
     liveHotels: any[];
     liveRestaurants: any[];
     liveAdventureBusinesses: any[];
+    liveBlogPosts: any[];
     pageSEO: any[];
   };
   handlers: {
@@ -54,6 +56,7 @@ const AdminTabsContent = ({ data, handlers, blogData }: AdminTabsContentProps) =
     liveHotels,
     liveRestaurants,
     liveAdventureBusinesses,
+    liveBlogPosts,
     pageSEO
   } = data;
 
@@ -143,6 +146,14 @@ const AdminTabsContent = ({ data, handlers, blogData }: AdminTabsContentProps) =
         <LiveAdventureBusinessesTab
           liveAdventureBusinesses={liveAdventureBusinesses}
           onEdit={(item) => handleEdit(item, 'adventure')}
+        />
+      </TabsContent>
+
+      <TabsContent value="live-blog">
+        <LiveBlogPostsTab
+          liveBlogPosts={liveBlogPosts}
+          onEdit={(item) => handleEdit(item, 'blog')}
+          onRefresh={blogData?.refreshBlogData}
         />
       </TabsContent>
 
