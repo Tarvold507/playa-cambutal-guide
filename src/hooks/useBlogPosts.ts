@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -79,7 +78,10 @@ export const useBlogPosts = () => {
   };
 
   const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null> => {
+    console.log('🔍 Fetching blog post by slug:', slug);
+    
     try {
+      // First, try to get an approved and published post
       const { data, error } = await supabase
         .from('blog_posts')
         .select(`
@@ -92,18 +94,52 @@ export const useBlogPosts = () => {
         .eq('slug', slug)
         .eq('status', 'published')
         .eq('approved', true)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching blog post by slug:', error);
+        throw error;
+      }
+
+      if (data) {
+        console.log('✅ Found approved blog post:', data.title);
+        return {
+          ...data,
+          status: data.status as 'draft' | 'published' | 'archived',
+          profiles: Array.isArray(data.profiles) ? data.profiles[0] : data.profiles
+        };
+      }
+
+      // If no approved post found, try to find any post with that slug for debugging
+      console.log('⚠️ No approved post found, checking if any post exists with slug:', slug);
       
-      // Type the data properly
-      return {
-        ...data,
-        status: data.status as 'draft' | 'published' | 'archived',
-        profiles: Array.isArray(data.profiles) ? data.profiles[0] : data.profiles
-      };
+      const { data: anyPost, error: anyError } = await supabase
+        .from('blog_posts')
+        .select(`
+          *,
+          profiles!blog_posts_user_id_fkey (
+            name,
+            email
+          )
+        `)
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (anyError) {
+        console.error('❌ Error checking for any post with slug:', anyError);
+      } else if (anyPost) {
+        console.log('🔍 Found post but not approved/published:', {
+          title: anyPost.title,
+          status: anyPost.status,
+          approved: anyPost.approved
+        });
+      } else {
+        console.log('❌ No post found with slug:', slug);
+      }
+
+      return null;
     } catch (error) {
-      console.error('Error fetching blog post:', error);
+      console.error('❌ Error in fetchBlogPostBySlug:', error);
       return null;
     }
   };

@@ -14,37 +14,55 @@ const BlogPostPage = () => {
   const { fetchBlogPostBySlug } = useBlogPosts();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     
     const loadPost = async () => {
-      if (!slug) return;
-      
-      setLoading(true);
-      const postData = await fetchBlogPostBySlug(slug);
-      setPost(postData);
-      
-      if (postData) {
-        // Update SEO
-        const seoData = {
-          page_title: postData.seo_title || postData.title,
-          meta_description: postData.seo_description || postData.excerpt,
-          meta_keywords: postData.seo_keywords,
-          og_title: postData.title,
-          og_description: postData.excerpt || postData.seo_description,
-          og_image: postData.featured_image_url,
-          twitter_title: postData.title,
-          twitter_description: postData.excerpt || postData.seo_description,
-          twitter_image: postData.featured_image_url,
-          canonical_url: `${window.location.origin}/blog/${postData.slug}`,
-          schema_markup: generateBlogSchema(postData)
-        };
-        
-        updatePageHead(seoData as any);
+      if (!slug) {
+        setError('No blog post slug provided');
+        setLoading(false);
+        return;
       }
       
-      setLoading(false);
+      console.log('🚀 BlogPostPage loading post with slug:', slug);
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const postData = await fetchBlogPostBySlug(slug);
+        
+        if (postData) {
+          console.log('✅ BlogPostPage loaded post:', postData.title);
+          setPost(postData);
+          
+          // Update SEO
+          const seoData = {
+            page_title: postData.seo_title || postData.title,
+            meta_description: postData.seo_description || postData.excerpt,
+            meta_keywords: postData.seo_keywords,
+            og_title: postData.title,
+            og_description: postData.excerpt || postData.seo_description,
+            og_image: postData.featured_image_url,
+            twitter_title: postData.title,
+            twitter_description: postData.excerpt || postData.seo_description,
+            twitter_image: postData.featured_image_url,
+            canonical_url: `${window.location.origin}/blog/${postData.slug}`,
+            schema_markup: generateBlogSchema(postData)
+          };
+          
+          updatePageHead(seoData as any);
+        } else {
+          console.log('❌ BlogPostPage: No post found for slug:', slug);
+          setError('Blog post not found or not yet approved for publication');
+        }
+      } catch (err) {
+        console.error('❌ BlogPostPage error loading post:', err);
+        setError('Failed to load blog post');
+      } finally {
+        setLoading(false);
+      }
     };
     
     loadPost();
@@ -55,21 +73,31 @@ const BlogPostPage = () => {
       <div className="min-h-screen bg-white">
         <Navbar />
         <div className="container mx-auto px-4 py-16">
-          <div className="text-center">Loading blog post...</div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p>Loading blog post...</p>
+          </div>
         </div>
         <Footer />
       </div>
     );
   }
 
-  if (!post) {
+  if (error || !post) {
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Blog Post Not Found</h1>
-            <p className="text-gray-600 mb-8">The blog post you're looking for doesn't exist.</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">
+              {error || 'Blog Post Not Found'}
+            </h1>
+            <p className="text-gray-600 mb-8">
+              {error === 'Blog post not found or not yet approved for publication' 
+                ? 'This blog post may not be published yet or is still waiting for approval.'
+                : 'The blog post you\'re looking for doesn\'t exist or failed to load.'
+              }
+            </p>
             <Link to="/blog">
               <Button>
                 <ArrowLeft className="w-4 h-4 mr-2" />
