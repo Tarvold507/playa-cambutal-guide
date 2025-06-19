@@ -1,14 +1,16 @@
-
 import { PageSEO } from '@/hooks/usePageSEO';
 
 export const updatePageHead = (seoData: PageSEO | null, fallbackTitle?: string) => {
   if (typeof document === 'undefined') return;
 
-  // Update title
+  console.log('🎯 [SEO DEBUG] updatePageHead called with:', seoData?.page_title || fallbackTitle);
+
+  // Update title with stronger override
   const title = seoData?.page_title || fallbackTitle || 'Playa Cambutal Guide';
   document.title = title;
+  console.log('📝 [SEO DEBUG] Document title set to:', document.title);
 
-  // Update meta tags
+  // Update meta tags with improved override logic
   const updateMetaTag = (name: string, content: string | undefined, property?: string) => {
     if (!content) return;
     
@@ -26,6 +28,7 @@ export const updatePageHead = (seoData: PageSEO | null, fallbackTitle?: string) 
     }
     
     meta.setAttribute('content', content);
+    console.log(`🏷️ [SEO DEBUG] Set meta ${property || name}:`, content);
   };
 
   // Basic meta tags
@@ -46,28 +49,38 @@ export const updatePageHead = (seoData: PageSEO | null, fallbackTitle?: string) 
   updateMetaTag('twitter:description', seoData?.twitter_description || seoData?.meta_description);
   updateMetaTag('twitter:image', seoData?.twitter_image || seoData?.og_image);
 
-  // Canonical URL
+  // Canonical URL with stronger override
   if (seoData?.canonical_url) {
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
+    // Remove any existing canonical tags
+    const existingCanonicals = document.querySelectorAll('link[rel="canonical"]');
+    existingCanonicals.forEach(canonical => canonical.remove());
+    
+    // Add new canonical tag
+    const canonical = document.createElement('link');
+    canonical.setAttribute('rel', 'canonical');
     canonical.setAttribute('href', seoData.canonical_url);
+    document.head.appendChild(canonical);
+    console.log('🔗 [SEO DEBUG] Set canonical URL:', seoData.canonical_url);
   }
 
-  // Schema markup
+  // Schema markup with improved handling
   if (seoData?.schema_markup) {
-    let schemaScript = document.querySelector('script[type="application/ld+json"]#page-schema');
-    if (!schemaScript) {
-      schemaScript = document.createElement('script');
-      schemaScript.setAttribute('type', 'application/ld+json');
-      schemaScript.setAttribute('id', 'page-schema');
-      document.head.appendChild(schemaScript);
+    // Remove any existing schema
+    const existingSchema = document.querySelector('script[type="application/ld+json"]#page-schema');
+    if (existingSchema) {
+      existingSchema.remove();
     }
+    
+    const schemaScript = document.createElement('script');
+    schemaScript.setAttribute('type', 'application/ld+json');
+    schemaScript.setAttribute('id', 'page-schema');
     schemaScript.textContent = JSON.stringify(seoData.schema_markup);
+    document.head.appendChild(schemaScript);
+    console.log('📊 [SEO DEBUG] Set schema markup');
   }
+
+  // Final verification log
+  console.log('✅ [SEO DEBUG] Page head update complete. Current title:', document.title);
 };
 
 export const generateSlug = (title: string): string => {

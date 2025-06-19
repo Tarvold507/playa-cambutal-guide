@@ -16,14 +16,14 @@ export const useRestaurantSEO = (restaurant: any) => {
       const pagePath = `/eat/${restaurant.slug}`;
       
       try {
-        console.log('🔍 Loading SEO for restaurant:', restaurant.name, 'Path:', pagePath);
+        console.log('🔍 [SEO DEBUG] Loading SEO for restaurant:', restaurant.name, 'Path:', pagePath);
         
         // First, try to get existing SEO data from database
         const existingSEO = await fetchSEOByPath(pagePath);
         
         if (existingSEO) {
-          console.log('✅ Found database SEO data for:', pagePath);
-          console.log('📄 Database SEO:', {
+          console.log('✅ [SEO DEBUG] Found database SEO data for:', pagePath);
+          console.log('📄 [SEO DEBUG] Database SEO:', {
             title: existingSEO.page_title,
             description: existingSEO.meta_description,
             canonical: existingSEO.canonical_url
@@ -31,7 +31,7 @@ export const useRestaurantSEO = (restaurant: any) => {
           
           // Update canonical URL if it uses old domain
           if (existingSEO.canonical_url && !existingSEO.canonical_url.includes('playacambutalguide.com')) {
-            console.log('🔄 Updating canonical URL from old domain');
+            console.log('🔄 [SEO DEBUG] Updating canonical URL from old domain');
             const updatedSEO = {
               ...existingSEO,
               canonical_url: `https://playacambutalguide.com${pagePath}`
@@ -39,22 +39,25 @@ export const useRestaurantSEO = (restaurant: any) => {
             
             try {
               await updatePageSEO(pagePath, updatedSEO);
+              console.log('🎯 [SEO DEBUG] Applying database SEO to page head');
               updatePageHead(updatedSEO);
               return;
             } catch (updateError) {
               console.warn('Could not update canonical URL:', updateError);
               // Use existing data even if update failed
+              console.log('🎯 [SEO DEBUG] Applying existing database SEO to page head');
               updatePageHead(existingSEO);
               return;
             }
           } else {
             // Use existing SEO data directly
+            console.log('🎯 [SEO DEBUG] Applying database SEO to page head');
             updatePageHead(existingSEO);
             return;
           }
         }
 
-        console.log('⚠️ No database SEO found, generating fallback for:', pagePath);
+        console.log('⚠️ [SEO DEBUG] No database SEO found, generating fallback for:', pagePath);
 
         // Get the best available image for OG tags
         const getRestaurantOGImage = () => {
@@ -115,7 +118,7 @@ export const useRestaurantSEO = (restaurant: any) => {
           schema_markup: generateRestaurantSchema(restaurant)
         };
 
-        console.log('🔧 Generated fallback SEO data:', {
+        console.log('🔧 [SEO DEBUG] Generated fallback SEO data:', {
           title: seoData.page_title,
           description: seoData.meta_description,
           canonical: seoData.canonical_url
@@ -140,7 +143,8 @@ export const useRestaurantSEO = (restaurant: any) => {
             });
             
             if (savedSEO) {
-              console.log('💾 Saved new SEO data to database for:', pagePath);
+              console.log('💾 [SEO DEBUG] Saved new SEO data to database for:', pagePath);
+              console.log('🎯 [SEO DEBUG] Applying saved SEO to page head');
               updatePageHead(savedSEO);
               return;
             }
@@ -159,11 +163,12 @@ export const useRestaurantSEO = (restaurant: any) => {
           updated_at: new Date().toISOString()
         };
 
-        console.log('📋 Using fallback SEO data');
+        console.log('📋 [SEO DEBUG] Using fallback SEO data');
+        console.log('🎯 [SEO DEBUG] Applying fallback SEO to page head');
         updatePageHead(fallbackSEO);
         
       } catch (error) {
-        console.error('❌ Error handling restaurant SEO:', error);
+        console.error('❌ [SEO DEBUG] Error handling restaurant SEO:', error);
         
         // Enhanced fallback with correct domain
         const fallbackOGImage = restaurant.image_url || restaurant.imageSrc || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
@@ -183,11 +188,15 @@ export const useRestaurantSEO = (restaurant: any) => {
           updated_at: new Date().toISOString()
         };
         
-        console.log('🆘 Using emergency fallback SEO');
+        console.log('🆘 [SEO DEBUG] Using emergency fallback SEO');
+        console.log('🎯 [SEO DEBUG] Applying emergency fallback SEO to page head');
         updatePageHead(fallbackSEO);
       }
     };
 
-    handleRestaurantSEO();
-  }, [restaurant, updatePageSEO, fetchSEOByPath, user]);
+    // Add a small delay to ensure DOM is ready and prevent race conditions
+    const timer = setTimeout(handleRestaurantSEO, 100);
+    
+    return () => clearTimeout(timer);
+  }, [restaurant?.id, restaurant?.slug, updatePageSEO, fetchSEOByPath, user]);
 };
