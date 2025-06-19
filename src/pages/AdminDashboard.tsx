@@ -69,8 +69,34 @@ const AdminDashboard = () => {
 
   const handleBlogApprove = async (id: string) => {
     console.log('✅ Approving blog post:', id);
-    await handleApprove('blog_posts', id);
-    refreshBlogData();
+    
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .update({ 
+          approved: true, 
+          status: 'published',
+          approved_by: user?.id,
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Blog post approved",
+        description: "The blog post has been approved and published successfully.",
+      });
+
+      refreshBlogData();
+    } catch (error) {
+      console.error('Error approving blog post:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve blog post. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleBlogReject = async (id: string) => {

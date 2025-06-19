@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +9,7 @@ interface PendingBlogPostsTabProps {
   isLoading?: boolean;
   error?: string | null;
   onApprove: (id: string) => void;
-  onEdit: (post: BlogPost) => void;
+  onEdit: (post: BlogPost, type: string) => void;
   onReject: (id: string) => void;
   onRefresh?: () => void;
 }
@@ -111,7 +110,7 @@ const PendingBlogPostsTab = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onEdit(post)}
+                  onClick={() => onEdit(post, 'blog')}
                 >
                   <Edit className="w-4 h-4" />
                 </Button>
