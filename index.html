@@ -51,6 +51,13 @@
     <meta name="geo.position" content="7.2833;-80.5167" />
     <meta name="ICBM" content="7.2833, -80.5167" />
     
+    <!-- STATIC NAVIGATION FOR CRAWLERS - Hidden but discoverable -->
+    <noscript>
+      <style>
+        .crawler-nav { display: block !important; position: absolute; left: -9999px; }
+      </style>
+    </noscript>
+    
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LD31BCY49N"></script>
     <script>
@@ -122,6 +129,50 @@
   </head>
 
   <body>
+    <!-- STATIC NAVIGATION FOR CRAWLERS - Always present in HTML -->
+    <nav class="crawler-nav" style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;">
+      <h1>Playa Cambutal Guide - Complete Site Navigation</h1>
+      <ul>
+        <li><a href="/" title="Playa Cambutal Guide Home">Home - Playa Cambutal Guide</a></li>
+        <li><a href="/eat" title="Restaurants in Playa Cambutal">Restaurants in Playa Cambutal</a></li>
+        <li><a href="/stay" title="Hotels and Accommodation">Hotels and Accommodation in Playa Cambutal</a></li>
+        <li><a href="/do" title="Activities and Adventures">Activities and Adventures in Playa Cambutal</a></li>
+        <li><a href="/surf" title="Surfing Information">Surfing in Playa Cambutal, Panama</a></li>
+        <li><a href="/calendar" title="Events Calendar">Events Calendar - Playa Cambutal</a></li>
+        <li><a href="/blog" title="Travel Blog">Travel Blog - Playa Cambutal</a></li>
+        <li><a href="/info" title="Travel Information">Travel Information and Guide</a></li>
+        <li><a href="/transportation" title="Transportation Guide">Transportation to Playa Cambutal</a></li>
+        <li><a href="/real-estate" title="Real Estate">Real Estate in Playa Cambutal</a></li>
+        
+        <!-- Restaurant Pages -->
+        <li><a href="/eat/centro-recreativo-jake" title="Centro Recreativo Jake">Centro Recreativo Jake Restaurant</a></li>
+        <li><a href="/eat/fonda-norelis" title="Fonda Norelis">Fonda Norelis Restaurant</a></li>
+        <li><a href="/eat/monaco-bar-and-grill" title="Monaco Bar and Grill">Monaco Bar and Grill</a></li>
+        <li><a href="/eat/pizzeria-madera" title="Pizzeria Madera">Pizzeria Madera</a></li>
+        <li><a href="/eat/kambute" title="Kambute Restaurant">Kambute Restaurant</a></li>
+        <li><a href="/eat/hotel-kambutaleko" title="Hotel Kambutaleko Restaurant">Hotel Kambutaleko Restaurant</a></li>
+        <li><a href="/eat/hotel-restaurante-cambutal-beach" title="Hotel Restaurante Cambutal Beach">Hotel Restaurante Cambutal Beach</a></li>
+        <li><a href="/eat/la-tierra-de-mis-suenos" title="La Tierra de Mis Sueños">La Tierra de Mis Sueños</a></li>
+        <li><a href="/eat/restaurante-casa-playa-verde" title="Restaurante Casa Playa Verde">Restaurante Casa Playa Verde</a></li>
+        
+        <!-- Hotel Pages -->
+        <li><a href="/stay/hotel-kambutaleko" title="Hotel Kambutaleko">Hotel Kambutaleko</a></li>
+        <li><a href="/stay/sansara-surf-and-yoga-resort" title="Sansara Surf and Yoga Resort">Sansara Surf and Yoga Resort</a></li>
+        <li><a href="/stay/hotel-playa-cambutal" title="Hotel Playa Cambutal">Hotel Playa Cambutal</a></li>
+        <li><a href="/stay/stunning-beachfront-home-near-cambutal-beach-break" title="Stunning Beachfront Home">Stunning Beachfront Home near Cambutal Beach Break</a></li>
+        <li><a href="/stay/tropical-beachfront-home-in-cambutal" title="Tropical Beachfront Home">Tropical Beachfront Home in Cambutal</a></li>
+        
+        <!-- Activity Pages -->
+        <li><a href="/do/la-colectiva" title="La Colectiva">La Colectiva Adventure Tours</a></li>
+        
+        <!-- Legal Pages -->
+        <li><a href="/privacy" title="Privacy Policy">Privacy Policy</a></li>
+        <li><a href="/terms" title="Terms of Service">Terms of Service</a></li>
+        <li><a href="/legal" title="Legal Information">Legal Information</a></li>
+        <li><a href="/disclosure" title="Disclosure">Disclosure</a></li>
+      </ul>
+    </nav>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -27,14 +27,19 @@ Disallow: /auth/
 
 # Explicitly allow all important pages for Panama tourism
 Allow: /surf
+Allow: /surf.html
 Allow: /eat
+Allow: /eat.html
 Allow: /stay
+Allow: /stay.html
 Allow: /do
+Allow: /do.html
 Allow: /adventure
 Allow: /events
 Allow: /transportation
 Allow: /info
 Allow: /blog
+Allow: /blog.html
 Allow: /calendar
 Allow: /real-estate
 
