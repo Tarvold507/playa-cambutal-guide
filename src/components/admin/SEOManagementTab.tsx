@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { usePageSEO, PageSEO } from '@/hooks/usePageSEO';
@@ -6,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import BulkSEOActions from './BulkSEOActions';
 import SEOPageCard from './seo/SEOPageCard';
 import { SEOFilterControls } from './seo/SEOFilterControls';
-import { SEOProductionControls } from './seo/SEOProductionControls';
+import { SEORealProductionControls } from './seo/SEORealProductionControls';
 
 interface SEOManagementTabProps {
   pageSEO: PageSEO[];
@@ -102,6 +101,8 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
       <BulkSEOActions />
       
       <SEOProductionControls onRefresh={onRefresh} />
+      
+      <SEORealProductionControls onRefresh={onRefresh} />
       
       <SEOFilterControls
         filterType={filterType}
