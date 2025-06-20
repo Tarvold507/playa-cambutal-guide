@@ -1,5 +1,6 @@
 
 import { useEffect, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import OptimizedCMSHero from '../components/OptimizedCMSHero';
 import Newsletter from '../components/Newsletter';

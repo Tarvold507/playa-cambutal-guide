@@ -8,8 +8,9 @@ const StaticSitemapRoute = () => {
       try {
         const sitemapContent = await generateSitemap();
         
-        // Set the content type to XML
-        document.contentType = 'application/xml';
+        // Create a new document with XML content type
+        const newDoc = document.implementation.createHTMLDocument();
+        newDoc.documentElement.innerHTML = `<head><meta http-equiv="Content-Type" content="application/xml; charset=utf-8"></head><body><pre>${sitemapContent}</pre></body>`;
         
         // Replace the entire page content with the sitemap
         document.open();
