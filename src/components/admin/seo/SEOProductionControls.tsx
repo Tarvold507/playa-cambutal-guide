@@ -97,7 +97,7 @@ export const SEOProductionControls = ({ onRefresh }: SEOProductionControlsProps)
                   {Object.entries(lastStats.fileTypes).map(([type, count]) => (
                     <div key={type} className="flex justify-between">
                       <span className="capitalize">{type}:</span>
-                      <span>{count}</span>
+                      <span>{String(count)}</span>
                     </div>
                   ))}
                 </div>
