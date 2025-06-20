@@ -7,6 +7,7 @@ import BulkSEOActions from './BulkSEOActions';
 import SEOPageCard from './seo/SEOPageCard';
 import { SEOFilterControls } from './seo/SEOFilterControls';
 import { SEORealProductionControls } from './seo/SEORealProductionControls';
+import { SEOProductionControls } from './seo/SEOProductionControls';
 
 interface SEOManagementTabProps {
   pageSEO: PageSEO[];
@@ -100,6 +101,8 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
   return (
     <div className="space-y-6">
       <BulkSEOActions />
+      
+      <SEOProductionControls onRefresh={onRefresh} />
       
       <SEORealProductionControls onRefresh={onRefresh} />
       
