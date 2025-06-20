@@ -11,9 +11,10 @@ interface RealDeploymentResult {
     deployed: number;
     failed: number;
     fileTypes: Record<string, number>;
-    deploymentPath?: string;
+    bucketName?: string;
     timestamp: string;
     errors: string[];
+    storageUrls?: string[];
   };
   manifest?: any;
   verificationPassed?: boolean;
@@ -24,14 +25,15 @@ export const useRealProductionDeployment = () => {
   const [isDeploying, setIsDeploying] = useState(false);
   const [realDeployment] = useState(() => createRealFileSystemDeployment());
 
-  const deployToRealProduction = async (customPath?: string): Promise<RealDeploymentResult> => {
+  const deployToRealProduction = async (customBucket?: string): Promise<RealDeploymentResult> => {
     setIsDeploying(true);
     
     try {
-      console.log('🚀 Starting REAL production SEO deployment...');
+      console.log('🚀 Starting REAL production SEO deployment to Supabase Storage...');
       
-      if (customPath) {
-        realDeployment.setDeploymentPath(customPath);
+      const bucketName = customBucket || 'seo-files';
+      if (customBucket) {
+        realDeployment.setBucketName(customBucket);
       }
 
       // Fetch all SEO entries
@@ -51,8 +53,10 @@ export const useRealProductionDeployment = () => {
         deployed: 0,
         failed: 0,
         fileTypes: {} as Record<string, number>,
+        bucketName,
         timestamp: new Date().toISOString(),
-        errors: [] as string[]
+        errors: [] as string[],
+        storageUrls: [] as string[]
       };
 
       // Prepare files for deployment
@@ -85,33 +89,37 @@ export const useRealProductionDeployment = () => {
       const manifest = {
         deployment: {
           timestamp: stats.timestamp,
+          bucketName,
           stats: {
             total_files: stats.total,
             file_types: stats.fileTypes
           },
-          generator: 'playa-cambutal-guide-real-seo-deployment',
-          version: '1.0.0'
+          generator: 'playa-cambutal-guide-supabase-storage-seo-deployment',
+          version: '2.0.0'
         }
       };
 
-      // Deploy files using real file system
+      // Deploy files using Supabase Storage
       const deploymentResult = await realDeployment.deployFiles(filesToDeploy, manifest);
       
-      // Update stats with real deployment results
+      // Update stats with deployment results
       stats.deployed = deploymentResult.deployed;
       stats.failed = deploymentResult.failed;
       stats.errors = deploymentResult.errors;
+      stats.storageUrls = deploymentResult.storageUrls || [];
 
       // Verify deployment
       const verificationPassed = await realDeployment.verifyDeployment(
         filesToDeploy.map(f => f.filename)
       );
 
-      console.log('📊 REAL Production Deployment Summary:');
+      console.log('📊 REAL Supabase Storage Deployment Summary:');
+      console.log(`   Bucket: ${bucketName}`);
       console.log(`   Total files: ${stats.total}`);
       console.log(`   Successfully deployed: ${stats.deployed}`);
       console.log(`   Failed: ${stats.failed}`);
       console.log(`   Verification: ${verificationPassed ? 'PASSED' : 'FAILED'}`);
+      console.log(`   Storage URLs: ${stats.storageUrls.length} generated`);
       
       if (stats.errors.length > 0) {
         console.log('   Errors:', stats.errors);
@@ -126,7 +134,7 @@ export const useRealProductionDeployment = () => {
 
       return result;
     } catch (error) {
-      console.error('❌ Error during REAL production deployment:', error);
+      console.error('❌ Error during REAL Supabase Storage deployment:', error);
       return {
         success: false,
         stats: {

@@ -13,7 +13,7 @@ interface DeploymentRequest {
     content: string;
     path: string;
   }>;
-  deploymentPath: string;
+  bucketName?: string;
   manifest: any;
 }
 
@@ -25,7 +25,7 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', // Use service role for storage operations
       {
         global: {
           headers: { Authorization: req.headers.get('Authorization')! },
@@ -44,32 +44,68 @@ serve(async (req) => {
 
     if (req.method === 'POST') {
       const body: DeploymentRequest = await req.json()
+      const bucketName = body.bucketName || 'seo-files'
       
-      console.log('🚀 Starting production SEO file deployment...')
-      console.log(`📂 Deployment path: ${body.deploymentPath}`)
+      console.log('🚀 Starting Supabase Storage SEO file deployment...')
+      console.log(`📂 Target bucket: ${bucketName}`)
       console.log(`📄 Files to deploy: ${body.files.length}`)
 
       const results = {
         success: true,
         deployed: 0,
         failed: 0,
-        errors: [] as string[]
+        errors: [] as string[],
+        storageUrls: [] as string[]
       }
 
-      // Create deployment directory structure
-      try {
-        await Deno.mkdir(body.deploymentPath, { recursive: true })
-        console.log(`✅ Created deployment directory: ${body.deploymentPath}`)
-      } catch (error) {
-        console.log(`📁 Directory already exists or created: ${body.deploymentPath}`)
+      // Ensure bucket exists (create if it doesn't)
+      const { data: buckets } = await supabaseClient.storage.listBuckets()
+      const bucketExists = buckets?.some(bucket => bucket.name === bucketName)
+
+      if (!bucketExists) {
+        console.log(`📦 Creating bucket: ${bucketName}`)
+        const { error: createError } = await supabaseClient.storage.createBucket(bucketName, {
+          public: true,
+          allowedMimeTypes: ['text/html', 'application/json'],
+          fileSizeLimit: 1024 * 1024 // 1MB limit
+        })
+
+        if (createError) {
+          console.error(`❌ Failed to create bucket: ${createError.message}`)
+          return new Response(JSON.stringify({
+            success: false,
+            error: `Failed to create bucket: ${createError.message}`
+          }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          })
+        }
+        console.log(`✅ Created bucket: ${bucketName}`)
       }
 
       // Deploy each file
       for (const file of body.files) {
         try {
-          const fullPath = `${body.deploymentPath}/${file.filename}`
-          await Deno.writeTextFile(fullPath, file.content)
+          const filePath = `seo/${file.filename}`
           
+          // Upload file to Supabase Storage
+          const { data, error } = await supabaseClient.storage
+            .from(bucketName)
+            .upload(filePath, file.content, {
+              contentType: 'text/html',
+              upsert: true // Replace existing files
+            })
+
+          if (error) {
+            throw error
+          }
+
+          // Get public URL
+          const { data: publicUrlData } = supabaseClient.storage
+            .from(bucketName)
+            .getPublicUrl(filePath)
+
+          results.storageUrls.push(publicUrlData.publicUrl)
           console.log(`✅ Deployed: ${file.filename}`)
           results.deployed++
         } catch (error) {
@@ -81,19 +117,26 @@ serve(async (req) => {
         }
       }
 
-      // Write deployment manifest
+      // Deploy manifest
       if (body.manifest) {
         try {
-          const manifestPath = `${body.deploymentPath}/seo-deployment-manifest.json`
-          await Deno.writeTextFile(manifestPath, JSON.stringify(body.manifest, null, 2))
-          console.log(`📋 Deployment manifest written to: ${manifestPath}`)
+          const manifestPath = 'seo/seo-deployment-manifest.json'
+          const { error } = await supabaseClient.storage
+            .from(bucketName)
+            .upload(manifestPath, JSON.stringify(body.manifest, null, 2), {
+              contentType: 'application/json',
+              upsert: true
+            })
+
+          if (error) throw error
+          console.log(`📋 Deployment manifest uploaded`)
         } catch (error) {
-          console.error(`❌ Failed to write manifest: ${error.message}`)
-          results.errors.push(`Failed to write manifest: ${error.message}`)
+          console.error(`❌ Failed to upload manifest: ${error.message}`)
+          results.errors.push(`Failed to upload manifest: ${error.message}`)
         }
       }
 
-      console.log('📊 Deployment Summary:')
+      console.log('📊 Storage Deployment Summary:')
       console.log(`   Deployed: ${results.deployed}`)
       console.log(`   Failed: ${results.failed}`)
       console.log(`   Success: ${results.success}`)
@@ -106,7 +149,7 @@ serve(async (req) => {
 
     return new Response('Method not allowed', { status: 405, headers: corsHeaders })
   } catch (error) {
-    console.error('❌ Deployment function error:', error)
+    console.error('❌ Storage deployment function error:', error)
     return new Response(JSON.stringify({ 
       success: false, 
       error: error.message 
