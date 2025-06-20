@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -66,7 +65,7 @@ const BlogPostPage = () => {
     };
     
     loadPost();
-  }, [slug, fetchBlogPostBySlug]);
+  }, [slug]); // Removed fetchBlogPostBySlug from dependencies to prevent infinite loop
 
   if (loading) {
     return (

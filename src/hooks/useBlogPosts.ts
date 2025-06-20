@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -77,7 +78,7 @@ export const useBlogPosts = () => {
     }
   };
 
-  const fetchBlogPostBySlug = async (slug: string): Promise<BlogPost | null> => {
+  const fetchBlogPostBySlug = useCallback(async (slug: string): Promise<BlogPost | null> => {
     console.log('🔍 Fetching blog post by slug:', slug);
     
     try {
@@ -142,7 +143,7 @@ export const useBlogPosts = () => {
       console.error('❌ Error in fetchBlogPostBySlug:', error);
       return null;
     }
-  };
+  }, []);
 
   const createBlogPost = async (postData: Partial<BlogPost>) => {
     if (!user) return;
