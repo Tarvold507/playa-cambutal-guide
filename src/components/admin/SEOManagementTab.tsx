@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { usePageSEO, PageSEO } from '@/hooks/usePageSEO';
@@ -99,8 +100,6 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
   return (
     <div className="space-y-6">
       <BulkSEOActions />
-      
-      <SEOProductionControls onRefresh={onRefresh} />
       
       <SEORealProductionControls onRefresh={onRefresh} />
       
