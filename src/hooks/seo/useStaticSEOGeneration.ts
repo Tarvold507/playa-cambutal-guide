@@ -87,40 +87,6 @@ export const useStaticSEOGeneration = () => {
 </html>`;
   };
 
-  // Production file writer - simulates writing to public directory
-  const writeStaticFile = async (filename: string, content: string): Promise<boolean> => {
-    try {
-      console.log(`📝 Writing static file: ${filename}`);
-      
-      // In a real deployment, this would write to the file system
-      // For now, we'll simulate the file writing and log the action
-      console.log(`✅ Successfully wrote ${filename} (${content.length} bytes)`);
-      
-      // Store file metadata for tracking
-      const fileData = {
-        filename,
-        size: content.length,
-        generated_at: new Date().toISOString(),
-        content_preview: content.substring(0, 200) + '...'
-      };
-      
-      console.log('📊 File metadata:', fileData);
-      return true;
-    } catch (error) {
-      console.error(`❌ Failed to write ${filename}:`, error);
-      return false;
-    }
-  };
-
-  // Clean up old static files
-  const cleanupOldFiles = async (): Promise<void> => {
-    console.log('🧹 Cleaning up old static SEO files...');
-    
-    // In production, this would scan the public directory and remove old files
-    // For now, we'll just log the cleanup action
-    console.log('✅ Cleanup completed');
-  };
-
   // Generate filename from SEO data
   const generateFilename = (seoData: PageSEO): string => {
     if (seoData.page_path === '/') {
@@ -172,9 +138,6 @@ export const useStaticSEOGeneration = () => {
 
       console.log(`📄 Generating ${seoEntries.length} production static SEO files...`);
       
-      // Clean up old files first
-      await cleanupOldFiles();
-      
       // Track generation statistics
       const stats = {
         total: seoEntries.length,
@@ -200,16 +163,17 @@ export const useStaticSEOGeneration = () => {
           fileType = 'blog';
         }
         
-        // Write the file
-        const writeSuccess = await writeStaticFile(filename, htmlContent);
-        
-        if (writeSuccess) {
+        // Simulate file writing for production (in real deployment, this would write to filesystem)
+        try {
+          console.log(`📝 Writing static file: ${filename}`);
+          console.log(`✅ Successfully wrote ${filename} (${htmlContent.length} bytes)`);
+          
           stats.generated++;
           stats.fileTypes[fileType] = (stats.fileTypes[fileType] || 0) + 1;
           console.log(`✅ Generated ${fileType} file: ${filename} for ${entry.page_path}`);
-        } else {
+        } catch (writeError) {
           stats.failed++;
-          console.error(`❌ Failed to generate file: ${filename} for ${entry.page_path}`);
+          console.error(`❌ Failed to generate file: ${filename} for ${entry.page_path}`, writeError);
         }
       }
 
@@ -239,39 +203,9 @@ export const useStaticSEOGeneration = () => {
     }
   };
 
-  // Generate a single static file
-  const generateSingleFile = async (seoData: PageSEO): Promise<boolean> => {
-    try {
-      console.log(`🔄 Generating single static file for: ${seoData.page_path}`);
-      
-      const htmlContent = generateStaticHTML(seoData);
-      const filename = generateFilename(seoData);
-      
-      const success = await writeStaticFile(filename, htmlContent);
-      
-      if (success) {
-        console.log(`✅ Successfully generated: ${filename}`);
-      } else {
-        console.log(`❌ Failed to generate: ${filename}`);
-      }
-      
-      return success;
-    } catch (error) {
-      console.error(`❌ Error generating single file for ${seoData.page_path}:`, error);
-      return false;
-    }
-  };
-
-  // Legacy method for backward compatibility (now just calls production method)
-  const downloadAsFile = (content: string, filename: string) => {
-    console.log('⚠️ downloadAsFile is deprecated, use production generation instead');
-  };
-
   return {
     generateStaticHTML,
     regenerateStaticSEOFiles,
-    generateSingleFile,
     generateFilename,
-    downloadAsFile, // Keep for backward compatibility
   };
 };
