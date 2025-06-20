@@ -33,7 +33,7 @@ export const generateSitemap = async (): Promise<string> => {
   urls.push(...staticPages);
 
   try {
-    console.log('🗺️ Generating sitemap with domain:', baseUrl);
+    console.log('🗺️ Generating comprehensive sitemap with domain:', baseUrl);
 
     // Fetch restaurants with slug generation
     const { data: restaurants } = await supabase
@@ -114,7 +114,8 @@ export const generateSitemap = async (): Promise<string> => {
     const { data: blogPosts } = await supabase
       .from('blog_posts')
       .select('slug, updated_at')
-      .eq('approved', true);
+      .eq('approved', true)
+      .eq('status', 'published');
 
     if (blogPosts) {
       blogPosts.forEach(post => {
@@ -153,7 +154,15 @@ export const generateSitemap = async (): Promise<string> => {
     console.error('❌ Error fetching sitemap data:', error);
   }
 
-  // Generate XML sitemap
+  // Sort URLs by priority (highest first) then alphabetically
+  urls.sort((a, b) => {
+    if (a.priority !== b.priority) {
+      return (b.priority || 0) - (a.priority || 0);
+    }
+    return a.url.localeCompare(b.url);
+  });
+
+  // Generate XML sitemap with proper formatting
   const xmlParts: string[] = ['<?xml version="1.0" encoding="UTF-8"?>'];
   xmlParts.push('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
 
@@ -164,6 +173,10 @@ export const generateSitemap = async (): Promise<string> => {
     if (urlData.lastModified) {
       const date = new Date(urlData.lastModified).toISOString().split('T')[0];
       xmlParts.push(`    <lastmod>${date}</lastmod>`);
+    } else {
+      // Use current date for static pages
+      const currentDate = new Date().toISOString().split('T')[0];
+      xmlParts.push(`    <lastmod>${currentDate}</lastmod>`);
     }
     
     if (urlData.changeFrequency) {
@@ -171,7 +184,7 @@ export const generateSitemap = async (): Promise<string> => {
     }
     
     if (urlData.priority !== undefined) {
-      xmlParts.push(`    <priority>${urlData.priority}</priority>`);
+      xmlParts.push(`    <priority>${urlData.priority.toFixed(1)}</priority>`);
     }
     
     xmlParts.push('  </url>');
@@ -179,7 +192,10 @@ export const generateSitemap = async (): Promise<string> => {
 
   xmlParts.push('</urlset>');
   
-  console.log(`🗺️ Generated sitemap with ${urls.length} URLs`);
+  const totalUrls = urls.length;
+  console.log(`🗺️ Generated comprehensive sitemap with ${totalUrls} URLs`);
+  console.log(`📊 URL breakdown: ${staticPages.length} static pages + ${totalUrls - staticPages.length} dynamic pages`);
+  
   return xmlParts.join('\n');
 };
 
