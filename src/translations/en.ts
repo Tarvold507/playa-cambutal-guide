@@ -129,10 +129,10 @@ export const enTranslations = {
   'footer.privacy': 'Privacy Policy',
   'footer.terms': 'Terms of Service',
   
-  // Home page specific translations
+  // Home page specific translations - UPDATED H1 TAG
   'home.hero.title': 'Discover Playa Cambutal, Panama',
   'home.hero.subtitle': 'Your ultimate guide to Panama\'s hidden beach paradise on the Azuero Peninsula',
-  'home.intro.title': 'Welcome to Playa Cambutal, Panama',
+  'home.intro.title': 'Discover Playa Cambutal, Panama',
   'home.intro.paragraph1': 'Nestled on Panama\'s Pacific coast in the Los Santos Province, Playa Cambutal is a horseshoe-shaped bay known for its consistent surf waves, stunning sunsets, and laid-back atmosphere. Located on the Azuero Peninsula, this hidden gem has evolved from a secret surf spot into Panama\'s beloved destination for travelers seeking authentic beach experiences and world-class surfing.',
   'home.intro.paragraph2': 'Cambutal, Panama offers year-round warm weather, making it perfect for surfing, beach activities, and exploring the rich culture of rural Panama. Whether you\'re planning your first visit to this Pacific coast paradise or returning to experience more of what Playa Cambutal has to offer, our comprehensive guide provides everything you need for an unforgettable Panama vacation.',
   'home.intro.paragraph3': 'Discover why Playa Cambutal is becoming Panama\'s most sought-after beach destination for surfers, families, and adventure seekers from around the world. From the best surf breaks to authentic Panamanian cuisine, eco-friendly accommodations to thrilling wildlife tours - your perfect Cambutal experience awaits.',

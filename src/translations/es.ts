@@ -1,4 +1,3 @@
-
 export const esTranslations = {
   // Navigation
   'nav.eat': 'Comer',
@@ -130,10 +129,10 @@ export const esTranslations = {
   'footer.privacy': 'Política de Privacidad',
   'footer.terms': 'Términos de Servicio',
   
-  // Home page specific translations
+  // Home page specific translations - UPDATED H1 TAG IN SPANISH
   'home.hero.title': 'Descubre Playa Cambutal, Panamá',
   'home.hero.subtitle': 'Tu guía definitiva al paraíso playero escondido de Panamá en la Península de Azuero',
-  'home.intro.title': 'Bienvenido a Playa Cambutal, Panamá',
+  'home.intro.title': 'Descubre Playa Cambutal, Panamá',
   'home.intro.paragraph1': 'Ubicada en la costa del Pacífico de Panamá en la Provincia de Los Santos, Playa Cambutal es una bahía en forma de herradura conocida por sus olas de surf consistentes, atardeceres impresionantes y ambiente relajado. Ubicada en la Península de Azuero, esta joya escondida ha evolucionado de un lugar secreto de surf a destino querido de Panamá para viajeros que buscan experiencias auténticas de playa y surf de clase mundial.',
   'home.intro.paragraph2': 'Cambutal, Panamá ofrece clima cálido durante todo el año, lo que lo hace perfecto para surfear, actividades de playa y explorar la rica cultura del Panamá rural. Ya sea que estés planeando tu primera visita a este paraíso de la costa del Pacífico o regresando para experimentar más de lo que Playa Cambutal tiene para ofrecer, nuestra guía completa proporciona todo lo que necesitas para unas vacaciones inolvidables en Panamá.',
   'home.intro.paragraph3': 'Descubre por qué Playa Cambutal se está convirtiendo en el destino playero más buscado de Panamá para surfistas, familias y buscadores de aventuras de todo el mundo. Desde los mejores puntos de surf hasta la auténtica cocina panameña, alojamientos ecológicos hasta emocionantes tours de vida silvestre - tu experiencia perfecta en Cambutal te espera.',
