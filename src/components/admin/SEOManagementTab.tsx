@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { usePageSEO, PageSEO } from '@/hooks/usePageSEO';
 import { useToast } from '@/hooks/use-toast';
-import { Edit, Save, X, RefreshCw } from 'lucide-react';
+import { Edit, Save, X, RefreshCw, FileText } from 'lucide-react';
 import BulkSEOActions from './BulkSEOActions';
 
 interface SEOManagementTabProps {
@@ -17,11 +17,12 @@ interface SEOManagementTabProps {
 }
 
 const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
-  const { updatePageSEO } = usePageSEO();
+  const { updatePageSEO, regenerateStaticSEOFiles } = usePageSEO();
   const { toast } = useToast();
   const [editingPage, setEditingPage] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<PageSEO>>({});
   const [filterType, setFilterType] = useState<string>('all');
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const getPageType = (pagePath: string) => {
     if (pagePath.startsWith('/stay/')) return 'hotel';
@@ -95,6 +96,36 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
     onRefresh();
   };
 
+  const handleTestRegeneration = async () => {
+    setIsRegenerating(true);
+    try {
+      console.log('🧪 Testing SEO file regeneration...');
+      const success = await regenerateStaticSEOFiles();
+      
+      if (success) {
+        toast({
+          title: 'Test Regeneration Complete',
+          description: 'Check the console to see what would be regenerated. This is currently in test mode.',
+        });
+      } else {
+        toast({
+          title: 'Test Failed',
+          description: 'Something went wrong during the test. Check the console for details.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Test regeneration error:', error);
+      toast({
+        title: 'Test Error',
+        description: 'An error occurred during testing.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <BulkSEOActions />
@@ -116,10 +147,21 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={handleBulkRefresh} variant="outline" size="sm">
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Refresh All
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleTestRegeneration} 
+            variant="outline" 
+            size="sm"
+            disabled={isRegenerating}
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            {isRegenerating ? 'Testing...' : 'Test SEO Regeneration'}
+          </Button>
+          <Button onClick={handleBulkRefresh} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh All
+          </Button>
+        </div>
       </div>
 
       {filteredPages.map((page) => {
