@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -204,6 +203,33 @@ export const usePageSEO = () => {
     }
   };
 
+  const regenerateStaticSEOFiles = async () => {
+    try {
+      console.log('🔄 Starting static SEO file regeneration...');
+      
+      // Get all SEO entries
+      const { data: seoEntries, error: fetchError } = await supabase
+        .from('page_seo')
+        .select('*')
+        .order('page_path');
+
+      if (fetchError) throw fetchError;
+
+      console.log(`📄 Found ${seoEntries?.length || 0} SEO entries for regeneration`);
+      
+      // For now, just log what we would regenerate - this is our test function
+      seoEntries?.forEach(entry => {
+        console.log(`📝 Would regenerate: ${entry.page_path} - ${entry.page_title}`);
+      });
+
+      console.log('✅ Static SEO file regeneration completed (test mode)');
+      return true;
+    } catch (error) {
+      console.error('❌ Error during static SEO file regeneration:', error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchPageSEO();
   }, []);
@@ -215,5 +241,6 @@ export const usePageSEO = () => {
     fetchSEOByPath,
     updatePageSEO,
     bulkUpdateCanonicalUrls,
+    regenerateStaticSEOFiles,
   };
 };
