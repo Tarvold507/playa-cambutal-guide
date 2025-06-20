@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import BulkSEOActions from './BulkSEOActions';
 import SEOPageCard from './seo/SEOPageCard';
 import { SEOFilterControls } from './seo/SEOFilterControls';
+import { SEOProductionControls } from './seo/SEOProductionControls';
 
 interface SEOManagementTabProps {
   pageSEO: PageSEO[];
@@ -99,6 +100,8 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
   return (
     <div className="space-y-6">
       <BulkSEOActions />
+      
+      <SEOProductionControls onRefresh={onRefresh} />
       
       <SEOFilterControls
         filterType={filterType}
