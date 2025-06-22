@@ -28,8 +28,13 @@ export class RealFileSystemDeployment {
       console.log('🚀 Starting real file system deployment to Supabase Storage...');
       console.log(`📄 Deploying ${files.length} files to bucket: ${this.bucketName}`);
 
-      // Ensure bucket exists
-      await this.ensureBucketExists();
+      // Test bucket access before proceeding
+      const bucketAccessible = await this.testBucketAccess();
+      if (!bucketAccessible) {
+        console.log(`⚠️ Cannot verify bucket '${this.bucketName}' existence, but proceeding with deployment...`);
+      } else {
+        console.log(`✅ Bucket '${this.bucketName}' is accessible`);
+      }
 
       const results = {
         success: true,
@@ -146,29 +151,32 @@ export class RealFileSystemDeployment {
     }
   }
 
-  private async ensureBucketExists(): Promise<void> {
+  private async testBucketAccess(): Promise<boolean> {
     try {
-      // Check if bucket exists
-      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-      
-      if (listError) {
-        console.warn('Could not list buckets:', listError);
-        return;
-      }
+      // Try to list files in the bucket - this is the most reliable test
+      const { data, error } = await supabase.storage
+        .from(this.bucketName)
+        .list('', { limit: 1 });
 
-      const bucketExists = buckets?.some(bucket => bucket.name === this.bucketName);
-
-      if (!bucketExists) {
-        console.log(`📦 Creating bucket: ${this.bucketName}`);
+      if (error) {
+        // If we get a specific error about bucket not existing, that's definitive
+        if (error.message.includes('not found') || error.message.includes('does not exist')) {
+          console.error(`❌ Bucket '${this.bucketName}' does not exist. Please create it in the Supabase dashboard.`);
+          return false;
+        }
         
-        // This will typically fail in the frontend due to permissions
-        // The bucket should be created manually or via the dashboard
-        console.warn(`⚠️ Bucket '${this.bucketName}' does not exist. Please create it manually in the Supabase dashboard.`);
-      } else {
-        console.log(`✅ Bucket '${this.bucketName}' already exists`);
+        // For other errors (like permission issues), we assume the bucket exists
+        // but we just can't verify it due to permissions
+        console.log(`⚠️ Cannot verify bucket access due to permissions, but assuming bucket exists`);
+        return true;
       }
+
+      // If we can list files, the bucket definitely exists and is accessible
+      return true;
     } catch (error) {
-      console.warn('Could not verify bucket existence:', error);
+      // For any other errors, assume bucket exists but we can't verify
+      console.log(`⚠️ Error testing bucket access: ${error.message}`);
+      return true;
     }
   }
 
