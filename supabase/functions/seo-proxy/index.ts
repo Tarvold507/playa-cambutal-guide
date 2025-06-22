@@ -142,16 +142,38 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    const path = url.pathname;
+    
+    // Get path from query parameter (for redirected requests) or from pathname
+    let path = url.searchParams.get('path') || url.pathname;
+    
+    // Clean up path - remove /functions/v1/seo-proxy if present
+    if (path.includes('/functions/v1/seo-proxy')) {
+      path = '/'; // Default to home for direct function calls
+    }
+    
+    // Ensure path starts with /
+    if (!path.startsWith('/')) {
+      path = '/' + path;
+    }
+    
     const userAgent = req.headers.get('user-agent') || '';
     
-    console.log('SEO Proxy - Path:', path);
+    console.log('SEO Proxy - Processed Path:', path);
     console.log('SEO Proxy - User Agent:', userAgent);
     console.log('SEO Proxy - Is Crawler:', isCrawler(userAgent));
 
+    // For testing purposes, also check if this is a direct function call with test data
+    if (req.method === 'POST') {
+      const body = await req.json();
+      if (body.path) {
+        path = body.path;
+        console.log('SEO Proxy - Test mode, using path from body:', path);
+      }
+    }
+
     // Only serve SEO content to crawlers
-    if (!isCrawler(userAgent)) {
-      console.log('SEO Proxy - Not a crawler, passing through to React app');
+    if (!isCrawler(userAgent) && req.method === 'GET') {
+      console.log('SEO Proxy - Not a crawler, redirecting to main site');
       return new Response('Not a crawler - redirect to React app', {
         status: 302,
         headers: {
@@ -177,6 +199,7 @@ serve(async (req) => {
     console.log('SEO Proxy - SEO data found:', !!seoData);
     if (seoData) {
       console.log('SEO Proxy - SEO title:', seoData.page_title);
+      console.log('SEO Proxy - SEO description:', seoData.meta_description);
     }
 
     // Generate and return SEO-optimized HTML

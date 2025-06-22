@@ -1,8 +1,16 @@
 
 # Netlify redirects file
-# Serve static files directly first, then fallback to React Router
+# Redirect crawlers to SEO proxy edge function
+# Bot detection redirects - send crawlers to SEO proxy
+/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *bot*
+/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *crawler*
+/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *spider*
+/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *frog*
+/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *screaming*
+/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *semrush*
+/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *ahrefs*
 
-# Static files - serve directly
+# Static files - serve directly first
 /sitemap.xml /sitemap.xml 200
 /robots.txt /robots.txt 200
 /favicon.ico /favicon.ico 200
@@ -14,5 +22,5 @@
 # API routes (if any)
 /api/* /api/:splat 200
 
-# React Router fallback for all other routes
+# React Router fallback for all other routes (non-crawlers)
 /* /index.html 200

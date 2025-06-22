@@ -9,9 +9,9 @@ export const useSEOProxy = () => {
     setIsTestingProxy(true);
     
     try {
-      console.log('🧪 Testing SEO Proxy with crawler user agent...');
+      console.log('🧪 Testing SEO Proxy with crawler user agent for path:', testPath);
       
-      // Call the edge function directly to test it
+      // Call the edge function with the path parameter
       const { data, error } = await supabase.functions.invoke('seo-proxy', {
         body: { 
           path: testPath,
@@ -24,8 +24,8 @@ export const useSEOProxy = () => {
         return { success: false, error: error.message };
       }
 
-      console.log('✅ SEO Proxy test successful');
-      console.log('📊 Response data:', data);
+      console.log('✅ SEO Proxy test successful for path:', testPath);
+      console.log('📊 Response preview:', data ? data.substring(0, 200) + '...' : 'No data');
       
       return { success: true, data };
     } catch (error) {
@@ -45,17 +45,19 @@ export const useSEOProxy = () => {
       const results = [];
       
       for (const path of testPaths) {
+        console.log(`🧪 Testing SEO proxy for path: ${path}`);
         const result = await testSEOProxy(path);
         results.push({ path, ...result });
         
         // Small delay between tests
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
       const successCount = results.filter(r => r.success).length;
       const totalCount = results.length;
       
       console.log(`📊 SEO Proxy verification: ${successCount}/${totalCount} paths tested successfully`);
+      console.log('📋 Detailed results:', results);
       
       return {
         success: successCount === totalCount,
