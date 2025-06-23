@@ -1,14 +1,5 @@
 
-# Netlify redirects file
-# Redirect crawlers to SEO proxy edge function
-# Bot detection redirects - send crawlers to SEO proxy
-/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *bot*
-/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *crawler*
-/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *spider*
-/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *frog*
-/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *screaming*
-/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *semrush*
-/*  https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy?path=:splat  200  User-Agent: *ahrefs*
+# Netlify redirects file with improved crawler detection
 
 # Static files - serve directly first
 /sitemap.xml /sitemap.xml 200
@@ -22,5 +13,6 @@
 # API routes (if any)
 /api/* /api/:splat 200
 
-# React Router fallback for all other routes (non-crawlers)
-/* /index.html 200
+# Route ALL page requests through our page-router function for proper crawler detection
+# This handles both crawlers (gets SEO content) and humans (gets redirected to React app)
+/* https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/page-router 200

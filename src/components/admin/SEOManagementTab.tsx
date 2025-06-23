@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { usePageSEO, PageSEO } from '@/hooks/usePageSEO';
@@ -10,6 +9,7 @@ import { SEORealProductionControls } from './seo/SEORealProductionControls';
 import { SEOProductionControls } from './seo/SEOProductionControls';
 import { SEOPublicDirectoryControls } from './seo/SEOPublicDirectoryControls';
 import { SEOProxyControls } from './seo/SEOProxyControls';
+import SEOStaticGenerationControls from './seo/SEOStaticGenerationControls';
 
 interface SEOManagementTabProps {
   pageSEO: PageSEO[];
@@ -103,6 +103,8 @@ const SEOManagementTab = ({ pageSEO, onRefresh }: SEOManagementTabProps) => {
   return (
     <div className="space-y-6">
       <BulkSEOActions />
+      
+      <SEOStaticGenerationControls onRefresh={onRefresh} />
       
       <SEOProxyControls onRefresh={onRefresh} />
       
