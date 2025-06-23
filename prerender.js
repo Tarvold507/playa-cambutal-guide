@@ -42,11 +42,34 @@ const ensureDirectoryExists = (filePath) => {
   }
 }
 
+// Helper function to inject SEO data into HTML
+const injectSEOIntoHTML = (html, seoHead) => {
+  const headCloseIndex = html.indexOf('</head>');
+  if (headCloseIndex === -1) {
+    console.warn('No </head> tag found in HTML template');
+    return html;
+  }
+  
+  return html.slice(0, headCloseIndex) + seoHead + html.slice(headCloseIndex);
+};
+
 ;(async () => {
+  console.log('🚀 Starting prerender with SEO data...');
+  
   for (const url of routesToPrerender) {
     try {
-      const appHtml = render(url);
-      const html = template.replace(`<!--app-html-->`, appHtml)
+      console.log(`📄 Pre-rendering ${url}...`);
+      
+      // Get the rendered content with SEO data
+      const renderResult = await render(url);
+      
+      // Replace the app placeholder with rendered HTML
+      let html = template.replace(`<!--app-html-->`, renderResult.html);
+      
+      // Inject SEO data into the head
+      if (renderResult.seoHead) {
+        html = injectSEOIntoHTML(html, renderResult.seoHead);
+      }
 
       const filePath = `dist${url === '/' ? '/index' : url}.html`
       const absoluteFilePath = toAbsolute(filePath)
@@ -55,10 +78,12 @@ const ensureDirectoryExists = (filePath) => {
       ensureDirectoryExists(absoluteFilePath)
       
       fs.writeFileSync(absoluteFilePath, html)
-      console.log('pre-rendered:', filePath)
+      console.log('✅ Pre-rendered with SEO:', filePath)
     } catch (error) {
-      console.error(`Error pre-rendering ${url}:`, error.message)
+      console.error(`❌ Error pre-rendering ${url}:`, error.message)
       // Continue with other routes even if one fails
     }
   }
+  
+  console.log('🎉 Prerender complete!');
 })()
