@@ -25,44 +25,18 @@ Disallow: /admin/
 Disallow: /profile/
 Disallow: /auth/
 
-# Explicitly allow all important pages for Panama tourism
+# Allow all important pages for Panama tourism
 Allow: /surf
-Allow: /surf.html
 Allow: /eat
-Allow: /eat.html
 Allow: /stay
-Allow: /stay.html
 Allow: /do
-Allow: /do.html
 Allow: /adventure
 Allow: /events
 Allow: /transportation
 Allow: /info
 Allow: /blog
-Allow: /blog.html
 Allow: /calendar
 Allow: /real-estate
-
-# Allow specific restaurant pages
-Allow: /eat/centro-recreativo-jake
-Allow: /eat/fonda-norelis
-Allow: /eat/monaco-bar-and-grill
-Allow: /eat/pizzeria-madera
-Allow: /eat/kambute
-Allow: /eat/hotel-kambutaleko
-Allow: /eat/hotel-restaurante-cambutal-beach
-Allow: /eat/la-tierra-de-mis-suenos
-Allow: /eat/restaurante-casa-playa-verde
-
-# Allow specific hotel pages
-Allow: /stay/hotel-kambutaleko
-Allow: /stay/sansara-surf-and-yoga-resort
-Allow: /stay/hotel-playa-cambutal
-Allow: /stay/stunning-beachfront-home-near-cambutal-beach-break
-Allow: /stay/tropical-beachfront-home-in-cambutal
-
-# Allow specific adventure pages
-Allow: /do/la-colectiva
 
 # Allow important static assets
 Allow: /images/

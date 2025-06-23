@@ -14,26 +14,6 @@
       "dest": "/favicon.ico"
     },
     {
-      "src": "/eat.html",
-      "dest": "/eat.html"
-    },
-    {
-      "src": "/stay.html",
-      "dest": "/stay.html"
-    },
-    {
-      "src": "/do.html",
-      "dest": "/do.html"
-    },
-    {
-      "src": "/surf.html",
-      "dest": "/surf.html"
-    },
-    {
-      "src": "/blog.html",
-      "dest": "/blog.html"
-    },
-    {
       "src": "/lovable-uploads/(.*)",
       "dest": "/lovable-uploads/$1"
     },

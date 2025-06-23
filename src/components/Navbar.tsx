@@ -61,23 +61,6 @@ const Navbar = () => {
           />
         </div>
       </div>
-
-      {/* Static SEO Navigation Links - Hidden but crawlable */}
-      <div className="sr-only">
-        <h2>Site Navigation</h2>
-        <ul>
-          <li><Link to="/">Playa Cambutal Guide - Home</Link></li>
-          <li><Link to="/eat">Restaurants in Playa Cambutal</Link></li>
-          <li><Link to="/stay">Hotels and Accommodation in Playa Cambutal</Link></li>
-          <li><Link to="/do">Activities and Adventures in Playa Cambutal</Link></li>
-          <li><Link to="/surf">Surfing in Playa Cambutal</Link></li>
-          <li><Link to="/calendar">Events Calendar</Link></li>
-          <li><Link to="/blog">Travel Blog</Link></li>
-          <li><Link to="/info">Travel Information</Link></li>
-          <li><Link to="/transportation">Transportation to Cambutal</Link></li>
-          <li><Link to="/real-estate">Real Estate in Cambutal</Link></li>
-        </ul>
-      </div>
     </nav>
   );
 };
