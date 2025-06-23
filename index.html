@@ -51,24 +51,83 @@
     <meta name="geo.position" content="7.2833;-80.5167" />
     <meta name="ICBM" content="7.2833, -80.5167" />
     
-    <!-- STATIC NAVIGATION FOR CRAWLERS - Hidden but discoverable -->
-    <noscript>
-      <style>
-        .crawler-nav { display: block !important; position: absolute; left: -9999px; }
-      </style>
-    </noscript>
-    
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LD31BCY49N"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-LD31BCY49N');
     </script>
     
     <script src="https://analytics.ahrefs.com/analytics.js" data-key="x0Mr1itcxzInzPPPRtGKiQ" async></script>
+
+    <!-- SEO CRAWLER DETECTION AND PROXY SCRIPT -->
+    <script>
+      // Enhanced crawler detection
+      function isCrawler() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const crawlerPatterns = [
+          'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider', 'yandexbot',
+          'facebookexternalhit', 'twitterbot', 'linkedinbot', 'whatsapp', 'telegrambot',
+          'applebot', 'screaming frog', 'semrushbot', 'ahrefsbot', 'mj12bot', 'dotbot',
+          'crawler', 'spider', 'bot', 'scraper'
+        ];
+        
+        return crawlerPatterns.some(pattern => userAgent.includes(pattern));
+      }
+
+      // Function to fetch and replace page content with SEO version
+      async function loadSEOContent() {
+        try {
+          console.log('🤖 Crawler detected, fetching SEO content...');
+          
+          const currentPath = window.location.pathname || '/';
+          const response = await fetch('https://yxsnoncplnzekfwaknxb.supabase.co/functions/v1/seo-proxy', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'User-Agent': navigator.userAgent
+            },
+            body: JSON.stringify({ 
+              path: currentPath,
+              userAgent: navigator.userAgent
+            })
+          });
+
+          if (response.ok) {
+            const seoHTML = await response.text();
+            console.log('✅ SEO content loaded, replacing page...');
+            
+            // Replace the entire document with SEO content
+            document.open();
+            document.write(seoHTML);
+            document.close();
+          } else {
+            console.warn('⚠️ Failed to load SEO content, falling back to regular app');
+            loadReactApp();
+          }
+        } catch (error) {
+          console.error('❌ Error loading SEO content:', error);
+          loadReactApp();
+        }
+      }
+
+      // Function to load the regular React app
+      function loadReactApp() {
+        console.log('👤 Human user detected or SEO fallback, loading React app...');
+        // The script tag for React will be added at the bottom
+      }
+
+      // Immediate crawler detection and content loading
+      if (isCrawler()) {
+        // For crawlers, load SEO content immediately
+        loadSEOContent();
+      } else {
+        // For humans, continue with React app loading
+        loadReactApp();
+      }
+    </script>
 
     <!-- Enhanced Schema.org structured data for better Google understanding -->
     <script type="application/ld+json">

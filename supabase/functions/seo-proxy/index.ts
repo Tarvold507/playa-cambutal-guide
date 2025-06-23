@@ -93,13 +93,6 @@ function generateSEOHTML(seoData: any, path: string): string {
     <script type="application/ld+json">
     ${generateSchema()}
     </script>
-    
-    <!-- For non-crawler users, redirect to React app -->
-    <script>
-      if (!/bot|crawler|spider|crawling/i.test(navigator.userAgent)) {
-        window.location.href = '${path}';
-      }
-    </script>
 </head>
 <body>
     <main>
@@ -133,7 +126,8 @@ function generateSEOHTML(seoData: any, path: string): string {
 }
 
 serve(async (req) => {
-  console.log('SEO Proxy - Processing request:', req.url);
+  console.log('🔍 SEO Proxy - Processing request:', req.url);
+  console.log('🔍 SEO Proxy - Method:', req.method);
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -141,51 +135,49 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
+    let path = '/';
+    let userAgent = req.headers.get('user-agent') || '';
     
-    // Get path from query parameter (for redirected requests) or from pathname
-    let path = url.searchParams.get('path') || url.pathname;
+    // Handle POST requests (from client-side detection)
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json();
+        path = body.path || '/';
+        userAgent = body.userAgent || userAgent;
+        
+        console.log('📨 SEO Proxy - POST request detected');
+        console.log('📍 SEO Proxy - Requested path:', path);
+        console.log('🤖 SEO Proxy - User agent:', userAgent);
+      } catch (error) {
+        console.error('❌ SEO Proxy - Error parsing POST body:', error);
+      }
+    }
     
-    // Clean up path - remove /functions/v1/seo-proxy if present
-    if (path.includes('/functions/v1/seo-proxy')) {
-      path = '/'; // Default to home for direct function calls
+    // Handle GET requests with query parameters
+    else if (req.method === 'GET') {
+      const url = new URL(req.url);
+      path = url.searchParams.get('path') || url.pathname;
+      
+      // Clean up path - remove /functions/v1/seo-proxy if present
+      if (path.includes('/functions/v1/seo-proxy')) {
+        path = '/';
+      }
+      
+      console.log('📡 SEO Proxy - GET request detected');
+      console.log('📍 SEO Proxy - Requested path:', path);
+      console.log('🤖 SEO Proxy - User agent:', userAgent);
     }
     
     // Ensure path starts with /
     if (!path.startsWith('/')) {
       path = '/' + path;
     }
-    
-    const userAgent = req.headers.get('user-agent') || '';
-    
-    console.log('SEO Proxy - Processed Path:', path);
-    console.log('SEO Proxy - User Agent:', userAgent);
-    console.log('SEO Proxy - Is Crawler:', isCrawler(userAgent));
 
-    // For testing purposes, also check if this is a direct function call with test data
-    if (req.method === 'POST') {
-      const body = await req.json();
-      if (body.path) {
-        path = body.path;
-        console.log('SEO Proxy - Test mode, using path from body:', path);
-      }
-    }
-
-    // Only serve SEO content to crawlers
-    if (!isCrawler(userAgent) && req.method === 'GET') {
-      console.log('SEO Proxy - Not a crawler, redirecting to main site');
-      return new Response('Not a crawler - redirect to React app', {
-        status: 302,
-        headers: {
-          ...corsHeaders,
-          'Location': `https://playacambutalguide.com${path}`
-        }
-      });
-    }
-
-    console.log('SEO Proxy - Crawler detected, fetching SEO data for:', path);
+    console.log('🔍 SEO Proxy - Final path:', path);
+    console.log('🤖 SEO Proxy - Is crawler:', isCrawler(userAgent));
 
     // Fetch SEO data for the path
+    console.log('📊 SEO Proxy - Fetching SEO data from database...');
     const { data: seoData, error } = await supabase
       .from('page_seo')
       .select('*')
@@ -193,19 +185,19 @@ serve(async (req) => {
       .maybeSingle();
 
     if (error) {
-      console.error('SEO Proxy - Database error:', error);
+      console.error('❌ SEO Proxy - Database error:', error);
     }
 
-    console.log('SEO Proxy - SEO data found:', !!seoData);
+    console.log('📊 SEO Proxy - SEO data found:', !!seoData);
     if (seoData) {
-      console.log('SEO Proxy - SEO title:', seoData.page_title);
-      console.log('SEO Proxy - SEO description:', seoData.meta_description);
+      console.log('📖 SEO Proxy - Title:', seoData.page_title);
+      console.log('📝 SEO Proxy - Description:', seoData.meta_description);
     }
 
     // Generate and return SEO-optimized HTML
     const seoHTML = generateSEOHTML(seoData, path);
     
-    console.log('SEO Proxy - Returning SEO HTML for crawler');
+    console.log('✅ SEO Proxy - Returning SEO HTML');
     return new Response(seoHTML, {
       headers: {
         ...corsHeaders,
@@ -215,7 +207,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('SEO Proxy - Error:', error);
+    console.error('❌ SEO Proxy - Unexpected error:', error);
     
     // Return basic HTML fallback
     const fallbackHTML = `<!DOCTYPE html>
@@ -225,7 +217,7 @@ serve(async (req) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Playa Cambutal Guide - Ultimate Travel Guide to Cambutal, Panama</title>
     <meta name="description" content="Complete travel guide to Playa Cambutal, Panama. Find hotels, restaurants, activities, and more.">
-    <link rel="canonical" href="https://playacambutalguide.com${new URL(req.url).pathname}">
+    <link rel="canonical" href="https://playacambutalguide.com">
 </head>
 <body>
     <h1>Playa Cambutal Guide</h1>
