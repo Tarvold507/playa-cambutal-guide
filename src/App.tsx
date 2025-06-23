@@ -1,6 +1,6 @@
 
 import React, { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -52,68 +52,66 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <LanguageProvider>
-            <Toaster />
-            <Routes>
-              {/* Static file routes - must come first and be exact */}
-              <Route path="/sitemap.xml" element={<StaticFileRoutes />} />
-              <Route path="/robots.txt" element={<StaticFileRoutes />} />
-              
-              {/* Regular application routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/eat" element={<Eat />} />
-              <Route path="/stay" element={<Stay />} />
-              <Route path="/do" element={<Do />} />
-              <Route path="/surf" element={<Surf />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/transportation" element={<Transportation />} />
-              <Route path="/real-estate" element={<RealEstate />} />
-              <Route path="/info" element={<Info />} />
-              <Route path="/legal" element={<Legal />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/disclosure" element={<Disclosure />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/my-listings" element={<MyListings />} />
-              <Route path="/add-restaurant" element={<AddRestaurant />} />
-              <Route path="/add-hotel" element={<AddHotel />} />
-              <Route path="/add-blog" element={<AddBlog />} />
-              
-              {/* Detail pages */}
-              <Route path="/eat/:restaurantSlug" element={<RestaurantDetail />} />
-              <Route path="/stay/:hotelSlug" element={<HotelDetail />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route 
-                path="/do/:businessSlug" 
-                element={
-                  <Suspense fallback={<LoadingFallback />}>
-                    <LazyAdventureBusinessDetail />
-                  </Suspense>
-                } 
-              />
-              
-              {/* Admin dashboard - lazy loaded due to size */}
-              <Route 
-                path="/admin" 
-                element={
-                  <Suspense fallback={<LoadingFallback />}>
-                    <LazyAdminDashboard />
-                  </Suspense>
-                } 
-              />
-              
-              {/* 404 page */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </LanguageProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <LanguageProvider>
+          <Toaster />
+          <Routes>
+            {/* Static file routes - must come first and be exact */}
+            <Route path="/sitemap.xml" element={<StaticFileRoutes />} />
+            <Route path="/robots.txt" element={<StaticFileRoutes />} />
+            
+            {/* Regular application routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/eat" element={<Eat />} />
+            <Route path="/stay" element={<Stay />} />
+            <Route path="/do" element={<Do />} />
+            <Route path="/surf" element={<Surf />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/transportation" element={<Transportation />} />
+            <Route path="/real-estate" element={<RealEstate />} />
+            <Route path="/info" element={<Info />} />
+            <Route path="/legal" element={<Legal />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/disclosure" element={<Disclosure />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/my-listings" element={<MyListings />} />
+            <Route path="/add-restaurant" element={<AddRestaurant />} />
+            <Route path="/add-hotel" element={<AddHotel />} />
+            <Route path="/add-blog" element={<AddBlog />} />
+            
+            {/* Detail pages */}
+            <Route path="/eat/:restaurantSlug" element={<RestaurantDetail />} />
+            <Route path="/stay/:hotelSlug" element={<HotelDetail />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route 
+              path="/do/:businessSlug" 
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <LazyAdventureBusinessDetail />
+                </Suspense>
+              } 
+            />
+            
+            {/* Admin dashboard - lazy loaded due to size */}
+            <Route 
+              path="/admin" 
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <LazyAdminDashboard />
+                </Suspense>
+              } 
+            />
+            
+            {/* 404 page */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </LanguageProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

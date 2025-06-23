@@ -1,15 +1,20 @@
 
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
 
-const container = document.getElementById("root");
-if (!container) throw new Error("Root element not found");
-
-const root = createRoot(container);
-root.render(
-  <React.StrictMode>
+const root = document.getElementById("root")!;
+const app = (
+  <BrowserRouter>
     <App />
-  </React.StrictMode>
+  </BrowserRouter>
 );
+
+// Use hydration for SSR in production
+if (import.meta.env.PROD) {
+  hydrateRoot(root, app);
+} else {
+  createRoot(root).render(app);
+}
