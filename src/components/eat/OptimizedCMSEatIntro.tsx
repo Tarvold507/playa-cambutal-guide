@@ -7,9 +7,9 @@ const OptimizedCMSEatIntro = () => {
   const { t } = useLanguage();
 
   const introContent = getContentBySection('intro', {
-    title: t('eat.intro.title', 'Discover Amazing Dining'),
-    description: t('eat.intro.description', 'Playa Cambutal offers a diverse culinary scene that reflects both local Panamanian flavors and international cuisine. From beachfront restaurants serving fresh seafood to cozy cafes with artisanal coffee, you\'ll find dining options to satisfy every palate.'),
-    subtitle: t('eat.intro.subtitle', 'Most restaurants are located within walking distance of the beach and accommodations, making it easy to explore the local food scene during your stay.')
+    title: t('eat.intro.title') || 'Discover Amazing Dining',
+    description: t('eat.intro.description') || 'Playa Cambutal offers a diverse culinary scene that reflects both local Panamanian flavors and international cuisine. From beachfront restaurants serving fresh seafood to cozy cafes with artisanal coffee, you\'ll find dining options to satisfy every palate.',
+    subtitle: t('eat.intro.subtitle') || 'Most restaurants are located within walking distance of the beach and accommodations, making it easy to explore the local food scene during your stay.'
   });
 
   if (isLoading) {

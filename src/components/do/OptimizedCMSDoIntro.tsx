@@ -7,8 +7,8 @@ const OptimizedCMSDoIntro = () => {
   const { t } = useLanguage();
 
   const introContent = getContentBySection('intro', {
-    title: t('do.intro.title', 'Experience Cambutal, Panama'),
-    description: t('do.intro.description', 'From world-class surfing to breathtaking nature experiences, Playa Cambutal offers endless opportunities for adventure in Panama. Whether you\'re seeking the perfect wave, wanting to explore Panama\'s pristine jungles, or looking to connect with nature through yoga on the beach, you\'ll find your perfect adventure in this Pacific coast paradise.')
+    title: t('do.intro.title') || 'Experience Cambutal, Panama',
+    description: t('do.intro.description') || 'From world-class surfing to breathtaking nature experiences, Playa Cambutal offers endless opportunities for adventure in Panama. Whether you\'re seeking the perfect wave, wanting to explore Panama\'s pristine jungles, or looking to connect with nature through yoga on the beach, you\'ll find your perfect adventure in this Pacific coast paradise.'
   });
 
   if (isLoading) {

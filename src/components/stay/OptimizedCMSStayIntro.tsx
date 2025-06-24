@@ -7,9 +7,9 @@ const OptimizedCMSStayIntro = () => {
   const { t } = useLanguage();
 
   const introContent = getContentBySection('intro', {
-    title: t('stay.intro.title', 'Find Your Perfect Stay'),
-    description: t('stay.intro.description', 'From beachfront hotels to cozy boutique accommodations, Playa Cambutal offers a variety of lodging options to suit every traveler\'s needs and budget. Wake up to the sound of waves and enjoy stunning ocean views.'),
-    subtitle: t('stay.intro.subtitle', 'All accommodations are carefully selected to ensure comfort, quality, and authentic Panamanian hospitality.')
+    title: t('stay.intro.title') || 'Find Your Perfect Stay',
+    description: t('stay.intro.description') || 'From beachfront hotels to cozy boutique accommodations, Playa Cambutal offers a variety of lodging options to suit every traveler\'s needs and budget. Wake up to the sound of waves and enjoy stunning ocean views.',
+    subtitle: t('stay.intro.subtitle') || 'All accommodations are carefully selected to ensure comfort, quality, and authentic Panamanian hospitality.'
   });
 
   if (isLoading) {
