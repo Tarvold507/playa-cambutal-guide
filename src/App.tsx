@@ -82,14 +82,6 @@ function App() {
             <Route path="/add-restaurant" element={<AddRestaurant />} />
             <Route path="/add-hotel" element={<AddHotel />} />
             <Route path="/add-blog" element={<AddBlog />} />
-            <Route path="/eat/cambutal_horcones" element={<cambutal_horcones />} />
-            <Route path="/eat/fonda_norelis" element={<fonda_norelis />} />
-            <Route path="/eat/hotel_kambutaleko" element={<hotel_kambutaleko />} />
-            <Route path="/eat/kambute" element={<kambute />} />
-            <Route path="/eat/la_tierra_de_mis_sueos" element={<la_tierra_de_mis_sueos />} />
-            <Route path="/eat/monaco_bar_and_grill" element={<monaco_bar_and_grill />} />
-            <Route path="/eat/pizzeria_madera" element={<pizzeria_madera />} />
-            
             
             {/* Detail pages */}
             <Route path="/eat/:restaurantSlug" element={<RestaurantDetail />} />
