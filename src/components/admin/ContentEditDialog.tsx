@@ -38,12 +38,13 @@ const CONTENT_TYPES = [
 // Define predefined section names for each page
 const PAGE_SECTIONS = {
   '/': ['hero', 'intro', 'cards', 'featured', 'newsletter'],
-  '/info': ['hero', 'services', 'businesses', 'realestate', 'legal', 'transportation'],
-  '/stay': ['hero', 'hotels', 'featured'],
-  '/eat': ['hero', 'restaurants', 'featured'],
-  '/events': ['hero', 'calendar', 'featured'],
-  '/do': ['hero', 'activities', 'featured'],
-  '/surf': ['hero', 'spots', 'conditions', 'lessons'],
+  '/eat': ['hero', 'intro', 'restaurants', 'tips', 'featured'],
+  '/stay': ['hero', 'intro', 'hotels', 'tips', 'featured'],
+  '/do': ['hero', 'intro', 'activities', 'featured'],
+  '/surf': ['hero', 'intro', 'spots', 'conditions', 'lessons'],
+  '/blog': ['hero', 'intro', 'posts', 'featured'],
+  '/calendar': ['hero', 'intro', 'events', 'featured'],
+  '/info': ['hero', 'intro', 'services', 'businesses', 'realestate', 'legal', 'transportation'],
 };
 
 const ContentEditDialog = ({ isOpen, onClose, content, pagePath, onSave }: ContentEditDialogProps) => {

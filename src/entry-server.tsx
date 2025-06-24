@@ -30,6 +30,28 @@ export async function render(url: string) {
     console.warn(`[SSG] Failed to fetch SEO data for ${url}:`, error);
   }
 
+  // Fetch CMS page content for this route
+  let pageContent: any[] = [];
+  try {
+    const { data, error } = await supabaseNode
+      .from('page_content')
+      .select('*')
+      .eq('page_path', url)
+      .eq('is_visible', true)
+      .order('display_order', { ascending: true });
+
+    if (error && error.code !== 'PGRST116') {
+      console.warn(`[SSG] Error fetching page content for ${url}:`, error);
+    } else if (data && data.length > 0) {
+      pageContent = data;
+      console.log(`[SSG] Found ${data.length} content blocks for ${url}`);
+    } else {
+      console.log(`[SSG] No page content found for ${url}`);
+    }
+  } catch (error) {
+    console.warn(`[SSG] Failed to fetch page content for ${url}:`, error);
+  }
+
   // Generate the React app HTML
   const appHtml = ReactDOMServer.renderToString(
     <StaticRouter location={url}>
@@ -53,8 +75,18 @@ export async function render(url: string) {
   
   const seoHead = generateSEOHead(seoData, fallbackTitles[url]);
   
+  // Generate CMS content script for hydration
+  let cmsContentScript = '';
+  if (pageContent.length > 0) {
+    cmsContentScript = `
+      <script id="cms-content-${url.replace(/\//g, '-')}" type="application/json">
+      ${JSON.stringify(pageContent)}
+      </script>
+    `;
+  }
+  
   return {
     html: appHtml,
-    seoHead: seoHead
+    seoHead: seoHead + cmsContentScript
   };
 }

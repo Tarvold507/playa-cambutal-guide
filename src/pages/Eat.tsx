@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -6,7 +5,7 @@ import Newsletter from '../components/Newsletter';
 import { RestaurantListing } from '@/hooks/useRestaurantListings';
 import { isRestaurantOpen } from '@/utils/timeUtils';
 import EatHero from '../components/eat/EatHero';
-import EatIntro from '../components/eat/EatIntro';
+import OptimizedCMSEatIntro from '../components/eat/OptimizedCMSEatIntro';
 import EatSearchFilter from '../components/eat/EatSearchFilter';
 import EatRestaurantGrid from '../components/eat/EatRestaurantGrid';
 import EatTips from '../components/eat/EatTips';
@@ -123,7 +122,7 @@ const Eat = () => {
       <EatSEO />
       <Navbar />
       <EatHero />
-      <EatIntro />
+      <OptimizedCMSEatIntro />
       <EatSearchFilter 
         showOpenOnly={showOpenOnly}
         setShowOpenOnly={setShowOpenOnly}
