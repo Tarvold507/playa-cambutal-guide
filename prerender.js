@@ -31,7 +31,21 @@ const routesToPrerender = [
   '/add-restaurant',
   '/add-hotel',
   '/add-blog',
-  '/admin'
+  '/admin',
+  '/eat/la_tierra_de_mis_sueos',
+  '/eat/hotel_kambutaleko',
+  '/eat/restaurante_casa_playa_verde',
+  '/eat/monaco_bar_and_grill',
+  '/eat/pizzeria_madera',
+  '/eat/kambute',
+  '/eat/hotel_restaurante_cambutal_beach',
+  '/stay/sansara_surf_and_yoga_resort',
+  '/stay/stunning_beachfront_home_near_cambutal_beach_break',
+  '/stay/hotel_kambutaleko',
+  '/stay/hotel_playa_cambutal',
+  '/stay/tropical_beachfront_home_in_cambutal',
+  '/do/la_colectiva',
+  '/blog/visiting-or-moving-to-cambutal-panama'
   // Note: Dynamic routes like /eat/:restaurantSlug, /stay/:hotelSlug, /blog/:slug, /do/:businessSlug
   // will need to be added manually when new content is created
 ]
