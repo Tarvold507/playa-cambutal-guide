@@ -1,3 +1,4 @@
+
 export const en = {
   nav: {
     eat: 'Eat',
@@ -7,6 +8,9 @@ export const en = {
     do: 'Do',
     admin: 'Admin',
     account: 'Account',
+    profile: 'Profile',
+    writeBlog: 'Write Blog Post',
+    signOut: 'Sign Out',
   },
   home: {
     hero: {
@@ -53,6 +57,23 @@ export const en = {
       title: 'Experience Cambutal, Panama',
       description: 'From world-class surfing to breathtaking nature experiences, Playa Cambutal offers endless opportunities for adventure in Panama. Whether you\'re seeking the perfect wave, wanting to explore Panama\'s pristine jungles, or looking to connect with nature through yoga on the beach, you\'ll find your perfect adventure in this Pacific coast paradise.'
     }
+  },
+  admin: {
+    title: 'Admin Dashboard',
+    pendingEvents: 'Pending Events',
+    pendingBusinesses: 'Pending Businesses',
+    noEvents: 'No pending events to review.',
+    noBusinesses: 'No pending businesses to review.',
+  },
+  blog: {
+    title: 'Playa Cambutal Blog',
+    subtitle: 'Discover stories, tips, and insights about Panama\'s hidden paradise',
+    latestStories: 'Latest Stories from Cambutal',
+    readMore: 'Read More ->',
+  },
+  events: {
+    title: 'Local Events',
+    subtitle: 'Discover what\'s happening in Playa Cambutal',
   },
   footer: {
     description: 'Your comprehensive guide to Playa Cambutal, Panama. Discover the best places to stay, eat, surf, and enjoy this beautiful beach destination.',
