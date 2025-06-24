@@ -1,4 +1,5 @@
 
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -32,7 +33,7 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
               {t('common.cancel')}
             </Button>
             <Button onClick={onSave}>
-              {t('common.save')} Changes
+              Save Changes
             </Button>
           </div>
         </div>
@@ -42,3 +43,4 @@ const AdminEditDialog = ({ isOpen, onClose, editForm, onFormChange, onSave }: Ad
 };
 
 export default AdminEditDialog;
+

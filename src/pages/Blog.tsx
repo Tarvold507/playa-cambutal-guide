@@ -1,4 +1,5 @@
 
+
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -10,7 +11,7 @@ import { updatePageHead } from '../utils/seoUtils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, User } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
 const Blog = () => {
   const { blogPosts, loading } = useBlogPosts();
@@ -76,12 +77,6 @@ const Blog = () => {
                       <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
                         <Calendar className="w-4 h-4" />
                         {new Date(post.published_at || post.created_at).toLocaleDateString()}
-                        {post.profiles?.name && (
-                          <>
-                            <User className="w-4 h-4 ml-2" />
-                            {post.profiles.name}
-                          </>
-                        )}
                       </div>
                       <CardTitle className="line-clamp-2">{post.title}</CardTitle>
                       {post.excerpt && (
@@ -120,3 +115,4 @@ const Blog = () => {
 };
 
 export default Blog;
+
