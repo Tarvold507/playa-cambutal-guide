@@ -1,11 +1,12 @@
-
 export const en = {
   nav: {
-    eat: 'Eat & Drink',
+    eat: 'Eat',
     stay: 'Stay',
     blog: 'Blog',
     info: 'Info',
     do: 'Do',
+    admin: 'Admin',
+    account: 'Account',
   },
   home: {
     hero: {
