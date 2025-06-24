@@ -1,9 +1,11 @@
+
 export const en = {
   nav: {
     eat: 'Eat & Drink',
     stay: 'Stay',
     blog: 'Blog',
     info: 'Info',
+    do: 'Do',
   },
   home: {
     hero: {
@@ -50,5 +52,23 @@ export const en = {
       title: 'Experience Cambutal, Panama',
       description: 'From world-class surfing to breathtaking nature experiences, Playa Cambutal offers endless opportunities for adventure in Panama. Whether you\'re seeking the perfect wave, wanting to explore Panama\'s pristine jungles, or looking to connect with nature through yoga on the beach, you\'ll find your perfect adventure in this Pacific coast paradise.'
     }
-  }
+  },
+  footer: {
+    description: 'Your comprehensive guide to Playa Cambutal, Panama. Discover the best places to stay, eat, surf, and enjoy this beautiful beach destination.',
+    explore: 'Explore',
+    contact: 'Contact',
+    address: 'Playa Cambutal, Los Santos, Panama',
+    email: 'info@playacambutalguide.com',
+    copyright: 'Playa Cambutal Guide. All rights reserved.',
+    privacy: 'Privacy Policy',
+    terms: 'Terms of Service'
+  },
+  newsletter: {
+    title: 'Stay Updated',
+    description: 'Join our newsletter to stay updated with the latest news, travel tips, and special offers for Playa Cambutal.',
+    placeholder: 'Your email address',
+    subscribe: 'Subscribe',
+    success: 'Thank you for subscribing!'
+  },
+  calendar: 'Calendar'
 };
