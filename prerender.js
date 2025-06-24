@@ -32,6 +32,8 @@ const routesToPrerender = [
   '/add-hotel',
   '/add-blog',
   '/admin'
+  // Note: Dynamic routes like /eat/:restaurantSlug, /stay/:hotelSlug, /blog/:slug, /do/:businessSlug
+  // will need to be added manually when new content is created
 ]
 
 // Helper function to ensure directory exists
@@ -66,4 +68,7 @@ const ensureDirectoryExists = (filePath) => {
   
   console.log('\n🎉 Static site generation complete!')
   console.log('📁 Generated files in dist/ directory')
+  console.log('\n📝 To add dynamic routes (restaurants, hotels, blog posts):')
+  console.log('   - Add specific routes to routesToPrerender array')
+  console.log('   - Example: "/eat/restaurant-slug", "/blog/post-slug"')
 })()
