@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import CMSHero from '../components/CMSHero';
 import Newsletter from '../components/Newsletter';
 import EventCalendar from '../components/EventCalendar';
+import CalendarSEO from '../components/calendar/CalendarSEO';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Calendar = () => {
@@ -16,6 +17,7 @@ const Calendar = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <CalendarSEO />
       <Navbar />
       
       <CMSHero 

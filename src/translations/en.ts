@@ -1,3 +1,4 @@
+
 export const en = {
   nav: {
     eat: 'Eat',
@@ -69,7 +70,8 @@ export const en = {
     title: 'Playa Cambutal Blog',
     subtitle: 'Discover stories, tips, and insights about Panama\'s hidden paradise',
     latestStories: 'Latest Stories from Cambutal',
-    readMore: 'Read More ->',
+    readMore: 'Read More',
+    noPostsYet: 'No blog posts available yet.',
   },
   events: {
     title: 'Local Events',
@@ -78,6 +80,7 @@ export const en = {
   common: {
     cancel: 'Cancel',
     save: 'Save',
+    loading: 'Loading...',
   },
   footer: {
     description: 'Your comprehensive guide to Playa Cambutal, Panama. Discover the best places to stay, eat, surf, and enjoy this beautiful beach destination.',

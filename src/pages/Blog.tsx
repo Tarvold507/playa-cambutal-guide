@@ -1,13 +1,11 @@
 
-
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
+import BlogSEO from '../components/blog/BlogSEO';
 import { useBlogPosts } from '../hooks/useBlogPosts';
-import { usePageSEO } from '../hooks/usePageSEO';
-import { updatePageHead } from '../utils/seoUtils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,23 +13,16 @@ import { Calendar } from 'lucide-react';
 
 const Blog = () => {
   const { blogPosts, loading } = useBlogPosts();
-  const { fetchSEOByPath } = usePageSEO();
   const { t } = useLanguage();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    const loadSEO = async () => {
-      const seoData = await fetchSEOByPath('/blog');
-      updatePageHead(seoData, 'Blog - Playa Cambutal Guide');
-    };
-    
-    loadSEO();
-  }, [fetchSEOByPath]);
+  }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
+        <BlogSEO />
         <Navbar />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">{t('common.loading')}</div>
@@ -43,6 +34,7 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <BlogSEO />
       <Navbar />
       
       <Hero 
@@ -115,4 +107,3 @@ const Blog = () => {
 };
 
 export default Blog;
-
