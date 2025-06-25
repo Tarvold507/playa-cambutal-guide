@@ -10,8 +10,8 @@ const template = fs.readFileSync(toAbsolute('dist/index.html'), 'utf-8')
 const { render } = await import('./dist/server/entry-server.js')
 
 // Import our server-side utilities
-const { supabaseNode } = await import('./dist/utils/supabaseNode.js')
-const { generateSEOHead, injectSEOIntoHTML } = await import('./dist/utils/seoNode.js')
+const { supabaseNode } = await import('./src/utils/supabaseNode.js')
+const { generateSEOHead, injectSEOIntoHTML } = await import('./src/utils/seoNode.js')
 
 // Helper function to ensure directory exists
 const ensureDirectoryExists = (filePath) => {
@@ -181,12 +181,18 @@ const generateBlogSEO = (post, pagePath) => {
 // Helper function to fetch SEO data from database or generate fallback
 const fetchOrGenerateSEO = async (pagePath, contentData = null, contentType = null) => {
   try {
+    console.log(`🔍 Fetching SEO for: ${pagePath}`);
+    
     // Try to fetch existing SEO data from database
-    const { data: existingSEO } = await supabaseNode
+    const { data: existingSEO, error } = await supabaseNode
       .from('page_seo')
       .select('*')
       .eq('page_path', pagePath)
       .maybeSingle();
+
+    if (error) {
+      console.error(`❌ Database error for ${pagePath}:`, error);
+    }
 
     if (existingSEO) {
       console.log(`✅ Found database SEO for: ${pagePath}`);
@@ -257,14 +263,30 @@ const fetchOrGenerateSEO = async (pagePath, contentData = null, contentType = nu
   ];
 
   try {
+    // Test database connection
+    console.log('🔌 Testing database connection...');
+    const { data: testQuery, error: testError } = await supabaseNode
+      .from('restaurant_listings')
+      .select('count')
+      .limit(1);
+    
+    if (testError) {
+      console.error('❌ Database connection failed:', testError);
+      console.log('⚠️ Continuing with static routes only...');
+    } else {
+      console.log('✅ Database connection successful');
+    }
+
     // Fetch all approved restaurants and add to routes
     console.log('📊 Fetching restaurants...');
-    const { data: restaurants } = await supabaseNode
+    const { data: restaurants, error: restaurantError } = await supabaseNode
       .from('restaurant_listings')
       .select('*')
       .eq('approved', true);
 
-    if (restaurants) {
+    if (restaurantError) {
+      console.error('❌ Error fetching restaurants:', restaurantError);
+    } else if (restaurants) {
       console.log(`Found ${restaurants.length} approved restaurants`);
       for (const restaurant of restaurants) {
         const slug = restaurant.name.toLowerCase()
@@ -278,12 +300,14 @@ const fetchOrGenerateSEO = async (pagePath, contentData = null, contentType = nu
 
     // Fetch all approved hotels and add to routes
     console.log('📊 Fetching hotels...');
-    const { data: hotels } = await supabaseNode
+    const { data: hotels, error: hotelError } = await supabaseNode
       .from('hotel_listings')
       .select('*')
       .eq('approved', true);
 
-    if (hotels) {
+    if (hotelError) {
+      console.error('❌ Error fetching hotels:', hotelError);
+    } else if (hotels) {
       console.log(`Found ${hotels.length} approved hotels`);
       for (const hotel of hotels) {
         const slug = hotel.name.toLowerCase()
@@ -297,13 +321,15 @@ const fetchOrGenerateSEO = async (pagePath, contentData = null, contentType = nu
 
     // Fetch all published blog posts and add to routes
     console.log('📊 Fetching blog posts...');
-    const { data: blogPosts } = await supabaseNode
+    const { data: blogPosts, error: blogError } = await supabaseNode
       .from('blog_posts')
       .select('*')
       .eq('status', 'published')
       .eq('approved', true);
 
-    if (blogPosts) {
+    if (blogError) {
+      console.error('❌ Error fetching blog posts:', blogError);
+    } else if (blogPosts) {
       console.log(`Found ${blogPosts.length} published blog posts`);
       for (const post of blogPosts) {
         routesToPrerender.push(`/blog/${post.slug}`);
@@ -312,12 +338,14 @@ const fetchOrGenerateSEO = async (pagePath, contentData = null, contentType = nu
 
     // Fetch all approved adventure businesses and add to routes
     console.log('📊 Fetching adventure businesses...');
-    const { data: adventureBusinesses } = await supabaseNode
+    const { data: adventureBusinesses, error: adventureError } = await supabaseNode
       .from('adventure_business_listings')
       .select('*')
       .eq('approved', true);
 
-    if (adventureBusinesses) {
+    if (adventureError) {
+      console.error('❌ Error fetching adventure businesses:', adventureError);
+    } else if (adventureBusinesses) {
       console.log(`Found ${adventureBusinesses.length} approved adventure businesses`);
       for (const business of adventureBusinesses) {
         const slug = business.business_name.toLowerCase()
@@ -383,6 +411,7 @@ const fetchOrGenerateSEO = async (pagePath, contentData = null, contentType = nu
         
       } catch (error) {
         console.error(`❌ Error pre-rendering ${route}:`, error.message);
+        console.error('Stack trace:', error.stack);
       }
     }
     
