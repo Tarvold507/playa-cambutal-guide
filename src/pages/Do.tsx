@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import DoPageHero from '../components/do/DoPageHero';
-import OptimizedCMSDoIntro from '../components/do/OptimizedCMSDoIntro';
+import DoPageIntro from '../components/do/DoPageIntro';
 import DoActivitiesSection from '../components/do/DoActivitiesSection';
 import DoBusinessSubmission from '../components/do/DoBusinessSubmission';
 import DoFeaturedSections from '../components/do/DoFeaturedSections';
@@ -29,7 +29,7 @@ const Do = () => {
       <DoSEO />
       <Navbar />
       <DoPageHero />
-      <OptimizedCMSDoIntro />
+      <DoPageIntro />
       <DoActivitiesSection 
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}

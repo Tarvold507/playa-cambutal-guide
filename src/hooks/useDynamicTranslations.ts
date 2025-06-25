@@ -38,20 +38,8 @@ export const useEnhancedTranslation = (language: Language) => {
       return dbTranslations[key];
     }
     
-    // Fall back to static translations with dot notation support
-    const keys = key.split('.');
-    let value: any = translations[language];
-    
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
-      } else {
-        return key; // Return the key if path doesn't exist
-      }
-    }
-    
-    // Only return if it's a string
-    return typeof value === 'string' ? value : key;
+    // Fall back to static translations
+    return translations[language][key as TranslationKey] || key;
   };
 
   return { t };

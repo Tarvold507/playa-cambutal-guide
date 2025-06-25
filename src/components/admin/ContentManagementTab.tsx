@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,26 +11,13 @@ import ContentEditDialog from './ContentEditDialog';
 
 const AVAILABLE_PAGES = [
   { path: '/', name: 'Home Page' },
+  { path: '/stay', name: 'Stay Page' },
   { path: '/eat', name: 'Eat Page' },
-  { path: '/stay', name: 'Stay Page' }, 
+  { path: '/events', name: 'Events Page' },
   { path: '/do', name: 'Do Page' },
   { path: '/surf', name: 'Surf Page' },
-  { path: '/blog', name: 'Blog Page' },
-  { path: '/calendar', name: 'Calendar Page' },
   { path: '/info', name: 'Info Page' },
 ];
-
-// Define predefined section names for each page
-const PAGE_SECTIONS = {
-  '/': ['hero', 'intro', 'cards', 'featured', 'newsletter'],
-  '/eat': ['hero', 'intro', 'restaurants', 'tips', 'featured'],
-  '/stay': ['hero', 'intro', 'hotels', 'tips', 'featured'],
-  '/do': ['hero', 'intro', 'activities', 'featured'],
-  '/surf': ['hero', 'intro', 'spots', 'conditions', 'lessons'],
-  '/blog': ['hero', 'intro', 'posts', 'featured'],
-  '/calendar': ['hero', 'intro', 'events', 'featured'],
-  '/info': ['hero', 'intro', 'services', 'businesses', 'realestate', 'legal', 'transportation'],
-};
 
 const ContentManagementTab = () => {
   const {

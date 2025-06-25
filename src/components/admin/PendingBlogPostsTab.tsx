@@ -1,8 +1,7 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Edit, Trash2, RefreshCw } from 'lucide-react';
+import { Calendar, User, Eye, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { BlogPost } from '@/hooks/useBlogPosts';
 
 interface PendingBlogPostsTabProps {
@@ -94,6 +93,10 @@ const PendingBlogPostsTab = ({
                 <CardDescription className="mt-2">
                   <div className="flex items-center gap-4 text-sm">
                     <div className="flex items-center gap-1">
+                      <User className="w-4 h-4" />
+                      {post.profiles?.name || 'Unknown'}
+                    </div>
+                    <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       {new Date(post.created_at).toLocaleDateString()}
                     </div>
@@ -158,4 +161,3 @@ const PendingBlogPostsTab = ({
 };
 
 export default PendingBlogPostsTab;
-

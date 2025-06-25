@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -6,7 +5,7 @@ import Footer from '../components/Footer';
 import { useBlogPosts, BlogPost } from '../hooks/useBlogPosts';
 import { updatePageHead, generateBlogSchema } from '../utils/seoUtils';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, ArrowLeft } from 'lucide-react';
+import { Calendar, User, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const BlogPostPage = () => {
@@ -147,6 +146,12 @@ const BlogPostPage = () => {
                   day: 'numeric'
                 })}
               </div>
+              {post.profiles?.name && (
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  {post.profiles.name}
+                </div>
+              )}
             </div>
             
             {/* Tags and category */}
@@ -181,4 +186,3 @@ const BlogPostPage = () => {
 };
 
 export default BlogPostPage;
-

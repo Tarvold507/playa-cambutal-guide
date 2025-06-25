@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
 import { useHotelListings } from '@/hooks/useHotelListings';
 import StayHero from '../components/stay/StayHero';
-import OptimizedCMSStayIntro from '../components/stay/OptimizedCMSStayIntro';
+import StayIntro from '../components/stay/StayIntro';
 import StaySearchFilter from '../components/stay/StaySearchFilter';
 import StayAccommodationGrid from '../components/stay/StayAccommodationGrid';
 import StayTips from '../components/stay/StayTips';
@@ -71,7 +71,7 @@ const Stay = () => {
       <StaySEO />
       <Navbar />
       <StayHero />
-      <OptimizedCMSStayIntro />
+      <StayIntro />
       <StaySearchFilter 
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
