@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
+import BlogSEO from '../components/blog/BlogSEO';
 import { useBlogPosts } from '../hooks/useBlogPosts';
-import { usePageSEO } from '../hooks/usePageSEO';
-import { updatePageHead } from '../utils/seoUtils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,19 +13,11 @@ import { Calendar, User } from 'lucide-react';
 
 const Blog = () => {
   const { blogPosts, loading } = useBlogPosts();
-  const { fetchSEOByPath } = usePageSEO();
   const { t } = useLanguage();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    const loadSEO = async () => {
-      const seoData = await fetchSEOByPath('/blog');
-      updatePageHead(seoData, 'Blog - Playa Cambutal Guide');
-    };
-    
-    loadSEO();
-  }, [fetchSEOByPath]);
+  }, []);
 
   if (loading) {
     return (
@@ -42,18 +33,20 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <BlogSEO />
       <Navbar />
       
       <Hero 
-        title={t('blog.title')}
-        subtitle={t('blog.subtitle')}
+        title="Playa Cambutal Blog"
+        subtitle="Travel stories, local insights, and guides for international visitors to Panama's hidden paradise."
         imageSrc="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80"
       />
       
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">{t('blog.latestStories')}</h1>
+            <h1 className="text-4xl font-bold text-gray-800 mb-4 text-center">Playa Cambutal Blog</h1>
+            <h2 className="text-xl text-gray-600 mb-8 text-center">Travel Stories & Local Insights</h2>
             
             {blogPosts.length === 0 ? (
               <div className="text-center py-12">

@@ -18,21 +18,35 @@ export const generateHotelSchema = (hotel: HotelListing) => {
       "@type": "GeoCoordinates",
       "latitude": hotel.latitude,
       "longitude": hotel.longitude
-    } : undefined,
+    } : {
+      "@type": "GeoCoordinates",
+      "latitude": 7.2833,
+      "longitude": -80.5167
+    },
     "image": hotel.gallery_images.length > 0 ? hotel.gallery_images : [hotel.image_url].filter(Boolean),
-    "priceRange": hotel.price_from ? `$${hotel.price_from}-$${hotel.price_from * 3}` : undefined,
+    "priceRange": hotel.price_from ? `$${hotel.price_from}-$${hotel.price_from * 3}` : "$$",
     "starRating": hotel.rating ? {
       "@type": "Rating",
-      "ratingValue": hotel.rating
+      "ratingValue": hotel.rating,
+      "bestRating": 5
     } : undefined,
     "amenityFeature": hotel.amenities.map(amenity => ({
       "@type": "LocationFeatureSpecification",
       "name": amenity
     })),
-    "url": `${window.location.origin}/stay/${hotel.slug}`,
+    "url": `https://playacambutalguide.com/stay/${hotel.slug}`,
     "telephone": hotel.policies.phone || undefined,
     "checkinTime": hotel.policies.check_in || "15:00",
-    "checkoutTime": hotel.policies.check_out || "11:00"
+    "checkoutTime": hotel.policies.check_out || "11:00",
+    "currenciesAccepted": "USD",
+    "paymentAccepted": "Cash, Credit Card",
+    "aggregateRating": hotel.rating ? {
+      "@type": "AggregateRating",
+      "ratingValue": hotel.rating,
+      "reviewCount": hotel.review_count || 1,
+      "bestRating": 5,
+      "worstRating": 1
+    } : undefined
   };
 };
 
@@ -43,7 +57,7 @@ export const generateRestaurantSchema = (restaurant: any) => {
     if (restaurant.imageSrc) return restaurant.imageSrc;
     if (restaurant.images && restaurant.images.length > 0) return restaurant.images[0];
     if (restaurant.gallery_images && restaurant.gallery_images.length > 0) return restaurant.gallery_images[0];
-    return undefined;
+    return 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
   };
 
   // Convert hours object to OpeningHours format
@@ -88,19 +102,54 @@ export const generateRestaurantSchema = (restaurant: any) => {
       "@type": "GeoCoordinates",
       "latitude": restaurant.latitude,
       "longitude": restaurant.longitude
-    } : undefined,
+    } : {
+      "@type": "GeoCoordinates",
+      "latitude": 7.2833,
+      "longitude": -80.5167
+    },
     "image": getSchemaImage(),
-    "servesCuisine": restaurant.category || restaurant.cuisine_type || undefined,
-    "priceRange": restaurant.price_range || undefined,
+    "servesCuisine": restaurant.category || restaurant.cuisine_type || "International",
+    "priceRange": restaurant.price_range || "$$",
     "aggregateRating": restaurant.rating ? {
       "@type": "AggregateRating",
       "ratingValue": restaurant.rating,
-      "reviewCount": restaurant.review_count || 1
+      "reviewCount": restaurant.review_count || 1,
+      "bestRating": 5,
+      "worstRating": 1
     } : undefined,
-    "url": `${window.location.origin}/eat/${restaurant.slug}`,
+    "url": `https://playacambutalguide.com/eat/${restaurant.slug}`,
     "telephone": restaurant.phone || undefined,
     "openingHours": getOpeningHours(),
-    "hasMenu": restaurant.menu_images && restaurant.menu_images.length > 0 ? `${window.location.origin}/eat/${restaurant.slug}#menu` : undefined,
-    "acceptsReservations": restaurant.whatsapp || restaurant.phone ? "True" : undefined
+    "hasMenu": restaurant.menu_images && restaurant.menu_images.length > 0 ? `https://playacambutalguide.com/eat/${restaurant.slug}#menu` : undefined,
+    "acceptsReservations": restaurant.whatsapp || restaurant.phone ? "True" : "False",
+    "currenciesAccepted": "USD",
+    "paymentAccepted": "Cash, Credit Card"
+  };
+};
+
+export const generateAdventureBusinessSchema = (business: any) => {
+  return {
+    "@context": "https://schema.org",
+    "@type": "TouristAttraction",
+    "name": business.business_name,
+    "description": business.description,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": business.address,
+      "addressLocality": "Playa Cambutal",
+      "addressRegion": "Los Santos Province", 
+      "addressCountry": "PA"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 7.2833,
+      "longitude": -80.5167
+    },
+    "image": business.image_url || 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    "url": `https://playacambutalguide.com/do/${business.slug}`,
+    "telephone": business.whatsapp || undefined,
+    "openingHours": business.hours || undefined,
+    "touristType": "International",
+    "category": business.category
   };
 };

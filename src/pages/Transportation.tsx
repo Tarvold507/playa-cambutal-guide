@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
 import Newsletter from '../components/Newsletter';
-import { Car, PlaneTakeoff, MapPin, AlertTriangle, Clock, DollarSign } from 'lucide-react';
+import TransportationSEO from '../components/transportation/TransportationSEO';
 
 const Transportation = () => {
   useEffect(() => {
@@ -13,162 +13,134 @@ const Transportation = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <TransportationSEO />
       <Navbar />
       
-      {/* Hero Section */}
       <Hero 
-        title="Getting There & Around"
-        subtitle="Transportation options for Playa Cambutal"
-        imageSrc="https://images.unsplash.com/photo-1494515843206-f3117d3f51b7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
+        title="Getting to Playa Cambutal"
+        subtitle="Complete transportation guide for international visitors traveling to Panama's hidden paradise."
+        imageSrc="https://images.unsplash.com/photo-1596627116790-af6f46dddbae?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80"
       />
-      
-      {/* Intro Section */}
-      <section className="bg-white py-16 md:py-24" id="content">
-        <div className="container mx-auto px-4 text-center max-w-3xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Getting to Paradise</h2>
-          <p className="text-gray-600 mb-4">
-            Playa Cambutal is located on the Azuero Peninsula in Panama, approximately 5-6 hours from Panama City. 
-            While the journey may take some time, the destination is well worth the effort.
-          </p>
-          <p className="text-gray-600">
-            There are several transportation options available, from rental cars to private shuttles and public buses.
-            Choose the one that best suits your travel style, budget, and schedule.
-          </p>
-        </div>
-      </section>
-      
-      {/* Transportation Options */}
-      <section className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-800 mb-10 text-center">Transportation Options</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* From Panama City */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="bg-venao text-white p-4 flex items-center">
-                <PlaneTakeoff className="h-6 w-6 mr-2" />
-                <h3 className="text-xl font-semibold">From Panama City</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Rental Car</h4>
-                  <p className="text-gray-600">The most flexible option. Drive time is approximately 5-6 hours from Panama City. The roads are generally in good condition, with the last 30 minutes on unpaved roads.</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Private Shuttle</h4>
-                  <p className="text-gray-600">Several companies offer door-to-door service from Panama City to Playa Cambutal. Prices range from $60-120 per person depending on group size.</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Public Bus</h4>
-                  <p className="text-gray-600">Budget option. Take a bus from Albrook Terminal to Las Tablas, then a local bus or taxi to Playa Cambutal. Total cost is around $15-25 but takes 7-8 hours.</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Flights + Taxi</h4>
-                  <p className="text-gray-600">Fly from Panama City to Chitré or Pedasí, then take a taxi to Playa Cambutal (45-90 minutes). Faster but more expensive.</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Getting Around */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="bg-venao text-white p-4 flex items-center">
-                <Car className="h-6 w-6 mr-2" />
-                <h3 className="text-xl font-semibold">Getting Around</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Walking</h4>
-                  <p className="text-gray-600">Playa Cambutal itself is compact enough to explore on foot. The beach is approximately 3 km long, and most accommodations, restaurants, and shops are within walking distance.</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Rental Car</h4>
-                  <p className="text-gray-600">Useful if you're planning to explore beyond Playa Cambutal. Some accommodations offer car rentals, or you can arrange one in advance.</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Taxi Services</h4>
-                  <p className="text-gray-600">Local taxis are available for transportation to nearby towns. Your accommodation can usually arrange this for you.</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Bicycles & ATVs</h4>
-                  <p className="text-gray-600">Several places offer bicycle and ATV rentals, which are fun ways to explore the area and nearby beaches.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Travel Tips */}
+
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">Travel Tips</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="bg-gray-50 p-6 rounded-lg flex">
-              <div className="mr-4 text-venao">
-                <MapPin className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-2">Navigation</h3>
-                <p className="text-gray-600">Download offline maps before your trip as cell service can be spotty. Google Maps works well for most routes to Playa Cambutal.</p>
-              </div>
-            </div>
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">Getting to Playa Cambutal</h1>
+            <h2 className="text-2xl text-gray-600 mb-8">Transportation Options & Travel Tips</h2>
             
-            <div className="bg-gray-50 p-6 rounded-lg flex">
-              <div className="mr-4 text-venao">
-                <AlertTriangle className="h-6 w-6" />
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Flying to Panama</h3>
+              <p className="text-lg text-gray-600 mb-6">
+                Most international visitors arrive at Tocumen International Airport (PTY) in Panama City. 
+                Major airlines serve Panama from North America, Europe, and other international destinations.
+              </p>
+              
+              <div className="bg-blue-50 p-6 rounded-lg mb-8">
+                <h4 className="font-semibold text-gray-800 mb-2">Flight Information for International Travelers:</h4>
+                <ul className="list-disc pl-6 text-gray-600">
+                  <li><strong>From North America:</strong> Direct flights from Miami (1.5h), New York (5.5h), Toronto (7h)</li>
+                  <li><strong>From Europe:</strong> Direct flights from Madrid (10h), Amsterdam (11h), Frankfurt (12h)</li>
+                  <li><strong>From South America:</strong> Multiple daily connections via major cities</li>
+                  <li><strong>Entry Requirements:</strong> Most visitors need only a passport (no visa required for stays under 90 days)</li>
+                </ul>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-2">Road Conditions</h3>
-                <p className="text-gray-600">The last part of the journey has unpaved roads. During rainy season (May-November), a 4x4 vehicle is recommended.</p>
+              
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Panama City to Cambutal</h3>
+              <p className="text-gray-600 mb-6">
+                The journey from Panama City to Playa Cambutal takes approximately 4-5 hours by road. 
+                Here are your transportation options:
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-green-50 p-6 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-3">🚗 Rental Car (Recommended)</h4>
+                  <ul className="text-gray-600 text-sm space-y-1">
+                    <li>• Freedom to explore at your own pace</li>
+                    <li>• Cost: $30-50/day plus gas (~$40 each way)</li>
+                    <li>• Major rental companies available at airport</li>
+                    <li>• GPS essential - download offline maps</li>
+                    <li>• International driving permit recommended</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-yellow-50 p-6 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-3">🚌 Bus + Transfer</h4>
+                  <ul className="text-gray-600 text-sm space-y-1">
+                    <li>• Most economical option ($15-25 total)</li>
+                    <li>• Bus to Las Tablas, then taxi to Cambutal</li>
+                    <li>• Total journey: 6-7 hours</li>
+                    <li>• Limited schedule - plan accordingly</li>
+                    <li>• Adventure travelers love this option</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-purple-50 p-6 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-3">🚐 Private Transfer</h4>
+                  <ul className="text-gray-600 text-sm space-y-1">
+                    <li>• Most comfortable and convenient</li>
+                    <li>• Cost: $200-300 for up to 6 passengers</li>
+                    <li>• Door-to-door service</li>
+                    <li>• Can be arranged through your accommodation</li>
+                    <li>• Perfect for groups or families</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-orange-50 p-6 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-3">✈️ Domestic Flight + Transfer</h4>
+                  <ul className="text-gray-600 text-sm space-y-1">
+                    <li>• Fastest option to the region</li>
+                    <li>• Fly to Chitré, then 90-minute drive</li>
+                    <li>• Cost: $100-150 plus ground transfer</li>
+                    <li>• Limited flight schedule</li>
+                    <li>• Great for short trips</li>
+                  </ul>
+                </div>
               </div>
-            </div>
-            
-            <div className="bg-gray-50 p-6 rounded-lg flex">
-              <div className="mr-4 text-venao">
-                <Clock className="h-6 w-6" />
+              
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Essential Travel Tips for International Visitors</h3>
+              
+              <div className="bg-gray-50 p-6 rounded-lg mb-6">
+                <h4 className="font-semibold text-gray-800 mb-3">💰 Currency & Payments</h4>
+                <ul className="list-disc pl-6 text-gray-600">
+                  <li>Panama uses the US Dollar - no currency exchange needed for Americans</li>
+                  <li>ATMs available in Las Tablas (30 minutes from Cambutal)</li>
+                  <li>Bring cash - many local businesses don't accept cards</li>
+                  <li>Notify your bank of international travel</li>
+                </ul>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-2">Travel Time</h3>
-                <p className="text-gray-600">Add buffer time to your journey, especially if traveling during rush hours or the rainy season when delays are common.</p>
+              
+              <div className="bg-gray-50 p-6 rounded-lg mb-6">
+                <h4 className="font-semibold text-gray-800 mb-3">📱 Communication</h4>
+                <ul className="list-disc pl-6 text-gray-600">
+                  <li>Most accommodations offer WiFi</li>
+                  <li>Local SIM cards available at airport and in Panama City</li>
+                  <li>International roaming can be expensive - check with your provider</li>
+                  <li>WhatsApp is widely used for local communication</li>
+                </ul>
               </div>
-            </div>
-            
-            <div className="bg-gray-50 p-6 rounded-lg flex">
-              <div className="mr-4 text-venao">
-                <DollarSign className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-2">Gas Stations</h3>
-                <p className="text-gray-600">Fill up your tank before heading to Playa Cambutal. The closest gas stations are in Las Tablas and Pedasí.</p>
-              </div>
-            </div>
-            
-            <div className="bg-gray-50 p-6 rounded-lg flex col-span-1 md:col-span-2">
-              <div className="mr-4 text-venao">
-                <Car className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-2">Recommended Transportation Services</h3>
-                <p className="text-gray-600">
-                  For shuttle services, we recommend Venao Express and Las Tablas Transport. For taxis in the area, ask your accommodation for trusted drivers' contact information.
-                </p>
+              
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Getting Around Cambutal</h3>
+              <p className="text-gray-600 mb-4">
+                Once in Cambutal, most accommodations and attractions are within walking distance or a short bike ride. 
+                Many hotels offer bicycle rentals, and local taxis are available for longer trips.
+              </p>
+              
+              <div className="bg-blue-50 p-6 rounded-lg">
+                <h4 className="font-semibold text-gray-800 mb-2">Pro Tips for International Travelers:</h4>
+                <ul className="list-disc pl-6 text-gray-600">
+                  <li>Download offline maps before you travel</li>
+                  <li>Learn basic Spanish phrases - locals appreciate the effort</li>
+                  <li>Pack light - laundry services are available</li>
+                  <li>Bring reef-safe sunscreen (hard to find locally)</li>
+                  <li>Consider travel insurance for adventure activities</li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
       </section>
-      
-      {/* Newsletter */}
+
       <Newsletter />
-      
-      {/* Footer */}
       <Footer />
     </div>
   );
