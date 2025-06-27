@@ -1,9 +1,11 @@
-
 import fs from 'node:fs'
 import path from 'node:path'
 import url from 'node:url'
 import { createClient } from '@supabase/supabase-js'
+import { exec } from 'node:child_process'
+import { promisify } from 'node:util'
 
+const execAsync = promisify(exec)
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 const toAbsolute = (p) => path.resolve(__dirname, p)
 
@@ -13,10 +15,38 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJ
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-const template = fs.readFileSync(toAbsolute('dist/index.html'), 'utf-8')
-const { render } = await import('./dist/server/entry-server.js')
+async function buildSSR() {
+  try {
+    console.log('🔨 Building SSR bundle...')
+    process.env.BUILD_SSR = 'true'
+    await execAsync('npx vite build')
+    console.log('✅ SSR bundle built successfully')
+    return true
+  } catch (error) {
+    console.warn('⚠️ SSR build failed, continuing with client-side rendering:', error.message)
+    return false
+  }
+}
 
-// Fetch SEO data from database
+async function loadServerRenderer() {
+  try {
+    // Try to load the SSR module
+    const serverPath = toAbsolute('dist/server/entry-server.js')
+    if (fs.existsSync(serverPath)) {
+      const { render } = await import(serverPath)
+      return render
+    }
+  } catch (error) {
+    console.warn('⚠️ Could not load SSR renderer:', error.message)
+  }
+  
+  // Fallback: return a function that renders a basic HTML structure
+  return (url) => {
+    console.log(`Using fallback renderer for ${url}`)
+    return '<div id="root">Loading...</div>'
+  }
+}
+
 async function fetchSEOData(pagePath) {
   try {
     const { data, error } = await supabase
@@ -36,7 +66,6 @@ async function fetchSEOData(pagePath) {
   }
 }
 
-// Fetch dynamic content for listings
 async function fetchListingData(type, slug) {
   try {
     let table, data
@@ -78,7 +107,6 @@ async function fetchListingData(type, slug) {
   }
 }
 
-// Generate SEO metadata for dynamic pages
 function generateListingSEO(type, data, slug) {
   if (!data) return null
   
@@ -129,7 +157,6 @@ function generateListingSEO(type, data, slug) {
   }
 }
 
-// Generate structured data based on content type
 function generateStructuredData(type, data, seoData) {
   const baseUrl = 'https://playacambutalguide.com'
   
@@ -193,7 +220,6 @@ function generateStructuredData(type, data, seoData) {
   }
 }
 
-// Inject SEO data into HTML
 function injectSEOData(html, seoData, structuredData = null) {
   let modifiedHtml = html
   
@@ -264,145 +290,6 @@ function injectSEOData(html, seoData, structuredData = null) {
   return modifiedHtml
 }
 
-// Get all routes to prerender
-const routesToPrerender = [
-  '/',
-  '/eat',
-  '/stay', 
-  '/do',
-  '/calendar',
-  '/surf',
-  '/blog',
-  '/info',
-  '/transportation',
-  '/real-estate'
-]
-
-// Add dynamic routes
-try {
-  // Add hotel routes
-  const { data: hotels } = await supabase
-    .from('hotel_listings')
-    .select('slug')
-    .eq('approved', true)
-  
-  if (hotels) {
-    hotels.forEach(hotel => {
-      routesToPrerender.push(`/stay/${hotel.slug}`)
-    })
-  }
-  
-  // Add restaurant routes
-  const { data: restaurants } = await supabase
-    .from('restaurant_listings')
-    .select('slug')
-    .eq('approved', true)
-  
-  if (restaurants) {
-    restaurants.forEach(restaurant => {
-      routesToPrerender.push(`/eat/${restaurant.slug}`)
-    })
-  }
-  
-  // Add blog routes
-  const { data: blogs } = await supabase
-    .from('blog_posts')
-    .select('slug')
-    .eq('approved', true)
-  
-  if (blogs) {
-    blogs.forEach(blog => {
-      routesToPrerender.push(`/blog/${blog.slug}`)
-    })
-  }
-} catch (error) {
-  console.warn('Error fetching dynamic routes:', error)
-}
-
-console.log(`Prerendering ${routesToPrerender.length} routes...`)
-
-// Prerender all routes
-for (const url of routesToPrerender) {
-  try {
-    console.log(`Prerendering: ${url}`)
-    
-    // Render the React app
-    const appHtml = render(url)
-    let html = template.replace(`<!--app-html-->`, appHtml)
-    
-    // Fetch and inject SEO data
-    let seoData = await fetchSEOData(url)
-    let structuredData = null
-    
-    // Handle dynamic routes
-    if (!seoData) {
-      const pathParts = url.split('/')
-      
-      if (pathParts[1] === 'stay' && pathParts[2]) {
-        const hotelData = await fetchListingData('hotel', pathParts[2])
-        if (hotelData) {
-          seoData = generateListingSEO('hotel', hotelData, pathParts[2])
-          structuredData = generateStructuredData('hotel', hotelData, seoData)
-        }
-      } else if (pathParts[1] === 'eat' && pathParts[2]) {
-        const restaurantData = await fetchListingData('restaurant', pathParts[2])
-        if (restaurantData) {
-          seoData = generateListingSEO('restaurant', restaurantData, pathParts[2])
-          structuredData = generateStructuredData('restaurant', restaurantData, seoData)
-        }
-      } else if (pathParts[1] === 'blog' && pathParts[2]) {
-        const blogData = await fetchListingData('blog', pathParts[2])
-        if (blogData) {
-          seoData = generateListingSEO('blog', blogData, pathParts[2])
-          structuredData = generateStructuredData('blog', blogData, seoData)
-        }
-      }
-    }
-    
-    // Apply fallback SEO for pages without database data
-    if (!seoData) {
-      seoData = getFallbackSEO(url)
-    }
-    
-    // Inject SEO data
-    if (seoData) {
-      html = injectSEOData(html, seoData, structuredData)
-    }
-    
-    // Write the file
-    const filePath = `dist${url === '/' ? '/index' : url}.html`
-    const dirPath = path.dirname(toAbsolute(filePath))
-    
-    // Ensure directory exists
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true })
-    }
-    
-    fs.writeFileSync(toAbsolute(filePath), html)
-    console.log('✅ Pre-rendered:', filePath)
-    
-  } catch (error) {
-    console.error(`❌ Failed to prerender ${url}:`, error)
-    
-    // Write basic HTML without SEO as fallback
-    try {
-      const basicHtml = template.replace(`<!--app-html-->`, `<div id="root"></div>`)
-      const filePath = `dist${url === '/' ? '/index' : url}.html`
-      const dirPath = path.dirname(toAbsolute(filePath))
-      
-      if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true })
-      }
-      
-      fs.writeFileSync(toAbsolute(filePath), basicHtml)
-      console.log('⚠️ Fallback rendered:', filePath)
-    } catch (fallbackError) {
-      console.error(`❌ Fallback failed for ${url}:`, fallbackError)
-    }
-  }
-}
-
-// Fallback SEO data for pages without database entries
 function getFallbackSEO(url) {
   const baseUrl = 'https://playacambutalguide.com'
   const fallbacks = {
@@ -472,4 +359,160 @@ function getFallbackSEO(url) {
   }
 }
 
-console.log('✅ Prerendering completed successfully!')
+async function main() {
+  // Build SSR first
+  const ssrBuilt = await buildSSR()
+  
+  // Load template and renderer
+  const templatePath = toAbsolute('dist/index.html')
+  if (!fs.existsSync(templatePath)) {
+    console.error('❌ Template file not found. Run client build first.')
+    process.exit(1)
+  }
+  
+  const template = fs.readFileSync(templatePath, 'utf-8')
+  const render = await loadServerRenderer()
+
+  // Get all routes to prerender
+  const routesToPrerender = [
+    '/',
+    '/eat',
+    '/stay', 
+    '/do',
+    '/calendar',
+    '/surf',
+    '/blog',
+    '/info',
+    '/transportation',
+    '/real-estate'
+  ]
+
+  // Add dynamic routes
+  try {
+    // Add hotel routes
+    const { data: hotels } = await supabase
+      .from('hotel_listings')
+      .select('slug')
+      .eq('approved', true)
+    
+    if (hotels) {
+      hotels.forEach(hotel => {
+        routesToPrerender.push(`/stay/${hotel.slug}`)
+      })
+    }
+    
+    // Add restaurant routes
+    const { data: restaurants } = await supabase
+      .from('restaurant_listings')
+      .select('slug')
+      .eq('approved', true)
+    
+    if (restaurants) {
+      restaurants.forEach(restaurant => {
+        routesToPrerender.push(`/eat/${restaurant.slug}`)
+      })
+    }
+    
+    // Add blog routes
+    const { data: blogs } = await supabase
+      .from('blog_posts')
+      .select('slug')
+      .eq('approved', true)
+    
+    if (blogs) {
+      blogs.forEach(blog => {
+        routesToPrerender.push(`/blog/${blog.slug}`)
+      })
+    }
+  } catch (error) {
+    console.warn('Error fetching dynamic routes:', error)
+  }
+
+  console.log(`🚀 Prerendering ${routesToPrerender.length} routes...`)
+
+  // Prerender all routes
+  for (const url of routesToPrerender) {
+    try {
+      console.log(`📄 Prerendering: ${url}`)
+      
+      // Render the React app
+      const appHtml = render(url)
+      let html = template.replace(`<!--app-html-->`, appHtml)
+      
+      // Fetch and inject SEO data
+      let seoData = await fetchSEOData(url)
+      let structuredData = null
+      
+      // Handle dynamic routes
+      if (!seoData) {
+        const pathParts = url.split('/')
+        
+        if (pathParts[1] === 'stay' && pathParts[2]) {
+          const hotelData = await fetchListingData('hotel', pathParts[2])
+          if (hotelData) {
+            seoData = generateListingSEO('hotel', hotelData, pathParts[2])
+            structuredData = generateStructuredData('hotel', hotelData, seoData)
+          }
+        } else if (pathParts[1] === 'eat' && pathParts[2]) {
+          const restaurantData = await fetchListingData('restaurant', pathParts[2])
+          if (restaurantData) {
+            seoData = generateListingSEO('restaurant', restaurantData, pathParts[2])
+            structuredData = generateStructuredData('restaurant', restaurantData, seoData)
+          }
+        } else if (pathParts[1] === 'blog' && pathParts[2]) {
+          const blogData = await fetchListingData('blog', pathParts[2])
+          if (blogData) {
+            seoData = generateListingSEO('blog', blogData, pathParts[2])
+            structuredData = generateStructuredData('blog', blogData, seoData)
+          }
+        }
+      }
+      
+      // Apply fallback SEO for pages without database data
+      if (!seoData) {
+        seoData = getFallbackSEO(url)
+      }
+      
+      // Inject SEO data
+      if (seoData) {
+        html = injectSEOData(html, seoData, structuredData)
+      }
+      
+      // Write the file
+      const filePath = `dist${url === '/' ? '/index' : url}.html`
+      const dirPath = path.dirname(toAbsolute(filePath))
+      
+      // Ensure directory exists
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true })
+      }
+      
+      fs.writeFileSync(toAbsolute(filePath), html)
+      console.log('✅ Pre-rendered:', filePath)
+      
+    } catch (error) {
+      console.error(`❌ Failed to prerender ${url}:`, error)
+      
+      // Write basic HTML without SEO as fallback
+      try {
+        const basicHtml = template.replace(`<!--app-html-->`, `<div id="root"></div>`)
+        const filePath = `dist${url === '/' ? '/index' : url}.html`
+        const dirPath = path.dirname(toAbsolute(filePath))
+        
+        if (!fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true })
+        }
+        
+        fs.writeFileSync(toAbsolute(filePath), basicHtml)
+        console.log('⚠️ Fallback rendered:', filePath)
+      } catch (fallbackError) {
+        console.error(`❌ Fallback failed for ${url}:`, fallbackError)
+      }
+    }
+  }
+
+  console.log('🎉 Prerendering completed successfully!')
+}
+
+// Run the prerendering
+main().catch(console.error)
