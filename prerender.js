@@ -15,12 +15,63 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJ
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+// Enhanced validation and debugging
+function validateBuildOutput() {
+  console.log('🔍 Validating build output...')
+  
+  const clientDistPath = toAbsolute('dist')
+  const serverDistPath = toAbsolute('dist/server')
+  const templatePath = toAbsolute('dist/index.html')
+  
+  console.log(`Checking client build at: ${clientDistPath}`)
+  console.log(`Checking server build at: ${serverDistPath}`)
+  console.log(`Checking template at: ${templatePath}`)
+  
+  if (!fs.existsSync(clientDistPath)) {
+    throw new Error('❌ Client build not found. Run `npm run build` first.')
+  }
+  
+  if (!fs.existsSync(templatePath)) {
+    throw new Error('❌ Template file not found in dist directory.')
+  }
+  
+  const template = fs.readFileSync(templatePath, 'utf-8')
+  if (!template.includes('<!--app-html-->')) {
+    console.warn('⚠️ Template does not contain <!--app-html--> placeholder. This may cause issues.')
+  }
+  
+  console.log('✅ Build output validation passed')
+  return { template, templatePath }
+}
+
 async function buildSSR() {
   try {
     console.log('🔨 Building SSR bundle...')
     process.env.BUILD_SSR = 'true'
-    await execAsync('npx vite build')
+    
+    // Clean previous SSR build
+    const serverDistPath = toAbsolute('dist/server')
+    if (fs.existsSync(serverDistPath)) {
+      fs.rmSync(serverDistPath, { recursive: true, force: true })
+      console.log('🧹 Cleaned previous SSR build')
+    }
+    
+    const { stdout, stderr } = await execAsync('npx vite build', { 
+      env: { ...process.env, BUILD_SSR: 'true' } 
+    })
+    
+    if (stderr && !stderr.includes('warnings')) {
+      console.warn('⚠️ SSR build warnings:', stderr)
+    }
+    
     console.log('✅ SSR bundle built successfully')
+    
+    // Validate SSR output
+    const serverEntryPath = toAbsolute('dist/server/entry-server.js')
+    if (!fs.existsSync(serverEntryPath)) {
+      throw new Error('❌ SSR entry file not found after build')
+    }
+    
     return true
   } catch (error) {
     console.warn('⚠️ SSR build failed, continuing with client-side rendering:', error.message)
@@ -30,20 +81,33 @@ async function buildSSR() {
 
 async function loadServerRenderer() {
   try {
-    // Try to load the SSR module
     const serverPath = toAbsolute('dist/server/entry-server.js')
     if (fs.existsSync(serverPath)) {
+      console.log('📦 Loading SSR renderer from:', serverPath)
+      
+      // Clear module cache to ensure fresh import
+      delete require.cache[serverPath]
+      
       const { render } = await import(serverPath)
+      
+      // Test the renderer with a simple route
+      const testHtml = render('/')
+      console.log('🧪 SSR renderer test result length:', testHtml.length)
+      
+      if (testHtml.length < 50) {
+        console.warn('⚠️ SSR renderer returned suspiciously short content')
+      }
+      
       return render
     }
   } catch (error) {
     console.warn('⚠️ Could not load SSR renderer:', error.message)
   }
   
-  // Fallback: return a function that renders a basic HTML structure
+  console.log('🔄 Using fallback renderer')
   return (url) => {
     console.log(`Using fallback renderer for ${url}`)
-    return '<div id="root">Loading...</div>'
+    return '<div id="root"><div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div><p class="text-gray-600">Loading Playa Cambutal Guide...</p></div></div></div>'
   }
 }
 
@@ -223,12 +287,17 @@ function generateStructuredData(type, data, seoData) {
 function injectSEOData(html, seoData, structuredData = null) {
   let modifiedHtml = html
   
-  // Update title
+  console.log(`📝 Injecting SEO data for: ${seoData?.page_title || 'Unknown Page'}`)
+  
+  // Update title with validation
   if (seoData.page_title) {
-    modifiedHtml = modifiedHtml.replace(
-      /<title>.*?<\/title>/,
-      `<title>${seoData.page_title}</title>`
-    )
+    const titleRegex = /<title>.*?<\/title>/
+    if (titleRegex.test(modifiedHtml)) {
+      modifiedHtml = modifiedHtml.replace(titleRegex, `<title>${seoData.page_title}</title>`)
+      console.log(`✅ Updated title: ${seoData.page_title}`)
+    } else {
+      console.warn('⚠️ No title tag found in HTML template')
+    }
   }
   
   // Add meta tags
@@ -279,12 +348,14 @@ function injectSEOData(html, seoData, structuredData = null) {
     metaTags.push(`<script type="application/ld+json">${JSON.stringify(structuredData)}</script>`)
   }
   
-  // Insert meta tags before closing head tag
+  // Insert meta tags before closing head tag with validation
   if (metaTags.length > 0) {
-    modifiedHtml = modifiedHtml.replace(
-      '</head>',
-      `  ${metaTags.join('\n  ')}\n</head>`
-    )
+    if (modifiedHtml.includes('</head>')) {
+      modifiedHtml = modifiedHtml.replace('</head>', `  ${metaTags.join('\n  ')}\n</head>`)
+      console.log(`✅ Added ${metaTags.length} meta tags`)
+    } else {
+      console.warn('⚠️ No closing head tag found for meta injection')
+    }
   }
   
   return modifiedHtml
@@ -300,95 +371,38 @@ function getFallbackSEO(url) {
       og_title: 'Playa Cambutal Guide - Panama\'s Hidden Paradise',
       og_description: 'Discover the best of Playa Cambutal, Panama. Your complete guide to this beautiful beach destination.',
       og_image: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      canonical_url: baseUrl,
-      h1: 'Welcome to Playa Cambutal',
-      h2: 'Panama\'s Hidden Beach Paradise'
+      canonical_url: baseUrl
+    },
+    '/eat': {
+      page_title: 'Best Restaurants in Playa Cambutal | Playa Cambutal Guide',
+      meta_description: 'Discover the best restaurants and dining options in Playa Cambutal, Panama. Local cuisine, international food, and beachfront dining experiences.',
+      canonical_url: `${baseUrl}/eat`
+    },
+    '/stay': {
+      page_title: 'Hotels & Accommodations in Playa Cambutal | Playa Cambutal Guide',
+      meta_description: 'Find the best hotels, hostels, and accommodations in Playa Cambutal, Panama. Beach resorts, budget options, and luxury stays.',
+      canonical_url: `${baseUrl}/stay`
     },
     '/surf': {
       page_title: 'Surf Cambutal - Best Surf Spots in Panama | Playa Cambutal Guide',
       meta_description: 'Discover the best surf spots in Playa Cambutal, Panama. Consistent waves, perfect breaks, and world-class surfing conditions year-round.',
-      meta_keywords: 'Cambutal surf, Panama surf spots, Playa Cambutal waves, surfing Panama, surf breaks, surf conditions',
-      og_title: 'Surf Cambutal - Best Surf Spots in Panama',
-      og_description: 'Experience world-class surfing at Playa Cambutal with consistent waves and perfect breaks.',
-      og_image: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      canonical_url: `${baseUrl}/surf`,
-      h1: 'Surf Playa Cambutal',
-      h2: 'World-Class Surf Breaks in Panama'
-    },
-    '/calendar': {
-      page_title: 'Cambutal Events Calendar - What\'s Happening | Playa Cambutal Guide',
-      meta_description: 'Stay updated with events, festivals, and activities in Playa Cambutal, Panama. Find local events, international festivals, and community gatherings.',
-      meta_keywords: 'Cambutal events, Panama festivals, Playa Cambutal calendar, local events, community activities',
-      og_title: 'Cambutal Events Calendar',
-      og_description: 'Discover upcoming events and festivals in beautiful Playa Cambutal, Panama.',
-      og_image: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      canonical_url: `${baseUrl}/calendar`,
-      h1: 'Events in Playa Cambutal',
-      h2: 'Upcoming Events & Festivals'
-    },
-    '/transportation': {
-      page_title: 'Getting to Cambutal - Transportation Guide | Playa Cambutal Guide',
-      meta_description: 'Complete transportation guide to Playa Cambutal, Panama. Flights, buses, car rentals, and travel tips for international visitors.',
-      meta_keywords: 'getting to Cambutal, Cambutal transport, Panama travel, flights to Panama, bus to Cambutal, car rental Panama',
-      og_title: 'Getting to Playa Cambutal - Transportation Guide',
-      og_description: 'Your complete guide to reaching Playa Cambutal, Panama from anywhere in the world.',
-      og_image: 'https://images.unsplash.com/photo-1596627116790-af6f46dddbae?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      canonical_url: `${baseUrl}/transportation`,
-      h1: 'Getting to Playa Cambutal',
-      h2: 'Transportation Options & Travel Tips'
-    },
-    '/real-estate': {
-      page_title: 'Cambutal Real Estate - Properties & Land for Sale | Playa Cambutal Guide',
-      meta_description: 'Explore real estate opportunities in Playa Cambutal, Panama. Beach properties, land for sale, investment opportunities for international buyers.',
-      meta_keywords: 'Cambutal property, Panama real estate, beach property Panama, land for sale Cambutal, investment property',
-      og_title: 'Cambutal Real Estate - Beach Properties',
-      og_description: 'Discover prime real estate opportunities in beautiful Playa Cambutal, Panama.',
-      og_image: 'https://images.unsplash.com/photo-1600210492493-0946911123ea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-      canonical_url: `${baseUrl}/real-estate`,
-      h1: 'Real Estate in Playa Cambutal',
-      h2: 'Beach Properties & Investment Opportunities'
+      canonical_url: `${baseUrl}/surf`
     }
   }
   
   return fallbacks[url] || {
-    page_title: `Page - Playa Cambutal Guide`,
+    page_title: `${url.replace('/', '').replace(/\//g, ' - ')} | Playa Cambutal Guide`,
     meta_description: 'Discover Playa Cambutal, Panama - your complete travel guide.',
-    canonical_url: `${baseUrl}${url}`,
-    h1: 'Playa Cambutal Guide',
-    h2: 'Discover Panama\'s Hidden Paradise'
+    canonical_url: `${baseUrl}${url}`
   }
 }
 
-async function main() {
-  // Build SSR first
-  const ssrBuilt = await buildSSR()
+async function fetchDynamicRoutes() {
+  const routes = []
   
-  // Load template and renderer
-  const templatePath = toAbsolute('dist/index.html')
-  if (!fs.existsSync(templatePath)) {
-    console.error('❌ Template file not found. Run client build first.')
-    process.exit(1)
-  }
-  
-  const template = fs.readFileSync(templatePath, 'utf-8')
-  const render = await loadServerRenderer()
-
-  // Get all routes to prerender
-  const routesToPrerender = [
-    '/',
-    '/eat',
-    '/stay', 
-    '/do',
-    '/calendar',
-    '/surf',
-    '/blog',
-    '/info',
-    '/transportation',
-    '/real-estate'
-  ]
-
-  // Add dynamic routes
   try {
+    console.log('🔍 Fetching dynamic routes from database...')
+    
     // Add hotel routes
     const { data: hotels } = await supabase
       .from('hotel_listings')
@@ -397,8 +411,9 @@ async function main() {
     
     if (hotels) {
       hotels.forEach(hotel => {
-        routesToPrerender.push(`/stay/${hotel.slug}`)
+        routes.push(`/stay/${hotel.slug}`)
       })
+      console.log(`📍 Found ${hotels.length} hotel routes`)
     }
     
     // Add restaurant routes
@@ -409,8 +424,9 @@ async function main() {
     
     if (restaurants) {
       restaurants.forEach(restaurant => {
-        routesToPrerender.push(`/eat/${restaurant.slug}`)
+        routes.push(`/eat/${restaurant.slug}`)
       })
+      console.log(`🍽️ Found ${restaurants.length} restaurant routes`)
     }
     
     // Add blog routes
@@ -421,97 +437,172 @@ async function main() {
     
     if (blogs) {
       blogs.forEach(blog => {
-        routesToPrerender.push(`/blog/${blog.slug}`)
+        routes.push(`/blog/${blog.slug}`)
       })
+      console.log(`📝 Found ${blogs.length} blog routes`)
     }
   } catch (error) {
-    console.warn('Error fetching dynamic routes:', error)
+    console.warn('⚠️ Error fetching dynamic routes:', error)
   }
+  
+  return routes
+}
 
-  console.log(`🚀 Prerendering ${routesToPrerender.length} routes...`)
-
-  // Prerender all routes
-  for (const url of routesToPrerender) {
+async function prerenderPage(url, template, render) {
+  try {
+    console.log(`📄 Prerendering: ${url}`)
+    
+    // Render the React app with error handling
+    let appHtml
     try {
-      console.log(`📄 Prerendering: ${url}`)
+      appHtml = render(url)
+      console.log(`✅ SSR render successful for ${url}, content length: ${appHtml.length}`)
+    } catch (renderError) {
+      console.warn(`⚠️ SSR render failed for ${url}:`, renderError.message)
+      appHtml = '<div id="root"><div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div><p class="text-gray-600">Loading Playa Cambutal Guide...</p></div></div></div>'
+    }
+    
+    // Replace the placeholder with rendered content
+    let html = template.replace('<!--app-html-->', appHtml)
+    
+    // Validate the replacement worked
+    if (html === template) {
+      console.warn(`⚠️ Template replacement may have failed for ${url}`)
+    }
+    
+    // Fetch and inject SEO data
+    let seoData = await fetchSEOData(url)
+    let structuredData = null
+    
+    // Handle dynamic routes
+    if (!seoData) {
+      const pathParts = url.split('/')
       
-      // Render the React app
-      const appHtml = render(url)
-      let html = template.replace(`<!--app-html-->`, appHtml)
-      
-      // Fetch and inject SEO data
-      let seoData = await fetchSEOData(url)
-      let structuredData = null
-      
-      // Handle dynamic routes
-      if (!seoData) {
-        const pathParts = url.split('/')
-        
-        if (pathParts[1] === 'stay' && pathParts[2]) {
-          const hotelData = await fetchListingData('hotel', pathParts[2])
-          if (hotelData) {
-            seoData = generateListingSEO('hotel', hotelData, pathParts[2])
-            structuredData = generateStructuredData('hotel', hotelData, seoData)
-          }
-        } else if (pathParts[1] === 'eat' && pathParts[2]) {
-          const restaurantData = await fetchListingData('restaurant', pathParts[2])
-          if (restaurantData) {
-            seoData = generateListingSEO('restaurant', restaurantData, pathParts[2])
-            structuredData = generateStructuredData('restaurant', restaurantData, seoData)
-          }
-        } else if (pathParts[1] === 'blog' && pathParts[2]) {
-          const blogData = await fetchListingData('blog', pathParts[2])
-          if (blogData) {
-            seoData = generateListingSEO('blog', blogData, pathParts[2])
-            structuredData = generateStructuredData('blog', blogData, seoData)
-          }
+      if (pathParts[1] === 'stay' && pathParts[2]) {
+        const hotelData = await fetchListingData('hotel', pathParts[2])
+        if (hotelData) {
+          seoData = generateListingSEO('hotel', hotelData, pathParts[2])
+          structuredData = generateStructuredData('hotel', hotelData, seoData)
+          console.log(`🏨 Generated hotel SEO for ${pathParts[2]}`)
         }
-      }
-      
-      // Apply fallback SEO for pages without database data
-      if (!seoData) {
-        seoData = getFallbackSEO(url)
-      }
-      
-      // Inject SEO data
-      if (seoData) {
-        html = injectSEOData(html, seoData, structuredData)
-      }
-      
-      // Write the file
-      const filePath = `dist${url === '/' ? '/index' : url}.html`
-      const dirPath = path.dirname(toAbsolute(filePath))
-      
-      // Ensure directory exists
-      if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true })
-      }
-      
-      fs.writeFileSync(toAbsolute(filePath), html)
-      console.log('✅ Pre-rendered:', filePath)
-      
-    } catch (error) {
-      console.error(`❌ Failed to prerender ${url}:`, error)
-      
-      // Write basic HTML without SEO as fallback
-      try {
-        const basicHtml = template.replace(`<!--app-html-->`, `<div id="root"></div>`)
-        const filePath = `dist${url === '/' ? '/index' : url}.html`
-        const dirPath = path.dirname(toAbsolute(filePath))
-        
-        if (!fs.existsSync(dirPath)) {
-          fs.mkdirSync(dirPath, { recursive: true })
+      } else if (pathParts[1] === 'eat' && pathParts[2]) {
+        const restaurantData = await fetchListingData('restaurant', pathParts[2])
+        if (restaurantData) {
+          seoData = generateListingSEO('restaurant', restaurantData, pathParts[2])
+          structuredData = generateStructuredData('restaurant', restaurantData, seoData)
+          console.log(`🍽️ Generated restaurant SEO for ${pathParts[2]}`)
         }
-        
-        fs.writeFileSync(toAbsolute(filePath), basicHtml)
-        console.log('⚠️ Fallback rendered:', filePath)
-      } catch (fallbackError) {
-        console.error(`❌ Fallback failed for ${url}:`, fallbackError)
+      } else if (pathParts[1] === 'blog' && pathParts[2]) {
+        const blogData = await fetchListingData('blog', pathParts[2])
+        if (blogData) {
+          seoData = generateListingSEO('blog', blogData, pathParts[2])
+          structuredData = generateStructuredData('blog', blogData, seoData)
+          console.log(`📝 Generated blog SEO for ${pathParts[2]}`)
+        }
       }
     }
+    
+    // Apply fallback SEO for pages without database data
+    if (!seoData) {
+      seoData = getFallbackSEO(url)
+      console.log(`🔄 Using fallback SEO for ${url}`)
+    }
+    
+    // Inject SEO data
+    if (seoData) {
+      html = injectSEOData(html, seoData, structuredData)
+    }
+    
+    // Write the file
+    const filePath = `dist${url === '/' ? '/index' : url}.html`
+    const dirPath = path.dirname(toAbsolute(filePath))
+    
+    // Ensure directory exists
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true })
+    }
+    
+    fs.writeFileSync(toAbsolute(filePath), html)
+    console.log(`✅ Pre-rendered: ${filePath}`)
+    
+    // Validate the written file
+    const writtenFile = fs.readFileSync(toAbsolute(filePath), 'utf-8')
+    if (writtenFile.length < 1000) {
+      console.warn(`⚠️ Generated file ${filePath} seems too small (${writtenFile.length} chars)`)
+    }
+    
+    return true
+    
+  } catch (error) {
+    console.error(`❌ Failed to prerender ${url}:`, error)
+    return false
   }
+}
 
-  console.log('🎉 Prerendering completed successfully!')
+async function main() {
+  console.log('🚀 Starting enhanced prerendering process...')
+  
+  try {
+    // Step 1: Validate build output
+    const { template } = validateBuildOutput()
+    
+    // Step 2: Build SSR
+    const ssrBuilt = await buildSSR()
+    
+    // Step 3: Load renderer
+    const render = await loadServerRenderer()
+    
+    // Step 4: Get all routes to prerender
+    const staticRoutes = [
+      '/',
+      '/eat',
+      '/stay', 
+      '/do',
+      '/calendar',
+      '/surf',
+      '/blog',
+      '/info',
+      '/transportation',
+      '/real-estate'
+    ]
+    
+    const dynamicRoutes = await fetchDynamicRoutes()
+    const allRoutes = [...staticRoutes, ...dynamicRoutes]
+    
+    console.log(`🚀 Prerendering ${allRoutes.length} routes (${staticRoutes.length} static + ${dynamicRoutes.length} dynamic)...`)
+    
+    // Step 5: Prerender all routes
+    let successCount = 0
+    let failureCount = 0
+    
+    for (const url of allRoutes) {
+      const success = await prerenderPage(url, template, render)
+      if (success) {
+        successCount++
+      } else {
+        failureCount++
+      }
+    }
+    
+    // Step 6: Generate summary
+    console.log('\n🎉 Prerendering completed!')
+    console.log(`✅ Successfully prerendered: ${successCount} pages`)
+    if (failureCount > 0) {
+      console.log(`❌ Failed to prerender: ${failureCount} pages`)
+    }
+    
+    // Step 7: Validation recommendations
+    console.log('\n📋 Next steps for validation:')
+    console.log('1. Test a few HTML files by opening them directly in your browser')
+    console.log('2. Start a local server: `npx serve dist`')
+    console.log('3. Test with curl: `curl http://localhost:3000/`')
+    console.log('4. Test with Screaming Frog pointed at your local server')
+    console.log('5. Deploy and test with Screaming Frog on the live site')
+    
+  } catch (error) {
+    console.error('❌ Prerendering failed:', error)
+    process.exit(1)
+  }
 }
 
 // Run the prerendering
