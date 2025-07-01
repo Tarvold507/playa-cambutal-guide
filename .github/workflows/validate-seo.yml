@@ -1,0 +1,68 @@
+
+name: Validate SEO and Performance
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-seo:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build and prerender
+      run: |
+        npm run build
+        BUILD_SSR=true npx vite build
+        node prerender.js
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        
+    - name: Validate prerendered files
+      run: node validate-prerender.js
+      
+    - name: Check for SEO essentials
+      run: |
+        echo "Checking for essential SEO files..."
+        
+        echo "Checking homepage..."
+        if grep -q "Playa Cambutal Guide" dist/index.html; then
+          echo "✅ Homepage title found"
+        else
+          echo "❌ Homepage title missing"
+          exit 1
+        fi
+        
+        echo "Checking sitemap..."
+        if [ -f "dist/sitemap.xml" ] || [ -f "public/sitemap.xml" ]; then
+          echo "✅ Sitemap found"
+        else
+          echo "❌ Sitemap missing"
+          exit 1
+        fi
+        
+        echo "Checking robots.txt..."
+        if [ -f "dist/robots.txt" ] || [ -f "public/robots.txt" ]; then
+          echo "✅ Robots.txt found"
+        else
+          echo "❌ Robots.txt missing"
+          exit 1
+        fi
+        
+        echo "All SEO checks passed!"
