@@ -42,7 +42,7 @@ const EatRestaurantGrid = ({ filteredRestaurants }: EatRestaurantGridProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredRestaurants.map((restaurant) => {
             const CategoryIcon = getCategoryIcon(restaurant.category);
-            const slug = generateSlug(restaurant.name);
+            const slug = restaurant.slug || generateSlug(restaurant.name);
             
             return (
               <Link 

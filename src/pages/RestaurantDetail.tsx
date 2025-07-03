@@ -86,10 +86,9 @@ const RestaurantDetail = () => {
 
         if (error) throw error;
 
-        // Find restaurant by slug in database results using the same generateSlug function
+        // Find restaurant by slug - check database slug first, then fallback to generated slug
         const dbRestaurant = data?.find(r => {
-          const generatedSlug = generateSlug(r.name);
-          return generatedSlug === restaurantSlug;
+          return r.slug === restaurantSlug || generateSlug(r.name) === restaurantSlug;
         });
 
         if (dbRestaurant) {

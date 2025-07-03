@@ -51,8 +51,8 @@ export const useAdminSEOBulkActions = () => {
     setIsGenerating(true);
     try {
       for (const restaurant of userRestaurants) {
-        // Generate proper slug for restaurant
-        const restaurantSlug = generateSlug(restaurant.name);
+        // Use database slug if available, fallback to generated slug
+        const restaurantSlug = restaurant.slug || generateSlug(restaurant.name);
         const pagePath = `/eat/${restaurantSlug}`;
         
         // Get the best available image for OG tags

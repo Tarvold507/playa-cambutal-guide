@@ -55,7 +55,7 @@ export const useHotelListings = () => {
 
       const transformedHotels: HotelListing[] = data?.map(hotel => ({
         ...hotel,
-        slug: generateSlug(hotel.name),
+        slug: hotel.slug || generateSlug(hotel.name), // Use database slug if available, fallback to generated
         gallery_images: Array.isArray(hotel.gallery_images) 
           ? hotel.gallery_images.filter((img): img is string => typeof img === 'string')
           : [],
@@ -125,13 +125,15 @@ export const useHotelDetails = (slug: string) => {
         if (error) throw error;
 
         if (data) {
-          // Find hotel by slug
-          const matchingHotel = data.find(hotel => generateSlug(hotel.name) === slug);
+          // Find hotel by slug - check database slug first, then fallback to generated slug
+          const matchingHotel = data.find(hotel => 
+            hotel.slug === slug || generateSlug(hotel.name) === slug
+          );
           
           if (matchingHotel) {
             setHotel({
               ...matchingHotel,
-              slug: generateSlug(matchingHotel.name),
+              slug: matchingHotel.slug || generateSlug(matchingHotel.name),
               gallery_images: Array.isArray(matchingHotel.gallery_images) 
                 ? matchingHotel.gallery_images.filter((img): img is string => typeof img === 'string')
                 : [],

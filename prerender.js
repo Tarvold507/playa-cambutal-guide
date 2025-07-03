@@ -404,40 +404,55 @@ async function fetchDynamicRoutes() {
     console.log('🔍 Fetching dynamic routes from database...')
     
     // Add hotel routes
-    const { data: hotels } = await supabase
+    const { data: hotels, error: hotelError } = await supabase
       .from('hotel_listings')
       .select('slug')
       .eq('approved', true)
+      .not('slug', 'is', null)
     
-    if (hotels) {
+    if (hotelError) {
+      console.warn('Hotel fetch error:', hotelError)
+    } else if (hotels) {
       hotels.forEach(hotel => {
-        routes.push(`/stay/${hotel.slug}`)
+        if (hotel.slug) {
+          routes.push(`/stay/${hotel.slug}`)
+        }
       })
       console.log(`📍 Found ${hotels.length} hotel routes`)
     }
     
     // Add restaurant routes
-    const { data: restaurants } = await supabase
+    const { data: restaurants, error: restaurantError } = await supabase
       .from('restaurant_listings')
       .select('slug')
       .eq('approved', true)
+      .not('slug', 'is', null)
     
-    if (restaurants) {
+    if (restaurantError) {
+      console.warn('Restaurant fetch error:', restaurantError)
+    } else if (restaurants) {
       restaurants.forEach(restaurant => {
-        routes.push(`/eat/${restaurant.slug}`)
+        if (restaurant.slug) {
+          routes.push(`/eat/${restaurant.slug}`)
+        }
       })
       console.log(`🍽️ Found ${restaurants.length} restaurant routes`)
     }
     
     // Add blog routes
-    const { data: blogs } = await supabase
+    const { data: blogs, error: blogError } = await supabase
       .from('blog_posts')
       .select('slug')
       .eq('approved', true)
+      .not('slug', 'is', null)
     
-    if (blogs) {
+    if (blogError) {
+      console.warn('Blog fetch error:', blogError)
+    } else if (blogs) {
       blogs.forEach(blog => {
-        routes.push(`/blog/${blog.slug}`)
+        if (blog.slug) {
+          routes.push(`/blog/${blog.slug}`)
+        }
       })
       console.log(`📝 Found ${blogs.length} blog routes`)
     }
@@ -445,6 +460,7 @@ async function fetchDynamicRoutes() {
     console.warn('⚠️ Error fetching dynamic routes:', error)
   }
   
+  console.log(`📋 Total dynamic routes found: ${routes.length}`)
   return routes
 }
 

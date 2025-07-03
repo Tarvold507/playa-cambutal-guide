@@ -47,7 +47,8 @@ const Eat = () => {
 
         const transformedRestaurants: RestaurantListing[] = data?.map(restaurant => ({
           ...restaurant,
-          hours: typeof restaurant.hours === 'object' && restaurant.hours !== null ? 
+          slug: restaurant.slug || '', // Use database slug
+          hours: typeof restaurant.hours === 'object' && restaurant.hours !== null ?
             restaurant.hours as Record<string, string> : {},
           gallery_images: Array.isArray(restaurant.gallery_images) ? 
             restaurant.gallery_images as string[] : [],

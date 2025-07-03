@@ -369,6 +369,7 @@ export type Database = {
           price_from: number | null
           rating: number | null
           review_count: number | null
+          slug: string
           updated_at: string
           user_id: string
         }
@@ -398,6 +399,7 @@ export type Database = {
           price_from?: number | null
           rating?: number | null
           review_count?: number | null
+          slug: string
           updated_at?: string
           user_id: string
         }
@@ -427,6 +429,7 @@ export type Database = {
           price_from?: number | null
           rating?: number | null
           review_count?: number | null
+          slug?: string
           updated_at?: string
           user_id?: string
         }
@@ -669,6 +672,7 @@ export type Database = {
           menu_images: Json | null
           name: string
           phone: string | null
+          slug: string
           updated_at: string | null
           user_id: string
           website: string | null
@@ -695,6 +699,7 @@ export type Database = {
           menu_images?: Json | null
           name: string
           phone?: string | null
+          slug: string
           updated_at?: string | null
           user_id: string
           website?: string | null
@@ -721,6 +726,7 @@ export type Database = {
           menu_images?: Json | null
           name?: string
           phone?: string | null
+          slug?: string
           updated_at?: string | null
           user_id?: string
           website?: string | null
@@ -843,6 +849,10 @@ export type Database = {
       generate_recurring_event_instances: {
         Args: { p_event_series_id: string; p_master_event_id: string }
         Returns: number
+      }
+      generate_slug: {
+        Args: { input_text: string }
+        Returns: string
       }
       has_role: {
         Args: {
