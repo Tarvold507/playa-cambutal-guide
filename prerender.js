@@ -530,7 +530,7 @@ async function prerenderPage(url, template, render) {
     }
     
     // Write the file
-    const filePath = `dist${url === '/' ? '/index' : url}.html`
+    const filePath = url === '/' ? 'dist/index.html' : `dist${url}/index.html`
     const dirPath = path.dirname(toAbsolute(filePath))
     
     // Ensure directory exists
