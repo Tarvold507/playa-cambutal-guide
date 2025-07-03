@@ -91,22 +91,25 @@ const validatePrerender = () => {
   ];
   
   staticRoutes.forEach(route => {
-    const fileName = route === '/' ? 'index.html' : `${route.slice(1)}.html`;
-    const filePath = path.join(distDir, fileName);
+    const filePath = route === '/' 
+      ? path.join(distDir, 'index.html') 
+      : path.join(distDir, route.slice(1), 'index.html');
     validateFile(filePath, route);
   });
   
   // Check for dynamic routes
-  const dynamicDirs = ['stay', 'eat'];
+  const dynamicDirs = ['stay', 'eat', 'blog'];
   dynamicDirs.forEach(dir => {
     const dirPath = path.join(distDir, dir);
     if (fs.existsSync(dirPath)) {
-      const files = fs.readdirSync(dirPath);
-      files.forEach(file => {
-        if (file.endsWith('.html')) {
-          const route = `/${dir}/${file.replace('.html', '')}`;
-          const filePath = path.join(dirPath, file);
-          validateFile(filePath, route);
+      const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+      entries.forEach(entry => {
+        if (entry.isDirectory()) {
+          const indexPath = path.join(dirPath, entry.name, 'index.html');
+          if (fs.existsSync(indexPath)) {
+            const route = `/${dir}/${entry.name}`;
+            validateFile(indexPath, route);
+          }
         }
       });
     }
