@@ -36,7 +36,8 @@ const staticRoutes = [
   '/my-listings',
   '/add-restaurant',
   '/add-hotel',
-  '/add-blog'
+  '/add-blog',
+  '/admin'
 ]
 
 // Fetch dynamic routes from Supabase
