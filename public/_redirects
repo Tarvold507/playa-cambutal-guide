@@ -1,17 +1,14 @@
+# Netlify redirects
+# Static files (sitemap.xml, robots.txt, favicon.ico) are served directly
+# by Netlify without needing explicit rules — no entries needed for them.
 
-# Netlify redirects file
-# Serve static files directly first, then fallback to React Router
-
-# Static files - serve directly
-/sitemap.xml /sitemap.xml 200
-/robots.txt /robots.txt 200
-/favicon.ico /favicon.ico 200
+# Image fallback: serve from lovable-uploads if not found at original path
 *.png /lovable-uploads/:splat 200
 *.jpg /lovable-uploads/:splat 200
 *.jpeg /lovable-uploads/:splat 200
 *.svg /lovable-uploads/:splat 200
 
-# API routes (if any)
+# API routes
 /api/* /api/:splat 200
 
 # React Router fallback for all other routes

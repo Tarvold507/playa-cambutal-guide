@@ -5,8 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { Toaster } from '@/components/ui/sonner';
-import { StaticFileRoutes } from './components/StaticFileRoutes';
-
 // Import existing pages directly (non-lazy for now)
 import Index from './pages/Index';
 import Do from './pages/Do';
@@ -57,10 +55,6 @@ function App() {
         <LanguageProvider>
           <Toaster />
           <Routes>
-            {/* Static file routes - must come first and be exact */}
-            <Route path="/sitemap.xml" element={<StaticFileRoutes />} />
-            <Route path="/robots.txt" element={<StaticFileRoutes />} />
-            
             {/* Regular application routes */}
             <Route path="/" element={<Index />} />
             <Route path="/eat" element={<Eat />} />
