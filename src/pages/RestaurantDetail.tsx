@@ -203,9 +203,9 @@ const RestaurantDetail = () => {
 
       {/* Hero Section */}
       <div className="relative h-96 overflow-hidden">
-        <img 
-          src={restaurant.imageSrc} 
-          alt={restaurant.name}
+        <img
+          src={restaurant.imageSrc}
+          alt={`${restaurant.name} — ${restaurant.category} restaurant in Playa Cambutal, Panama`}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/40 flex items-end">
@@ -323,7 +323,7 @@ const RestaurantDetail = () => {
                       <img
                         key={index}
                         src={image}
-                        alt={`${restaurant.name} ${index + 1}`}
+                        alt={`${restaurant.name} — interior and food photo ${index + 1}`}
                         className="w-full h-32 object-cover rounded-lg"
                       />
                     ))}
@@ -341,7 +341,7 @@ const RestaurantDetail = () => {
                   <div key={index} className="border rounded-lg overflow-hidden">
                     <img
                       src={image}
-                      alt={`Menu ${index + 1}`}
+                      alt={`${restaurant.name} menu — page ${index + 1}`}
                       className="w-full h-auto"
                     />
                   </div>

@@ -53,7 +53,7 @@ const EatRestaurantGrid = ({ filteredRestaurants }: EatRestaurantGridProps) => {
                 <div className="relative h-64 overflow-hidden">
                   <img 
                     src={restaurant.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'} 
-                    alt={restaurant.name} 
+                    alt={`${restaurant.name} — ${restaurant.category} restaurant in Playa Cambutal, Panama`}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="absolute top-4 left-4 bg-venao-dark/90 text-white p-2 rounded-full">

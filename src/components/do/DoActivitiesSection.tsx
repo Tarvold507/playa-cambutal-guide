@@ -54,7 +54,7 @@ const DoActivitiesSection = ({
                 <div className="relative h-64 overflow-hidden">
                   <img 
                     src={item.imageSrc} 
-                    alt={item.title} 
+                    alt={`${item.title}${item.category ? ` — ${item.category}` : ''} in Playa Cambutal, Panama`}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {item.category && (
