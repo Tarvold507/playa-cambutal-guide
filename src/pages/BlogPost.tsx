@@ -7,7 +7,7 @@ import Newsletter from '../components/Newsletter';
 import { useBlogPostSEO } from '../hooks/useBlogPostSEO';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, User, ArrowLeft } from 'lucide-react';
+import { Calendar, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const BlogPost = () => {
@@ -100,12 +100,6 @@ const BlogPost = () => {
                   <Calendar className="w-4 h-4" />
                   <span>{new Date(post.published_at || post.created_at).toLocaleDateString()}</span>
                 </div>
-                {post.profiles?.name && (
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    <span>{post.profiles.name}</span>
-                  </div>
-                )}
               </div>
 
               <div className="flex gap-2 flex-wrap">
