@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import Hero from '../components/Hero';
 import BlogSEO from '../components/blog/BlogSEO';
 import { useBlogPosts } from '../hooks/useBlogPosts';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -36,11 +35,13 @@ const Blog = () => {
       <BlogSEO />
       <Navbar />
       
-      <Hero 
-        title="Playa Cambutal Blog"
-        subtitle="Travel stories, local insights, and guides for international visitors to Panama's hidden paradise."
-        imageSrc="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80"
-      />
+      <div className="w-full h-[60vh] overflow-hidden">
+        <img
+          src="/blog-hero.png"
+          alt="Playa Cambutal Blog"
+          className="w-full h-full object-cover object-center"
+        />
+      </div>
       
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">

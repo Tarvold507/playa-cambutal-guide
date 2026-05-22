@@ -58,8 +58,7 @@ const Footer = () => {
                 { key: 'nav.eat', path: '/eat' },
                 { key: 'nav.stay', path: '/stay' },
                 { key: 'calendar', path: '/calendar' },
-                { key: 'nav.do', path: '/do' },
-                { key: 'nav.info', path: '/info' }
+                { key: 'nav.do', path: '/do' }
               ].map((item) => (
                 <li key={item.key}>
                   <Link 

@@ -103,7 +103,7 @@ const Transportation = () => {
                 <h4 className="font-semibold text-gray-800 mb-3">💰 Currency & Payments</h4>
                 <ul className="list-disc pl-6 text-gray-600">
                   <li>Panama uses the US Dollar - no currency exchange needed for Americans</li>
-                  <li>ATMs available in Las Tablas (30 minutes from Cambutal)</li>
+                  <li>ATMs available in Tonsoi (45 minutes from Cambutal)</li>
                   <li>Bring cash - many local businesses don't accept cards</li>
                   <li>Notify your bank of international travel</li>
                 </ul>

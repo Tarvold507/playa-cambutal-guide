@@ -20,7 +20,6 @@ const Navbar = () => {
     { name: 'Do', href: '/do' },
     { name: 'Calendar', href: '/calendar' },
     { name: t('nav.blog'), href: '/blog' },
-    { name: t('nav.info'), href: '/info' },
   ];
 
   const isActive = (href: string) => {
