@@ -45,7 +45,7 @@ export const useHotelSEO = (hotel: HotelListing | null) => {
           twitter_title: `${hotel.name} - Playa Cambutal`,
           twitter_description: hotel.description || `Experience comfort and convenience at ${hotel.name} in beautiful Playa Cambutal, Panama.`,
           twitter_image: hotel.image_url || hotel.gallery_images[0] || '',
-          canonical_url: `${window.location.origin}/stay/${hotel.slug}`,
+          canonical_url: `${window.location.origin}/stay/${hotel.slug}/`,
           schema_markup: generateHotelSchema(hotel)
         };
 
@@ -101,7 +101,7 @@ export const useHotelSEO = (hotel: HotelListing | null) => {
           meta_description: `${hotel.name} in Playa Cambutal, Panama. ${hotel.description || 'Book your stay today.'}`,
           og_title: `${hotel.name} - Playa Cambutal`,
           og_description: hotel.description || `Experience ${hotel.name} in Playa Cambutal.`,
-          canonical_url: `${window.location.origin}/stay/${hotel.slug}`,
+          canonical_url: `${window.location.origin}/stay/${hotel.slug}/`,
           robots: 'index, follow',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()

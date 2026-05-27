@@ -24,7 +24,7 @@ export const useBlogPostSEO = (blogPost: any) => {
           if (existingSEO.canonical_url && !existingSEO.canonical_url.includes('playacambutalguide.com')) {
             const updatedSEO = {
               ...existingSEO,
-              canonical_url: `https://playacambutalguide.com${pagePath}`
+              canonical_url: `https://playacambutalguide.com${pagePath}/`
             };
             
             try {
@@ -53,7 +53,7 @@ export const useBlogPostSEO = (blogPost: any) => {
           twitter_title: blogPost.title,
           twitter_description: blogPost.excerpt || blogPost.seo_description || `${blogPost.title} - Travel insights from Playa Cambutal.`,
           twitter_image: blogPost.featured_image_url || 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-          canonical_url: `https://playacambutalguide.com${pagePath}`,
+          canonical_url: `https://playacambutalguide.com${pagePath}/`,
           schema_markup: generateBlogSchema(blogPost)
         };
 
@@ -108,12 +108,12 @@ export const useBlogPostSEO = (blogPost: any) => {
           og_title: blogPost.title,
           og_description: blogPost.excerpt || `Read about ${blogPost.title} on Playa Cambutal Guide.`,
           og_image: blogPost.featured_image_url || 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-          canonical_url: `https://playacambutalguide.com${pagePath}`,
+          canonical_url: `https://playacambutalguide.com${pagePath}/`,
           robots: 'index, follow',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
-        
+
         updatePageHead(fallbackSEO);
       }
     };

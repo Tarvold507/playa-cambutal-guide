@@ -68,7 +68,7 @@ export const usePageSEO = () => {
       // Ensure canonical URL uses correct domain
       let canonicalUrl = seoData.canonical_url;
       if (canonicalUrl && !canonicalUrl.includes('playacambutalguide.com')) {
-        canonicalUrl = `https://playacambutalguide.com${path}`;
+        canonicalUrl = `https://playacambutalguide.com${path}/`;
         console.log('🔄 Correcting canonical URL to use playacambutalguide.com');
       }
 
@@ -184,7 +184,7 @@ export const usePageSEO = () => {
 
       // Update each entry
       for (const entry of seoEntries) {
-        const newCanonicalUrl = `https://playacambutalguide.com${entry.page_path}`;
+        const newCanonicalUrl = `https://playacambutalguide.com${entry.page_path}/`;
         
         const { error: updateError } = await supabase
           .from('page_seo')

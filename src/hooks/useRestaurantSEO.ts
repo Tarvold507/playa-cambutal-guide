@@ -34,7 +34,7 @@ export const useRestaurantSEO = (restaurant: any) => {
             console.log('🔄 [SEO DEBUG] Updating canonical URL from old domain');
             const updatedSEO = {
               ...existingSEO,
-              canonical_url: `https://playacambutalguide.com${pagePath}`
+              canonical_url: `https://playacambutalguide.com${pagePath}/`
             };
             
             try {
@@ -114,7 +114,7 @@ export const useRestaurantSEO = (restaurant: any) => {
           twitter_title: `${restaurant.name} - Playa Cambutal Restaurant`,
           twitter_description: detailedDescription,
           twitter_image: ogImage,
-          canonical_url: `https://playacambutalguide.com${pagePath}`,
+          canonical_url: `https://playacambutalguide.com${pagePath}/`,
           schema_markup: generateRestaurantSchema(restaurant)
         };
 
@@ -182,7 +182,7 @@ export const useRestaurantSEO = (restaurant: any) => {
           og_title: `${restaurant.name} - Playa Cambutal`,
           og_description: fallbackDescription,
           og_image: fallbackOGImage,
-          canonical_url: `https://playacambutalguide.com${pagePath}`,
+          canonical_url: `https://playacambutalguide.com${pagePath}/`,
           robots: 'index, follow',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
