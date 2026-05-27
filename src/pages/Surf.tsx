@@ -1,5 +1,6 @@
 
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Hero from '../components/Hero';
@@ -69,9 +70,40 @@ const Surf = () => {
               </p>
               
               <p className="text-gray-600">
-                Ready to experience world-class surfing in paradise? Browse our recommended surf lodges and 
+                Ready to experience world-class surfing in paradise? Browse our recommended surf lodges and
                 local surf guides to plan your perfect Cambutal surf adventure.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Plan Your Cambutal Surf Trip</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Link
+                to="/stay"
+                className="block rounded-lg border border-gray-200 bg-white p-5 hover:shadow-md transition-shadow"
+              >
+                <h3 className="font-semibold text-gray-800 mb-1">Where to Stay</h3>
+                <p className="text-sm text-gray-600">Surf lodges, beach hotels, and vacation rentals in Cambutal.</p>
+              </Link>
+              <Link
+                to="/eat"
+                className="block rounded-lg border border-gray-200 bg-white p-5 hover:shadow-md transition-shadow"
+              >
+                <h3 className="font-semibold text-gray-800 mb-1">Where to Eat</h3>
+                <p className="text-sm text-gray-600">Restaurants and local dining options near the surf breaks.</p>
+              </Link>
+              <Link
+                to="/do"
+                className="block rounded-lg border border-gray-200 bg-white p-5 hover:shadow-md transition-shadow"
+              >
+                <h3 className="font-semibold text-gray-800 mb-1">Things to Do</h3>
+                <p className="text-sm text-gray-600">Surf lessons, yoga, tours, and more adventure activities.</p>
+              </Link>
             </div>
           </div>
         </div>

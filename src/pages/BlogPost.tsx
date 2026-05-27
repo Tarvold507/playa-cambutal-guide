@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Newsletter from '../components/Newsletter';
@@ -122,6 +122,30 @@ const BlogPost = () => {
               className="prose prose-lg prose-gray max-w-none prose-headings:text-gray-800 prose-a:text-venao-dark prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-800 prose-img:rounded-lg"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
+
+            <div className="mt-12 pt-8 border-t border-gray-200">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">Explore Playa Cambutal</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: 'Where to Stay', path: '/stay' },
+                  { label: 'Where to Eat', path: '/eat' },
+                  { label: 'Surf Guide', path: '/surf' },
+                  { label: 'Things to Do', path: '/do' },
+                  { label: 'Getting Here', path: '/transportation' },
+                  { label: 'Visitor Info', path: '/info' },
+                  { label: 'Events', path: '/calendar' },
+                  { label: 'More Articles', path: '/blog' },
+                ].map(({ label, path }) => (
+                  <Link
+                    key={path}
+                    to={path}
+                    className="block rounded-lg bg-gray-50 border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors text-center"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </article>

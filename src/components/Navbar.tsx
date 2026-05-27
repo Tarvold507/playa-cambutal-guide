@@ -17,6 +17,7 @@ const Navbar = () => {
   const navigation = [
     { name: t('nav.eat'), href: '/eat' },
     { name: t('nav.stay'), href: '/stay' },
+    { name: 'Surf', href: '/surf' },
     { name: 'Do', href: '/do' },
     { name: 'Calendar', href: '/calendar' },
     { name: t('nav.blog'), href: '/blog' },

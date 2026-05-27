@@ -55,17 +55,21 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">{t('footer.explore')}</h3>
             <ul className="space-y-2">
               {[
-                { key: 'nav.eat', path: '/eat' },
-                { key: 'nav.stay', path: '/stay' },
-                { key: 'calendar', path: '/calendar' },
-                { key: 'nav.do', path: '/do' }
+                { label: 'Eat & Drink', path: '/eat' },
+                { label: 'Where to Stay', path: '/stay' },
+                { label: 'Surf', path: '/surf' },
+                { label: 'Things to Do', path: '/do' },
+                { label: 'Blog', path: '/blog' },
+                { label: 'Events Calendar', path: '/calendar' },
+                { label: 'Transportation', path: '/transportation' },
+                { label: 'Visitor Info', path: '/info' },
               ].map((item) => (
-                <li key={item.key}>
-                  <Link 
+                <li key={item.path}>
+                  <Link
                     to={item.path}
                     className="text-gray-400 hover:text-primary transition-colors"
                   >
-                    {t(item.key)}
+                    {item.label}
                   </Link>
                 </li>
               ))}
