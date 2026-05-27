@@ -13,7 +13,7 @@ const StayAddProperty = () => {
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Have Accommodations in Cambutal?</h2>
         <p className="text-gray-600 mb-6 max-w-2xl mx-auto">Join our directory and reach more guests! Add your place to our platform and showcase your property to travelers from around the world.</p>
         <Link 
-          to={user ? '/add-hotel' : '/auth'}
+          to={user ? '/add-hotel/' : '/auth/'}
           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-venao-dark text-primary-foreground hover:bg-venao-dark/90 h-11 rounded-md px-8"
         >
           <Plus className="w-5 h-5 mr-2" />

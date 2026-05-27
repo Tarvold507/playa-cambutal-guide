@@ -118,7 +118,7 @@ const HotelSubmissionForm = () => {
         description: "Your hotel listing has been submitted for review. You'll be notified once it's approved.",
       });
 
-      navigate('/profile');
+      navigate('/profile/');
     } catch (error) {
       console.error('Error submitting hotel:', error);
       toast({
@@ -137,7 +137,7 @@ const HotelSubmissionForm = () => {
         <CardContent className="pt-6 text-center">
           <h3 className="text-lg font-semibold mb-2">Sign in required</h3>
           <p className="text-gray-600 mb-4">Please sign in to submit a hotel listing.</p>
-          <Button onClick={() => navigate('/auth')}>Sign In</Button>
+          <Button onClick={() => navigate('/auth/')}>Sign In</Button>
         </CardContent>
       </Card>
     );

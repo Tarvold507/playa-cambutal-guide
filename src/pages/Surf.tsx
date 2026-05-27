@@ -84,21 +84,21 @@ const Surf = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Plan Your Cambutal Surf Trip</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Link
-                to="/stay"
+                to="/stay/"
                 className="block rounded-lg border border-gray-200 bg-white p-5 hover:shadow-md transition-shadow"
               >
                 <h3 className="font-semibold text-gray-800 mb-1">Where to Stay</h3>
                 <p className="text-sm text-gray-600">Surf lodges, beach hotels, and vacation rentals in Cambutal.</p>
               </Link>
               <Link
-                to="/eat"
+                to="/eat/"
                 className="block rounded-lg border border-gray-200 bg-white p-5 hover:shadow-md transition-shadow"
               >
                 <h3 className="font-semibold text-gray-800 mb-1">Where to Eat</h3>
                 <p className="text-sm text-gray-600">Restaurants and local dining options near the surf breaks.</p>
               </Link>
               <Link
-                to="/do"
+                to="/do/"
                 className="block rounded-lg border border-gray-200 bg-white p-5 hover:shadow-md transition-shadow"
               >
                 <h3 className="font-semibold text-gray-800 mb-1">Things to Do</h3>

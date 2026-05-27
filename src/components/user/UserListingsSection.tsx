@@ -87,25 +87,25 @@ const UserListingsSection = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">My Listings</h2>
         <div className="flex gap-2">
-          <Link to="/events">
+          <Link to="/events/">
             <Button variant="outline" size="sm">
               <Plus className="w-4 h-4 mr-1" />
               Event
             </Button>
           </Link>
-          <Link to="/add-restaurant">
+          <Link to="/add-restaurant/">
             <Button variant="outline" size="sm">
               <Plus className="w-4 h-4 mr-1" />
               Restaurant
             </Button>
           </Link>
-          <Link to="/adventure">
+          <Link to="/adventure/">
             <Button variant="outline" size="sm">
               <Plus className="w-4 h-4 mr-1" />
               Business
             </Button>
           </Link>
-          <Link to="/add-hotel">
+          <Link to="/add-hotel/">
             <Button variant="outline" size="sm">
               <Plus className="w-4 h-4 mr-1" />
               Hotel
@@ -145,7 +145,7 @@ const UserListingsSection = () => {
           {restaurantsLoading ? (
             <div className="text-center py-8">Loading your restaurants...</div>
           ) : userRestaurants.length === 0 ? (
-            <EmptyState type="restaurants" addLink="/add-restaurant" />
+            <EmptyState type="restaurants" addLink="/add-restaurant/" />
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {userRestaurants.map((restaurant) => (
@@ -170,7 +170,7 @@ const UserListingsSection = () => {
           {businessesLoading ? (
             <div className="text-center py-8">Loading your businesses...</div>
           ) : userBusinesses.length === 0 ? (
-            <EmptyState type="businesses" addLink="/adventure" />
+            <EmptyState type="businesses" addLink="/adventure/" />
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {userBusinesses.map((business) => (
@@ -195,7 +195,7 @@ const UserListingsSection = () => {
           {hotelsLoading ? (
             <div className="text-center py-8">Loading your hotels...</div>
           ) : userHotels.length === 0 ? (
-            <EmptyState type="hotels" addLink="/add-hotel" />
+            <EmptyState type="hotels" addLink="/add-hotel/" />
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {userHotels.map((hotel) => (

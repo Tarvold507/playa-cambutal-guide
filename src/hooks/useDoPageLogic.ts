@@ -21,7 +21,7 @@ export const useDoPageLogic = () => {
       title: business.business_name,
       description: business.description,
       imageSrc: business.image_url || 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-      link: `/do/${slug}`,
+      link: `/do/${slug}/`,
       category: business.business_type
     };
   });

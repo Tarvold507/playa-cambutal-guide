@@ -63,7 +63,7 @@ const AddBlog = () => {
       });
 
       if (result) {
-        navigate('/blog');
+        navigate('/blog/');
       }
     } catch (error) {
       console.error('Error creating blog post:', error);
@@ -285,7 +285,7 @@ const AddBlog = () => {
               <Button type="submit" disabled={loading}>
                 {loading ? 'Creating...' : 'Create Blog Post'}
               </Button>
-              <Button type="button" variant="outline" onClick={() => navigate('/blog')}>
+              <Button type="button" variant="outline" onClick={() => navigate('/blog/')}>
                 Cancel
               </Button>
             </div>

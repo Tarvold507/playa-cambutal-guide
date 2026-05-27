@@ -34,14 +34,14 @@ const BlogPost = () => {
         if (error) throw error;
         
         if (!data) {
-          navigate('/blog');
+          navigate('/blog/');
           return;
         }
 
         setPost(data);
       } catch (error) {
         console.error('Error fetching blog post:', error);
-        navigate('/blog');
+        navigate('/blog/');
       } finally {
         setLoading(false);
       }
@@ -75,7 +75,7 @@ const BlogPost = () => {
           <div className="max-w-4xl mx-auto">
             <Button 
               variant="ghost" 
-              onClick={() => navigate('/blog')}
+              onClick={() => navigate('/blog/')}
               className="mb-6"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -127,14 +127,14 @@ const BlogPost = () => {
               <h2 className="text-xl font-bold text-gray-800 mb-4">Explore Playa Cambutal</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { label: 'Where to Stay', path: '/stay' },
-                  { label: 'Where to Eat', path: '/eat' },
-                  { label: 'Surf Guide', path: '/surf' },
-                  { label: 'Things to Do', path: '/do' },
-                  { label: 'Getting Here', path: '/transportation' },
-                  { label: 'Visitor Info', path: '/info' },
-                  { label: 'Events', path: '/calendar' },
-                  { label: 'More Articles', path: '/blog' },
+                  { label: 'Where to Stay', path: '/stay/' },
+                  { label: 'Where to Eat', path: '/eat/' },
+                  { label: 'Surf Guide', path: '/surf/' },
+                  { label: 'Things to Do', path: '/do/' },
+                  { label: 'Getting Here', path: '/transportation/' },
+                  { label: 'Visitor Info', path: '/info/' },
+                  { label: 'Events', path: '/calendar/' },
+                  { label: 'More Articles', path: '/blog/' },
                 ].map(({ label, path }) => (
                   <Link
                     key={path}

@@ -57,7 +57,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth');
+      navigate('/auth/');
       return;
     }
     checkAdminStatus();

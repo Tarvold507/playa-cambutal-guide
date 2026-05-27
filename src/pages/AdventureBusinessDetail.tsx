@@ -112,7 +112,7 @@ const AdventureBusinessDetail = () => {
   }
 
   if (error || !business) {
-    return <Navigate to="/do" replace />;
+    return <Navigate to="/do/" replace />;
   }
 
   const handleWhatsAppClick = () => {
@@ -129,7 +129,7 @@ const AdventureBusinessDetail = () => {
         {/* Header */}
         <div className="mb-8">
           <nav className="text-sm text-gray-600 mb-4">
-            <a href="/do" className="hover:text-venao transition-colors">Things to Do</a>
+            <a href="/do/" className="hover:text-venao transition-colors">Things to Do</a>
             <span className="mx-2">›</span>
             <span>{business.business_name}</span>
           </nav>

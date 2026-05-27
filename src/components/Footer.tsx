@@ -55,14 +55,14 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">{t('footer.explore')}</h3>
             <ul className="space-y-2">
               {[
-                { label: 'Eat & Drink', path: '/eat' },
-                { label: 'Where to Stay', path: '/stay' },
-                { label: 'Surf', path: '/surf' },
-                { label: 'Things to Do', path: '/do' },
-                { label: 'Blog', path: '/blog' },
-                { label: 'Events Calendar', path: '/calendar' },
-                { label: 'Transportation', path: '/transportation' },
-                { label: 'Visitor Info', path: '/info' },
+                { label: 'Eat & Drink', path: '/eat/' },
+                { label: 'Where to Stay', path: '/stay/' },
+                { label: 'Surf', path: '/surf/' },
+                { label: 'Things to Do', path: '/do/' },
+                { label: 'Blog', path: '/blog/' },
+                { label: 'Events Calendar', path: '/calendar/' },
+                { label: 'Transportation', path: '/transportation/' },
+                { label: 'Visitor Info', path: '/info/' },
               ].map((item) => (
                 <li key={item.path}>
                   <Link
@@ -90,9 +90,9 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8 text-sm text-gray-400 text-center">
           <p>&copy; {currentYear} {t('footer.copyright')}</p>
           <div className="mt-2 flex justify-center space-x-6">
-            <Link to="/privacy" className="hover:text-primary transition-colors">{t('footer.privacy')}</Link>
-            <Link to="/terms" className="hover:text-primary transition-colors">{t('footer.terms')}</Link>
-            <Link to="/disclosure" className="hover:text-primary transition-colors">Affiliate Disclosure</Link>
+            <Link to="/privacy/" className="hover:text-primary transition-colors">{t('footer.privacy')}</Link>
+            <Link to="/terms/" className="hover:text-primary transition-colors">{t('footer.terms')}</Link>
+            <Link to="/disclosure/" className="hover:text-primary transition-colors">Affiliate Disclosure</Link>
           </div>
         </div>
       </div>

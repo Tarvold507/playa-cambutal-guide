@@ -65,7 +65,7 @@ const NavbarMobile: React.FC<NavbarMobileProps> = ({
             {user ? (
               <>
                 <Link
-                  to="/profile"
+                  to="/profile/"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                   onClick={() => setIsOpen(false)}
                 >
@@ -74,14 +74,14 @@ const NavbarMobile: React.FC<NavbarMobileProps> = ({
                 {isAdmin && (
                   <>
                     <Link
-                      to="/add-blog"
+                      to="/add-blog/"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                       onClick={() => setIsOpen(false)}
                     >
                       {t('nav.writeBlog')}
                     </Link>
                     <Link
-                      to="/admin"
+                      to="/admin/"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                       onClick={() => setIsOpen(false)}
                     >
@@ -101,7 +101,7 @@ const NavbarMobile: React.FC<NavbarMobileProps> = ({
               </>
             ) : (
               <Link
-                to="/auth"
+                to="/auth/"
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                 onClick={() => setIsOpen(false)}
               >

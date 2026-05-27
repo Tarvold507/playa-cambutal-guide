@@ -42,7 +42,7 @@ const HotelDetail = () => {
         <Navbar />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Hotel not found</h1>
-          <Button onClick={() => navigate('/stay')} variant="outline">
+          <Button onClick={() => navigate('/stay/')} variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Stay
           </Button>
@@ -64,7 +64,7 @@ const HotelDetail = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <Button 
-          onClick={() => navigate('/stay')} 
+          onClick={() => navigate('/stay/')} 
           variant="outline" 
           className="mb-6"
         >

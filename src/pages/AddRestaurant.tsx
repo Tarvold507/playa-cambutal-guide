@@ -20,7 +20,7 @@ const AddRestaurant = () => {
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Authentication Required</h1>
           <p className="text-gray-600 mb-6">You need to be logged in to add a restaurant listing.</p>
           <Link 
-            to="/auth"
+            to="/auth/"
             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
           >
             Sign In
@@ -32,7 +32,7 @@ const AddRestaurant = () => {
   }
 
   const handleSuccess = () => {
-    navigate('/eat');
+    navigate('/eat/');
   };
 
   return (
@@ -43,7 +43,7 @@ const AddRestaurant = () => {
         <div className="max-w-2xl mx-auto">
           <div className="mb-6">
             <Link 
-              to="/eat"
+              to="/eat/"
               className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 mb-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />

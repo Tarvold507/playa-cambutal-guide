@@ -12,7 +12,7 @@ const MyListings = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth');
+      navigate('/auth/');
     }
   }, [user, navigate]);
 

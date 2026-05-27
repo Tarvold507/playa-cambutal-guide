@@ -168,7 +168,7 @@ const EventCreationForm: React.FC<EventCreationFormProps> = ({ onSuccess }) => {
         <p className="text-muted-foreground mb-4">
           Please log in to create an event.
         </p>
-        <Button onClick={() => window.location.href = '/auth'}>
+        <Button onClick={() => window.location.href = '/auth/'}>
           Log In
         </Button>
       </div>

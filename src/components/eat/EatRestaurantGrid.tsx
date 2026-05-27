@@ -47,7 +47,7 @@ const EatRestaurantGrid = ({ filteredRestaurants }: EatRestaurantGridProps) => {
             return (
               <Link 
                 key={restaurant.id} 
-                to={`/eat/${slug}`}
+                to={`/eat/${slug}/`}
                 className="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="relative h-64 overflow-hidden">

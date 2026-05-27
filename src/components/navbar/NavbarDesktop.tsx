@@ -54,7 +54,7 @@ const NavbarDesktop: React.FC<NavbarDesktopProps> = ({
           <>
             {isAdmin && (
               <Link 
-                to="/admin"
+                to="/admin/"
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3"
               >
                 {t('nav.admin')}
@@ -69,14 +69,14 @@ const NavbarDesktop: React.FC<NavbarDesktopProps> = ({
               {/* Dropdown menu */}
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <Link
-                  to="/profile"
+                  to="/profile/"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   {t('nav.profile')}
                 </Link>
                 {isAdmin && (
                   <Link
-                    to="/add-blog"
+                    to="/add-blog/"
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -94,7 +94,7 @@ const NavbarDesktop: React.FC<NavbarDesktopProps> = ({
           </>
         ) : (
           <Link 
-            to="/auth"
+            to="/auth/"
             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
           >
             {t('nav.signIn')}

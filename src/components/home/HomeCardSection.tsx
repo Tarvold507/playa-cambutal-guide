@@ -11,7 +11,7 @@ const HomeCardSection = () => {
       title: t('home.cards.hotels.title'),
       description: t('home.cards.hotels.description'),
       imageSrc: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-      link: '/stay',
+      link: '/stay/',
       category: 'Stay'
     },
     {
@@ -19,7 +19,7 @@ const HomeCardSection = () => {
       title: t('home.cards.restaurants.title'),
       description: t('home.cards.restaurants.description'),
       imageSrc: 'https://images.unsplash.com/photo-1515669097368-22e68427d265?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-      link: '/eat',
+      link: '/eat/',
       category: 'Eat'
     },
     {
@@ -27,7 +27,7 @@ const HomeCardSection = () => {
       title: t('home.cards.surf.title'),
       description: t('home.cards.surf.description'),
       imageSrc: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-      link: '/do',
+      link: '/do/',
       category: 'Surf'
     },
     {
@@ -35,7 +35,7 @@ const HomeCardSection = () => {
       title: t('home.cards.yoga.title'),
       description: t('home.cards.yoga.description'),
       imageSrc: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-      link: '/do',
+      link: '/do/',
       category: 'Do'
     },
     {
@@ -43,7 +43,7 @@ const HomeCardSection = () => {
       title: t('home.cards.wildlife.title'),
       description: t('home.cards.wildlife.description'),
       imageSrc: 'https://images.unsplash.com/photo-1542736705-53f0131d1e98?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
-      link: '/do',
+      link: '/do/',
       category: 'Do'
     },
   ];

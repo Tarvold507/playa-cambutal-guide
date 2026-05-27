@@ -86,7 +86,7 @@ const Blog = () => {
                           ))}
                         </div>
                         <Link 
-                          to={`/blog/${post.slug}`}
+                          to={`/blog/${post.slug}/`}
                           className="text-blue-600 hover:text-blue-800 font-medium"
                         >
                           {t('blog.readMore')} →
